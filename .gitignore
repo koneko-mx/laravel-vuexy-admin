@@ -1,0 +1,10 @@
+/node_modules
+/vendor
+/.vscode
+/.nova
+/.fleet
+/.phpactor.json
+/.phpunit.cache
+/.phpunit.result.cache
+/.zed
+/.idea

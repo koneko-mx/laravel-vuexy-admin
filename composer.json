@@ -1,0 +1,41 @@
+{
+    "name": "koneko/laravel-vuexy-admin",
+    "description": "Laravel Vuexy Admin, un modulo de administracion optimizado para México.",
+    "keywords": ["laravel", "koneko", "framework", "vuexy", "admin", "mexico"],
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "intervention/image-laravel": "^1.4",
+        "laravel/framework": "^11.31",
+        "laravel/fortify": "^1.25",
+        "laravel/sanctum": "^4.0",
+        "livewire/livewire": "^3.5",
+        "owen-it/laravel-auditing": "^13.6",
+        "spatie/laravel-permission": "^6.10"
+    },
+    "autoload": {
+        "psr-4": {
+            "Koneko\\VuexyAdmin\\": ""
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Koneko\\VuexyAdmin\\Providers\\VuexyAdminServiceProvider"
+            ]
+        }
+    },
+    "authors": [
+        {
+            "name": "Arturo Corro Pacheco",
+            "email": "arturo@koneko.mx"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/koneko-mx/laravel-vuexy-admin",
+        "issues": "https://github.com/koneko-mx/laravel-vuexy-admin/issues"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

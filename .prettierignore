@@ -1,0 +1,16 @@
+# Dependencias de Composer y Node.js
+/vendor/
+/node_modules/
+
+# Caché y logs
+/storage/
+*.log
+*.cache
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Configuración de editores
+.idea/
+.vscode/

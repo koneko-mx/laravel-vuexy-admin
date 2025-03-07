@@ -1,0 +1,24 @@
+# Normaliza los saltos de línea en diferentes SO
+* text=auto eol=lf
+
+# Reglas para archivos específicos
+*.blade.php diff=html
+*.css diff=css
+*.html diff=html
+*.md diff=markdown
+*.php diff=php
+
+# Evitar que estos archivos se exporten con Composer create-project
+/.github export-ignore
+/.gitignore export-ignore
+/.git export-ignore
+.gitattributes export-ignore
+.editorconfig export-ignore
+.prettierrc.json export-ignore
+.prettierignore export-ignore
+.eslintrc.json export-ignore
+CHANGELOG.md export-ignore
+CONTRIBUTING.md export-ignore
+README.md export-ignore
+composer.lock export-ignore
+package-lock.json export-ignore

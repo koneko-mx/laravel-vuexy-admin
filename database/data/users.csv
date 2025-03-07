@@ -1,0 +1,14 @@
+name,email,role,password
+Administrador Web,webadmin@koneko.test,Administrador Web,LAdmin123
+Productos y servicios,productos@koneko.test,Productos y servicios,LAdmin123
+Recursos humanos,rrhh@koneko.test,Recursos humanos,LAdmin123
+Nómina,nomina@koneko.test,Nómina,LAdmin123
+Activos fijos,activos@koneko.test,Activos fijos,LAdmin123
+Compras y gastos,compras@koneko.test,Compras y gastos,LAdmin123
+CRM,crm@koneko.test,CRM,LAdmin123
+Vendedor,vendedor@koneko.test,Vendedor,LAdmin123
+Gerente,gerente@koneko.test,Gerente,LAdmin123
+Facturación,facturacion@koneko.test,Facturación,LAdmin123
+Facturación avanzado,facturacion_avanzado@koneko.test,Facturación avanzado,LAdmin123
+Finanzas,finanzas@koneko.test,Finanzas,LAdmin123
+Almacenista,almacenista@koneko.test,Almacenista,LAdmin123

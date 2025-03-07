@@ -1,0 +1,415 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+.menu-horizontal-wrapper > .menu-inner > .menu-item:last-child {
+    padding-right: 70px;
+}
+
+.bg-menu-theme.menu-horizontal .menu-sub .menu-sub > .menu-item .menu-link .menu-icon {
+    display: none;
+}
+
+.user-nav .user-name {
+    letter-spacing: 0.03rem;
+    font-weight: 600;
+}
+.user-nav .user-email {
+    letter-spacing: 0.05rem;
+    font-size: smaller;
+    font-weight: 100;
+}
+
+.app-brand-logo.demo {
+    height: inherit;
+}
+
+.app-brand-text {
+    flex-shrink: 1 !important;
+}
+
+.nav-tabs .nav-link,
+.nav-pills .nav-link {
+    text-transform: inherit !important;
+}
+
+.image-wrapper-16x16 {
+    width: 28px;
+    aspect-ratio: 1/1; /* Proporción 1:1 para que sea cuadrado */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #eee;
+    padding: 5px;
+}
+.image-wrapper-16x16 img {
+    width: 16px;
+    height: 16px;
+    display: block;
+}
+
+.image-wrapper-76x76 {
+    width: 92px;
+    aspect-ratio: 1/1; /* Proporción 1:1 para que sea cuadrado */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #eee;
+    padding: 5px;
+}
+.image-wrapper-76x76 img {
+    width: 76px;
+    height: 76px;
+    display: block;
+}
+
+.image-wrapper-120x120 {
+    width: 140px;
+    aspect-ratio: 1/1; /* Proporción 1:1 para que sea cuadrado */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #eee;
+}
+.image-wrapper-120x120 img {
+    width: 120px;
+    height: 120px;
+    display: block;
+}
+
+.image-wrapper-152x152 {
+    width: 172px;
+    aspect-ratio: 1/1; /* Proporción 1:1 para que sea cuadrado */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #eee;
+}
+.image-wrapper-152x152 img {
+    width: 152px;
+    height: 152px;
+    display: block;
+}
+
+.image-wrapper-180x180 {
+    width: 202px;
+    aspect-ratio: 1/1; /* Proporción 1:1 para que sea cuadrado */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #eee;
+}
+.image-wrapper-180x180 img {
+    width: 180px;
+    height: 180px;
+    display: block;
+}
+
+.image-wrapper-192x192 {
+    width: 214px;
+    aspect-ratio: 1/1; /* Proporción 1:1 para que sea cuadrado */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #eee;
+}
+.image-wrapper-192x192 img {
+    width: 192px;
+    height: 192px;
+    display: block;
+}
+
+.image-wrapper-380x380 {
+    width: 396px;
+    aspect-ratio: 1/1; /* Proporción 1:1 para que sea cuadrado */
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    border: 1px solid #eee;
+}
+.image-wrapper-380x380 img {
+    width: 380px;
+    height: 380px;
+    display: block;
+}
+
+.image-wrapper-520x520 {
+    width: 536px;
+    aspect-ratio: 1/1; /* Proporción 1:1 para que sea cuadrado */
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    border: 1px solid #eee;
+}
+.image-wrapper-520x520 img {
+    width: 520px;
+    height: 520px;
+    display: block;
+}
+
+/*
+.dark-style .layout-navbar .navbar-dropdown.dropdown-shortcuts .dropdown-shortcuts-item.active {
+    background-color: #3a3d53;
+}
+.light-style .layout-navbar .navbar-dropdown.dropdown-shortcuts .dropdown-shortcuts-item.active {
+    background-color: #f3f2f3;
+}
+
+.max-w-full {
+    max-width: 100%;
+}
+
+
+.collapse {
+    visibility: initial;
+}
+
+#admin-crm--view-520x520 .nav-pills .nav-link {
+    text-transform: none;
+}
+#admin-crm--view-520x520 .nav-tabs .nav-link {
+    text-transform: none;
+    padding-top: 13px;
+    padding-bottom: 13px;
+}
+
+html.light-style .fixed-table-container {
+    background-color: white;
+}
+html.dark-style .fixed-table-container {
+    background-color: #202332;
+}
+
+.form-floating > label {
+    border: none !important;
+}
+
+.form-control:read-only:not(.flatpickr-input) {
+    color: #acaab1;
+    background-color: #f3f2f3;
+    border-color: #cdccd0;
+    opacity: 1;
+}
+
+.dark-style .fixed-columns,
+.dark-style .fixed-columns-right {
+    background-color: #25293c !important;
+}
+
+.bootstrap-table .acction-buttons .footer-actions {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.mini-dropzone .dz-message:before {
+    top: 2rem !important;
+}
+.mini-dropzone .dz-message {
+    margin: 6rem 0 2rem !important;
+}
+.dz-preview {
+    margin-bottom: 38px;
+}
+
+.image-wrapper-16x16 {
+    max-width: 36px;
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #eee;
+}
+.image-wrapper-16x16 img {
+    max-width: 16px;
+    max-height: 16px;
+    display: block;
+}
+
+.image-wrapper-76x76 {
+    max-width: 96px;
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #eee;
+}
+.image-wrapper-76x76 img {
+    max-width: 76px;
+    max-height: 76px;
+    display: block;
+}
+
+.image-wrapper-120x120 {
+    max-width: 140px;
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #eee;
+}
+.image-wrapper-120x120 img {
+    max-width: 120px;
+    max-height: 120px;
+    display: block;
+}
+
+.image-wrapper-152x152 {
+    max-width: 172px;
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #eee;
+}
+.image-wrapper-152x152 img {
+    max-width: 152px;
+    max-height: 152px;
+    display: block;
+}
+
+.image-wrapper-180x180 {
+    max-width: 200px;
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #eee;
+}
+.image-wrapper-180x180 img {
+    max-width: 180px;
+    max-height: 180px;
+    display: block;
+}
+
+.image-wrapper-192x192 {
+    max-width: 202px;
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #eee;
+}
+.image-wrapper-192x192 img {
+    max-width: 192px;
+    max-height: 192px;
+    display: block;
+}
+
+.image-wrapper-380x380 {
+    max-width: 400px;
+    aspect-ratio: 1/1;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    border: 1px solid #eee;
+}
+.image-wrapper-380x380 img {
+    max-width: 380px;
+    max-height: 380px;
+    display: block;
+}
+
+.image-wrapper-520x520 {
+    max-width: 540px;
+    aspect-ratio: 1/1;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    border: 1px solid #eee;
+}
+.image-wrapper-520x520 img {
+    max-width: 520px;
+    max-height: 520px;
+    display: block;
+}
+
+.custom-option-item-check {
+    position: absolute;
+    clip: rect(0, 0, 0, 0);
+}
+
+.custom-options-checkable {
+    --bs-gutter-x: 1rem !important;
+}
+.custom-options-checkable .custom-option-item {
+    width: 100%;
+    cursor: pointer;
+    border-radius: 0.42rem;
+    color: #82868b;
+    background-color: rgba(130, 134, 139, 0.06);
+    border: 1px solid #ebe9f1;
+}
+.custom-option-item-check:checked + .custom-option-item {
+    color: #175cc3;
+    background-color: rgba(23, 92, 195, 0.12);
+    border-color: #175cc3;
+}
+.custom-options-checkable .custom-option-item span {
+    margin: 0 auto;
+}
+*/
+
+
+
+.if_local_address_show {
+    display: none;
+}
+
+
+.form-floating > textarea.form-control,
+.form-floating > textarea.form-control-plaintext,
+.form-floating > textarea.form-select{
+    height: auto !important;
+}
+
+
+.dropzone .dz-message {
+    padding: 0 10px;
+}
+
+
+.dropzone-md .dz-message:before {
+    top: 1.5rem;
+}
+.dropzone-md .dz-message {
+    margin: 5rem 0 1.5rem;
+}
+
+
+.dropzone-sm .dz-message:before {
+    top: 1.5rem;
+}
+.dropzone-sm .dz-message {
+    margin: 5rem 0 1.5rem;
+}
+
+.dropzone-sm .dz-message:before,
+.dropzone-xs .dz-message:before {
+    display: none;
+}
+
+.dropzone-sm .dz-message {
+    margin: 1rem 0 1rem;
+    font-size: 1rem;
+}
+.dropzone-sm .dz-message .note {
+    font-size: 1rem;
+}
+
+.dropzone-xs .dz-message {
+    margin: .5rem 0 .5rem;
+    font-size: .8rem;
+}
+.dropzone-xs .dz-message .note {
+    font-size: .65rem;
+    margin-top: 0.25rem;
+}
+
+
+
+
+
+
