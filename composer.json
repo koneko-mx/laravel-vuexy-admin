@@ -36,6 +36,5 @@
         "source": "https://github.com/koneko-mx/laravel-vuexy-admin",
         "issues": "https://github.com/koneko-mx/laravel-vuexy-admin/issues"
     },
-    "minimum-stability": "stable",
     "prefer-stable": true
 }
