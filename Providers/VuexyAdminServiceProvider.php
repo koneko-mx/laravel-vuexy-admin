@@ -67,6 +67,10 @@ class VuexyAdminServiceProvider extends ServiceProvider
         Blade::componentNamespace('VuexyAdmin\\View\\Components', 'vuexy-admin');
 
 
+        // Register the migrations
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
+
         // Publicar los archivos necesarios
         $this->publishes([
             __DIR__.'/../config/fortify.php' => config_path('fortify.php'),
@@ -82,10 +86,6 @@ class VuexyAdminServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../resources/img' => public_path('vendor/vuexy-admin/img'),
         ], 'vuexy-admin-images');
-
-
-        // Register the migrations
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
 
         // Registrar eventos
