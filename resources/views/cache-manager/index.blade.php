@@ -10,28 +10,28 @@
     <div class="row">
         <div class="col-md-4">
             <div class="mb-6">
-                @livewire('cache-stats')
+                @livewire('vuexy-admin::cache-stats')
             </div>
             <div class="mb-6">
-                @livewire('session-stats')
+                @livewire('vuexy-admin::session-stats')
             </div>
         </div>
         <div class="col-md-8">
             <div class="mb-6">
-                @livewire('cache-functions')
+                @livewire('vuexy-admin::cache-functions')
             </div>
             <div class="row">
                 @if($configCache['redisInUse'])
                     <div class="col-md-6">
                         <div class="mb-6">
-                            @livewire('redis-stats')
+                            @livewire('vuexy-admin::redis-stats')
                         </div>
                     </div>
                 @endif
                 @if($configCache['memcachedInUse'])
                     <div class="col-md-6">
                         <div class="mb-6">
-                            @livewire('memcached-stats')
+                            @livewire('vuexy-admin::memcached-stats')
                         </div>
                     </div>
                 @endif

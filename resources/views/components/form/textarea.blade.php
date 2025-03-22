@@ -88,7 +88,7 @@
 @endphp
 
 {{-- ============================ TEXTAREA ============================ --}}
-<div class="{{ $mb0 ? '' : 'mb-4' }} {{ $parentClass }} {{ $alignClass }} {{ $floatingClass }}">
+<div class="{{ $mb0 ? '' : 'mb-4' }} {{ $parentClass }} {{ $alignClass }} {{ $floatingClass }} fv-row">
     @if (!$floating && $label)
         <label for="{{ $inputId }}" class="{{ $labelClass }}">{{ $label }}</label>
     @endif

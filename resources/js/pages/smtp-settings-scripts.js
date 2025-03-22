@@ -7,7 +7,7 @@ window.senderResponseForm = new SenderResponseForm();
 
 Livewire.hook('morphed', ({ component }) => {
     switch (component.name) {
-        case 'mail-smtp-settings':
+        case 'sendmail-settings':
             if (window.smtpSettingsForm) {
                 window.smtpSettingsForm.reload(); // Recarga el formulario sin destruir la instancia
             }

@@ -47,7 +47,7 @@ class CustomResetPasswordNotification extends Notification
                 'email' => $notifiable->getEmailForPasswordReset()
             ], false));
 
-            $appTitle      = Setting::global()->where('key', 'website_title')->first()->value ?? Config::get('koneko.appTitle');
+            $appTitle      = Setting::withVirtualValue()->where('key', 'website_title')->first()->value ?? Config::get('koneko.appTitle');
             $imageBase64   = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path('/assets/img/logo/koneko-04.png')));
             $expireMinutes = Config::get('auth.passwords.' . Config::get('auth.defaults.passwords') . '.expire', 60);
 
@@ -90,6 +90,7 @@ class CustomResetPasswordNotification extends Notification
     {
         try {
             $smtpConfig = Setting::where('key', 'LIKE', 'mail_%')
+                ->withVirtualValue()
                 ->pluck('value', 'key');
 
             if ($smtpConfig->isEmpty()) {

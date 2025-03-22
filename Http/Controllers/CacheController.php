@@ -8,6 +8,13 @@ use Koneko\VuexyAdmin\Services\CacheConfigService;
 
 class CacheController extends Controller
 {
+    public function index(CacheConfigService $cacheConfigService)
+    {
+        $configCache = $cacheConfigService->getConfig();
+
+        return view('vuexy-admin::cache-manager.index', compact('configCache'));
+    }
+
     public function generateConfigCache()
     {
         try {
@@ -27,15 +34,9 @@ class CacheController extends Controller
             Artisan::call('route:cache');
 
             return response()->json(['success' => true, 'message' => 'Cache de rutas generado correctamente.']);
+
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Error al generar el cache de rutas.', 'error' => $e->getMessage()], 500);
         }
-    }
-
-    public function cacheManager(CacheConfigService $cacheConfigService)
-    {
-        $configCache = $cacheConfigService->getConfig();
-
-        return view('vuexy-admin::cache-manager.index', compact('configCache'));
     }
 }

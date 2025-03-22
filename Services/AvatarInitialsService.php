@@ -15,7 +15,7 @@ class AvatarInitialsService
     protected const INITIAL_MAX_LENGTH = 3;
     protected const AVATAR_BACKGROUND = '#EBF4FF';
     protected const AVATAR_COLORS = [
-        '#7367f0',
+        '#3b82f6',
         '#808390',
         '#28c76f',
         '#ff4c51',

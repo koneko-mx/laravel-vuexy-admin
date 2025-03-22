@@ -155,7 +155,19 @@ export default class FormCustomListener {
         this.setButtonLoadingState(saveButton, true); // Poner en estado de carga al botón anfitrión
 
         // Enviar la solicitud de Livewire correspondiente al enviar el formulario
-        Livewire.dispatch(this.config.dispatchOnSubmit);
+        const componentEl = form.closest('[wire\\:id]');
+        const componentId = componentEl?.getAttribute('wire:id');
+
+        if (componentId) {
+            const component = Livewire.find(componentId);
+            if (component) {
+                component.call(this.config.dispatchOnSubmit);
+            } else {
+                console.warn('No se encontró el componente Livewire.');
+            }
+        } else {
+            console.warn('No se pudo encontrar wire:id para ejecutar el método Livewire.');
+        }
     }
 
     /**
@@ -188,7 +200,10 @@ export default class FormCustomListener {
      */
     toggleButtonsState(buttons, isEnabled) {
         buttons.forEach(button => {
-            if (button) button.disabled = !isEnabled;
+            if (button){
+                button.disabled = !isEnabled;
+                button.classList.toggle('disabled', !isEnabled);
+            }
         });
     }
 
@@ -217,24 +232,57 @@ export default class FormCustomListener {
      */
     initializeValidation(form) {
         if (this.config.validationConfig) {
-            this.formValidationInstance = FormValidation.formValidation(form, this.config.validationConfig).on(
-                'core.form.valid',
-                () => this.handleFormValid(form)
-            );
+            this.formValidationInstance = FormValidation.formValidation(
+                form,
+                this.config.validationConfig
+            ).on('core.form.valid', () => this.handleFormValid(form));
+
+            // Aplicamos el fix después de un pequeño delay
+            setTimeout(() => {
+                this.fixValidationMessagePosition(form);
+            }, 100); // Lo suficiente para esperar a que FV inserte los mensajes
         }
+    }
+
+    /**
+     * Mueve los mensajes de error fuera del input-group para evitar romper el diseño
+     */
+    fixValidationMessagePosition(form) {
+        const groups = form.querySelectorAll('.input-group.has-validation');
+
+        groups.forEach(group => {
+            const errorContainer = group.querySelector('.fv-plugins-message-container');
+
+            if (errorContainer) {
+                // Evita duplicados
+                if (errorContainer.classList.contains('moved')) return;
+
+                // Crear un contenedor si no existe
+                let target = group.parentElement.querySelector('.fv-message');
+                if (!target) {
+                    target = document.createElement('div');
+                    target.className = 'fv-message invalid-feedback';
+                    group.parentElement.appendChild(target);
+                }
+
+                target.appendChild(errorContainer);
+                errorContainer.classList.add('moved'); // Marcar como ya movido
+            }
+        });
     }
 
     reloadValidation() {
         const form = document.querySelector(this.config.formSelector);
 
-        // Verificar si el formulario existe y si la validación está inicializada
         if (form && this.formValidationInstance) {
             try {
-                // En lugar de destruir la validación, simplemente reiniciamos la validación.
-                this.formValidationInstance.resetForm(); // Resetear el formulario, limpiando los errores
+                setTimeout(() => {
+                    this.formValidationInstance.resetForm(); // Limpiar errores
+                    this.initializeValidation(form);        // Reinicializar
 
-                // Reinicializar la validación con la configuración actual
-                this.initializeValidation(form);
+                    // 🔁 Reconectar eventos de inputs y botones
+                    this.initFormEvents(form);
+                }, 1);
             } catch (error) {
                 console.error('Error al reiniciar la validación:', error);
             }
@@ -242,4 +290,5 @@ export default class FormCustomListener {
             console.warn('Formulario no encontrado o instancia de validación no disponible.');
         }
     }
+
 }

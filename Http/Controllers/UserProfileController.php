@@ -5,7 +5,6 @@ namespace Koneko\VuexyAdmin\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Koneko\VuexyAdmin\Services\AvatarInitialsService;
-use Koneko\VuexyAdmin\Models\User;
 
 class UserProfileController extends Controller
 {
@@ -35,10 +34,8 @@ class UserProfileController extends Controller
         $background = $request->get('background', 'EBF4FF');
         $size       = $request->get('size', 100);
 
-        $avatarService = new AvatarInitialsService();
-
         try {
-            return $avatarService->getAvatarImage($name, $color, $background, $size);
+            return app(AvatarInitialsService::class)->getAvatarImage($name, $color, $background, $size);
 
         } catch (\Exception $e) {
             // String base64 de una imagen PNG transparente de 1x1 píxel

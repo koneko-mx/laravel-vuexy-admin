@@ -1,5 +1,5 @@
 <div>
-    <div class="form-custom-listener" id="redis-stats-card">
+    <div id="redis-stats-card" class="form-custom-listener mb-4">
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Estadísticas de Redis</h5>
@@ -138,7 +138,7 @@
                 </div>
             </div>
             {{-- Notifications --}}
-            <div class="notification-container" wire:ignore></div>
+            <div class="notification-container pt-4" wire:ignore></div>
         </div>
     </div>
 </div>

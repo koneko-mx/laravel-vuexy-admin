@@ -24,6 +24,6 @@
 @endpush
 
 @section('content')
-    @livewire('user-index')
-    @livewire('user-offcanvas-form')
+    @livewire('vuexy-admin::users-index')
+    @livewire('vuexy-admin::user-offcanvas-form')
 @endsection

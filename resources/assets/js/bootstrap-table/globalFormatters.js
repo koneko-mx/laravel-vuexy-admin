@@ -1,5 +1,5 @@
 import { booleanStatusCatalog, statusIntBadgeBgCatalogCss, statusIntBadgeBgCatalog } from './globalConfig';
-import {routes} from '../../../../../laravel-vuexy-admin/resources/assets/js/bootstrap-table/globalConfig.js';
+import {routes} from '@vuexy-admin/bootstrap-table/globalConfig.js';
 
 export const userActionFormatter = (value, row, index) => {
     if (!row.id) return '';

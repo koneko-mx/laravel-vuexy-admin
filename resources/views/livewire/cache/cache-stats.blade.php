@@ -1,5 +1,5 @@
 <div>
-    <div class="form-custom-listener" id="cache-stats-card">
+    <div id="cache-stats-card" class="form-custom-listener mb-4">
         {{-- Form Card --}}
         <div class="card">
             <div class="card-body">
@@ -99,7 +99,7 @@
                 </div>
             </div>
             {{-- Notifications --}}
-            <div class="notification-container" wire:ignore></div>
+            <div class="notification-container pt-4" wire:ignore></div>
         </div>
     </div>
 </div>

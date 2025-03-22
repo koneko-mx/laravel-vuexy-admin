@@ -24,7 +24,7 @@
         : ($image ? "<img src='{$image}' alt='{$title}' class='img-fluid rounded'>" : '');
 @endphp
 
-<div class="mb-4 form-check custom-option custom-option-icon {{ $checked ? 'checked' : '' }}">
+<div class="mb-4 form-check custom-option custom-option-icon {{ $checked ? 'checked' : '' }} fv-row">
     <label class="form-check-label custom-option-content" for="{{ $inputId }}">
         <span class="custom-option-body">
             {!! $visualContent !!}

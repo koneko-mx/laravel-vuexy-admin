@@ -2,6 +2,10 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+[x-cloak] {
+    display: none !important;
+}
+
 .menu-horizontal-wrapper > .menu-inner > .menu-item:last-child {
     padding-right: 70px;
 }

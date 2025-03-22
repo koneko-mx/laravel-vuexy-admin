@@ -16,13 +16,18 @@
     'mb0' => false, // Remover margen inferior
     'parentClass' => '',
 
-    // Elementos opcionales antes/después del input
+    // Elementos de prefijo
     'prefix' => null,
-    'suffix' => null,
+    'prefixIcon' => null,
+    'icon' => null, // Alias para prefixIcon
+    'prefixClickable' => false,
+    'prefixAction' => null,
 
-    // Íconos dentro del input
-    'icon' => null,
-    'clickableIcon' => null,
+    // Elementos de sufijo
+    'suffix' => null,
+    'suffixIcon' => null,
+    'suffixClickable' => false,
+    'suffixAction' => null,
 
     // Configuración especial
     'phoneMode' => false, // "national", "international", "both"
@@ -46,6 +51,9 @@
     $name = $attributes->get('name', $livewireModel);
     $inputId = $attributes->get('id', $name . '_' . $uid);
     $type = $attributes->get('type', 'text');
+
+    // Manejar el alias de icon a prefixIcon
+    $prefixIcon = $prefixIcon ?? $icon;
 
     // **Definir formato de teléfono según `phoneMode`**
     if ($phoneMode) {
@@ -120,37 +128,68 @@
         'id' => $inputId,
         'name' => $name,
     ])->class("form-control $sizeClass $alignClass $errorClass");
+
+    // Verificar si se necesita el input-group
+    $hasAddons = $prefix || $prefixIcon || $suffix || $suffixIcon;
 @endphp
 
 {{-- Estructura del Input --}}
-<div class="{{ $mb0 ? '' : 'mb-4' }} {{ $parentClass }}">
+<div class="{{ $mb0 ? '' : 'mb-4' }} {{ $parentClass }} fv-row">
     {{-- Etiqueta --}}
     @if ($label)
         <label for="{{ $inputId }}" class="form-label {{ $labelClass }}">{{ $label }}</label>
     @endif
 
-    {{-- Input con Prefijos, Sufijos o Íconos --}}
-    @if ($prefix || $suffix || $icon || $clickableIcon)
+    {{-- Input con Prefijos o Sufijos --}}
+    @if ($hasAddons)
         <div class="input-group input-group-merge">
-            @isset($prefix)
-                <span class="input-group-text">{{ $prefix }}</span>
-            @endisset
-
-            @isset($icon)
-                <span class="input-group-text"><i class="{{ $icon }}"></i></span>
-            @endisset
+            {{-- Prefijo --}}
+            @if ($prefix || $prefixIcon)
+                @if ($prefixClickable)
+                    <button type="button" class="input-group-text cursor-pointer" {{ $prefixAction ? "wire:click=$prefixAction" : '' }}>
+                        @if ($prefixIcon)
+                            <i class="{{ $prefixIcon }}"></i>
+                        @endif
+                        @if ($prefix)
+                            {{ $prefix }}
+                        @endif
+                    </button>
+                @else
+                    <span class="input-group-text">
+                        @if ($prefixIcon)
+                            <i class="{{ $prefixIcon }}"></i>
+                        @endif
+                        @if ($prefix)
+                            {{ $prefix }}
+                        @endif
+                    </span>
+                @endif
+            @endif
 
             <input {!! $inputAttributes !!} {{ $livewireModel ? "wire:model=$livewireModel" : '' }} />
 
-            @isset($suffix)
-                <span class="input-group-text">{{ $suffix }}</span>
-            @endisset
-
-            @isset($clickableIcon)
-                <button type="button" class="input-group-text cursor-pointer">
-                    <i class="{{ $clickableIcon }}"></i>
-                </button>
-            @endisset
+            {{-- Sufijo --}}
+            @if ($suffix || $suffixIcon)
+                @if ($suffixClickable)
+                    <button type="button" class="input-group-text cursor-pointer" {{ $suffixAction ? "wire:click=$suffixAction" : '' }}>
+                        @if ($suffixIcon)
+                            <i class="{{ $suffixIcon }}"></i>
+                        @endif
+                        @if ($suffix)
+                            {{ $suffix }}
+                        @endif
+                    </button>
+                @else
+                    <span class="input-group-text">
+                        @if ($suffixIcon)
+                            <i class="{{ $suffixIcon }}"></i>
+                        @endif
+                        @if ($suffix)
+                            {{ $suffix }}
+                        @endif
+                    </span>
+                @endif
+            @endif
         </div>
     @else
         {{-- Input Simple --}}

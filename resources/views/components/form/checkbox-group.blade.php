@@ -71,7 +71,7 @@
 @endphp
 
 {{-- ============================ CHECKBOX CON INPUT GROUP ============================ --}}
-<div class="mb-4 {{ $parentClass }}">
+<div class="mb-4 {{ $parentClass }} fv-row">
     @if ($label)
         <label for="{{ $checkboxId }}" class="{{ $labelClass }}">{{ $label }}</label>
     @endif

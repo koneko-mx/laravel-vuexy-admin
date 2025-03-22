@@ -27,19 +27,24 @@ abstract class BootstrapTableQueryBuilder
             foreach ($this->config['joins'] as $join) {
                 $type = $join['type'] ?? 'join';
 
-                $this->query->{$type}($join['table'], function($joinObj) use ($join) {
-                    $joinObj->on($join['first'], '=', $join['second']);
+                // Soporte para alias
+                $table = $join['table'];
+                $alias = $join['alias'] ?? null;
+                $tableWithAlias = $alias ? DB::raw("{$table} as {$alias}") : $table;
 
-                    // Soporte para AND en ON, si está definidio
+                $this->query->{$type}($tableWithAlias, function ($joinObj) use ($join, $alias) {
+                    $first = $join['first'];
+                    $second = $join['second'];
+
+                    $joinObj->on($first, '=', $second);
+
+                    // Soporte para condiciones adicionales tipo AND
                     if (!empty($join['and'])) {
                         foreach ((array) $join['and'] as $andCondition) {
-                            // 'sat_codigo_postal.c_estado = sat_localidad.c_estado'
                             $parts = explode('=', $andCondition);
-
                             if (count($parts) === 2) {
                                 $left = trim($parts[0]);
                                 $right = trim($parts[1]);
-
                                 $joinObj->whereRaw("$left = $right");
                             }
                         }

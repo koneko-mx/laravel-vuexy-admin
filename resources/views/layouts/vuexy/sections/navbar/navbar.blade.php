@@ -181,7 +181,7 @@ $navbarDetached = ($navbarDetached ?? '');
                                 <li>
                                     <a class="dropdown-item" href="{{ route('admin.core.user-profile.index') }}">
                                         <i class="ti ti-user-cog me-2 ti-sm"></i>
-                                        <span class="align-middle">Configuración de cuenta</span>
+                                        <span class="align-middle">Cuenta de usuario</span>
                                     </a>
                                 </li>
                             @endif

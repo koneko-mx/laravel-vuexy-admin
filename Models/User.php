@@ -23,23 +23,7 @@ class User extends Authenticatable implements MustVerifyEmail, AuditableContract
     const STATUS_DISABLED = 1;
     const STATUS_REMOVED  = 0;
 
-    const AVATAR_DISK        = 'public';
-    const PROFILE_PHOTO_DIR  = 'profile-photos';
-    const INITIAL_AVATAR_DIR = 'initial-avatars';
-    const INITIAL_MAX_LENGTH = 4;
-
-    const AVATAR_WIDTH  = 512;
-    const AVATAR_HEIGHT = 512;
-    const AVATAR_BACKGROUND = '#EBF4FF'; // Fondo por defecto
-    const AVATAR_COLORS = [
-        '#7367f0',
-        '#808390',
-        '#28c76f',
-        '#ff4c51',
-        '#ff9f43',
-        '#00bad1',
-        '#4b4b4b',
-    ];
+    const INITIAL_MAX_LENGTH = 3;
 
     /**
      * List of names for each status.
@@ -149,6 +133,50 @@ class User extends Authenticatable implements MustVerifyEmail, AuditableContract
     ];
 
     /**
+     * Get the URL for the user's profile photo.
+     *
+     * @return string
+     */
+    public function getProfilePhotoUrlAttribute()
+    {
+        if ($this->profile_photo_path) {
+            return asset('storage/profile-photos/' . $this->profile_photo_path);
+        }
+
+        return $this->defaultProfilePhotoUrl();
+    }
+
+    /**
+     * Get the default profile photo URL if no profile photo has been uploaded.
+     *
+     * @return string
+     */
+    protected function defaultProfilePhotoUrl()
+    {
+        return route('admin.core.user-profile.avatar', ['name' => $this->fullname]);
+    }
+
+    /**
+     * Calcula las iniciales a partir del nombre.
+     *
+     * @param string $name Nombre completo.
+     *
+     * @return string Iniciales en mayúsculas.
+     */
+    public static function getInitials($name)
+    {
+        if (empty($name)) {
+            return 'NA';
+        }
+
+        $initials = implode('', array_map(function ($word) {
+            return mb_substr($word, 0, 1);
+        }, explode(' ', $name)));
+
+        return strtoupper(substr($initials, 0, self::INITIAL_MAX_LENGTH));
+    }
+
+    /**
      * Get the full name of the user.
      *
      * @return string
@@ -180,45 +208,6 @@ class User extends Authenticatable implements MustVerifyEmail, AuditableContract
     }
 
     /**
-     * Obtener usuarios activos con una excepción para incluir un usuario específico desactivado.
-     *
-     * @param array $filters Filtros opcionales como ['type' => 'user', 'status' => 1]
-     * @param int|null $includeUserId ID de usuario específico a incluir aunque esté inactivo
-     * @return array
-     */
-    public static function getUsersListWithInactive($includeUserId = null, array $filters = []): array
-    {
-        $query = self::query();
-
-        // Filtro por tipo de usuario dinámico
-        $tipoUsuarios = [
-            'partner'   => 'is_partner',
-            'employee'  => 'is_employee',
-            'prospect'  => 'is_prospect',
-            'customer'  => 'is_customer',
-            'provider'  => 'is_provider',
-            'user'      => 'is_user',
-        ];
-
-        if (isset($filters['type']) && isset($tipoUsuarios[$filters['type']])) {
-            $query->where($tipoUsuarios[$filters['type']], 1);
-        }
-
-        // Filtrar por estado o incluir usuario inactivo
-        $query->where(function ($q) use ($filters, $includeUserId) {
-            if (isset($filters['status'])) {
-                $q->where('status', $filters['status']);
-            }
-
-            if ($includeUserId) {
-                $q->orWhere('id', $includeUserId);
-            }
-        });
-
-        return $query->pluck(\DB::raw("CONCAT(name, ' ', IFNULL(last_name, ''))"), 'id')->toArray();
-    }
-
-    /**
      * User who created this user
      */
     public function creator()
@@ -233,5 +222,4 @@ class User extends Authenticatable implements MustVerifyEmail, AuditableContract
     {
         return $this->status === self::STATUS_ENABLED;
     }
-
 }

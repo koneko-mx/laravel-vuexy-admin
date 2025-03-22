@@ -14,9 +14,10 @@
         "owen-it/laravel-auditing": "^13.6",
         "spatie/laravel-permission": "^6.10"
     },
+    "prefer-stable": true,
     "autoload": {
         "psr-4": {
-            "Koneko\\VuexyAdmin\\": ""
+            "Koneko\\VuexyAdmin\\": "./"
         }
     },
     "extra": {
@@ -35,6 +36,5 @@
     "support": {
         "source": "https://github.com/koneko-mx/laravel-vuexy-admin",
         "issues": "https://github.com/koneko-mx/laravel-vuexy-admin/issues"
-    },
-    "prefer-stable": true
+    }
 }

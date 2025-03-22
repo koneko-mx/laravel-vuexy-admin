@@ -8,6 +8,8 @@
     'wireSubmit' => false,           // Usar wire:submit.prevent
     'class' => '',                   // Clases adicionales para el formulario
     'actionPosition' => 'bottom',    // Posición de acciones: top, bottom, both, none
+    'whitOutId' => false,            // Excluir el ID del formulario
+    'whitOutMode' => false,          // Excluir el modo del formulario
 ])
 
 @php
@@ -28,8 +30,12 @@
 @endphp
 
 <form {{ $attributes->merge($formAttributes) }}>
-    <x-vuexy-admin::form.input :uid="$uniqueId" type="hidden" model="id" />
-    <x-vuexy-admin::form.input :uid="$uniqueId" type="hidden" model="mode" />
+    @if (!$whitOutId)
+        <x-vuexy-admin::form.input :uid="$uniqueId" type="hidden" model="id" />
+    @endif
+    @if (!$whitOutMode)
+        <x-vuexy-admin::form.input :uid="$uniqueId" type="hidden" model="mode" />
+    @endif
     @if ($mode !== 'delete' && in_array($actionPosition, ['top', 'both']))
         <div class="notification-container mb-4"></div>
         <div class="form-actions mb-4">

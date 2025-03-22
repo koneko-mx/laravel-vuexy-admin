@@ -10,12 +10,12 @@ class SessionManagerService
 {
     private string $driver;
 
-    public function __construct(string $driver = null)
+    public function __construct(mixed $driver = null)
     {
         $this->driver = $driver ?? config('session.driver');
     }
 
-    public function getSessionStats(string $driver = null): array
+    public function getSessionStats(mixed $driver = null): array
     {
         $driver = $driver ?? $this->driver;
 
@@ -41,7 +41,7 @@ class SessionManagerService
         }
     }
 
-    public function clearSessions(string $driver = null): array
+    public function clearSessions(mixed $driver = null): array
     {
         $driver = $driver ?? $this->driver;
 

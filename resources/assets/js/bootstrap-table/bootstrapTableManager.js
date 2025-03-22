@@ -106,7 +106,8 @@ class BootstrapTableManager {
      * Carga los formatters dinámicamente
      */
     async loadFormatters() {
-        const formattersModules = import.meta.glob('../../../../../**/resources/assets/js/bootstrap-table/*Formatters.js');
+        //const formattersModules = import.meta.glob('../../../../../**/resources/assets/js/bootstrap-table/*Formatters.js');
+        const formattersModules = import.meta.glob('/vendor/koneko/laravel-vuexy-admin/resources/assets/js/bootstrap-table/*Formatters.js');
 
         const formatterPromises = Object.entries(formattersModules).map(async ([path, importer]) => {
             const module = await importer();

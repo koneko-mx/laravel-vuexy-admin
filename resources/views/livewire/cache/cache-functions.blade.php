@@ -198,7 +198,7 @@
                 </div>
             </div>
             {{-- Notifications --}}
-            <div class="notification-container" wire:ignore></div>
+            <div class="notification-container pt-4" wire:ignore></div>
         </div>
     </div>
 </div>

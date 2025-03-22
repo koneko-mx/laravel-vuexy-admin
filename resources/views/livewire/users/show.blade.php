@@ -42,7 +42,7 @@
                                         <i class="ti ti-user pr-2"></i> Cuenta de usuario
                                     </button>
                                 </li>
-                                @if (($is_customer || $is_user) && $this->tipo_persona != App\Models\User::TIPO_RFC_PUBLICO)
+                                @if (($is_customer) && $this->tipo_persona != App\Models\User::TIPO_RFC_PUBLICO)
                                     <li class="nav-item" role="presentation">
                                         <button type="button" @click="setActiveTabPan('accesos')" :class="{ 'active': activeTabPan === 'accesos' }" class="nav-link waves-effect" role="tab" data-bs-toggle="tab" data-bs-target="#navs-left-accesos" aria-controls="navs-left-accesos">
                                             <i class="ti ti-key pr-2"></i> Accesos
@@ -56,14 +56,14 @@
                                         </button>
                                     </li>
                                 @endif
-                                @if (($is_prospect || $is_customer || $is_provider || $is_user) && $this->tipo_persona != App\Models\User::TIPO_RFC_PUBLICO)
+                                @if (($is_prospect || $is_customer || $is_provider) && $this->tipo_persona != App\Models\User::TIPO_RFC_PUBLICO)
                                     <li class="nav-item" role="presentation">
                                         <button type="button" @click="setActiveTabPan('direcciones')" :class="{ 'active': activeTabPan === 'direcciones' }" class="nav-link waves-effect" role="tab" data-bs-toggle="tab" data-bs-target="#navs-left-direcciones" aria-controls="navs-left-direcciones">
                                             <i class="ti ti-map-pin pr-2"></i> Direcciones
                                         </button>
                                     </li>
                                 @endif
-                                @if (($is_prospect || $is_customer || $is_provider || $is_user) && $this->tipo_persona != App\Models\User::TIPO_RFC_PUBLICO)
+                                @if (($is_prospect || $is_customer || $is_provider) && $this->tipo_persona != App\Models\User::TIPO_RFC_PUBLICO)
                                     <li class="nav-item" role="presentation">
                                         <button type="button" @click="setActiveTabPan('contacto')" :class="{ 'active': activeTabPan === 'contacto' }" class="nav-link waves-effect" role="tab" data-bs-toggle="tab" data-bs-target="#navs-left-contacto" aria-controls="navs-left-contacto">
                                             <i class="ti ti-address-book pr-2"></i> Contacto
@@ -156,14 +156,6 @@
                                                                     wire:model='is_provider'
                                                                     parent_class='form-switch'>
                                                         Es proveedor
-                                                    </x-checkbox-v>
-                                                </div>
-                                                <div class="mb-6">
-                                                    <x-checkbox-v value="{{ old('is_user', $is_user) }}"
-                                                                    name='is_user'
-                                                                    wire:model='is_user'
-                                                                    parent_class='form-switch'>
-                                                        Es usuario
                                                     </x-checkbox-v>
                                                 </div>
                                                 <div class="row pricelist-div mb-3">
@@ -616,16 +608,13 @@
                 @this.set('is_prospect', false, false);
                 @this.set('is_customer', true, false);
                 @this.set('is_provider', false, false);
-                @this.set('is_user', false, false);
                 @this.set('enable_credit', false, false);
 
                 $("#is_prospect").prop("disabled", true);
                 $("#is_provider").prop("disabled", true);
-                $("#is_user").prop("disabled", true);
             }else{
                 $("#is_prospect").prop("disabled", false);
                 $("#is_provider").prop("disabled", false);
-                $("#is_user").prop("disabled", false);
             }
 
             if (is_prospect || is_customer) {
@@ -1643,7 +1632,7 @@
             $(document).ready(function() {
                 $("#pdf-dropzone")
                     .dropzone({
-                        url: '{{ route('admin.crm.contacts.extraer-datos-pdf-constancia') }}',
+                        url: '{{ route('admin.crm.contacts.extract-data-pdf-certificate') }}',
                         paramName: "file",
                         maxFiles: 1,
                         acceptedFiles: '.pdf',

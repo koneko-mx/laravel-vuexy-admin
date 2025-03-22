@@ -40,7 +40,6 @@ class UserShow extends Component
         $is_prospect,
         $is_customer,
         $is_provider,
-        $is_user,
         $status;
     public $deleteUserImage;
     public $cuentaUsuarioAlert,
@@ -55,7 +54,6 @@ class UserShow extends Component
         'is_prospect' => 'nullable|boolean',
         'is_customer' => 'nullable|boolean',
         'is_provider' => 'nullable|boolean',
-        'is_user' => 'nullable|boolean',
         'pricelist_id' => 'nullable|integer',
         'enable_credit' => 'nullable|boolean',
         'credit_days' => 'nullable|integer',
@@ -102,7 +100,6 @@ class UserShow extends Component
         $this->is_prospect   = $this->user->is_prospect? true : false;
         $this->is_customer   = $this->user->is_customer? true : false;
         $this->is_provider   = $this->user->is_provider? true : false;
-        $this->is_user       = $this->user->is_user? true : false;
         $this->pricelist_id  = $this->user->pricelist_id;
         $this->enable_credit = $this->user->enable_credit? true : false;
         $this->credit_days   = $this->user->credit_days;
@@ -140,7 +137,6 @@ class UserShow extends Component
             $validatedData['is_prospect']   = $validatedData['is_prospect'] ? 1 : 0;
             $validatedData['is_customer']   = $validatedData['is_customer'] ? 1 : 0;
             $validatedData['is_provider']   = $validatedData['is_provider'] ? 1 : 0;
-            $validatedData['is_user']       = $validatedData['is_user'] ? 1 : 0;
             $validatedData['pricelist_id']  = $validatedData['pricelist_id'] ?: null;
             $validatedData['enable_credit'] = $validatedData['enable_credit'] ? 1 : 0;
             $validatedData['credit_days']   = $validatedData['credit_days'] ?: null;
@@ -150,7 +146,6 @@ class UserShow extends Component
                 $validatedData['cargo']         = null;
                 $validatedData['is_prospect']   = null;
                 $validatedData['is_provider']   = null;
-                $validatedData['is_user']       = null;
                 $validatedData['enable_credit'] = null;
                 $validatedData['credit_days']   = null;
                 $validatedData['credit_limit']  = null;

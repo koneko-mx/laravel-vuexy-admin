@@ -129,27 +129,6 @@ abstract class AbstractFormOffCanvasComponent extends Component
     abstract protected function model(): string;
 
     /**
-     * Define los campos del formulario.
-     *
-     * @return array<string, mixed>
-     */
-    abstract protected function fields(): array;
-
-    /**
-     * Retorna los valores por defecto para los campos del formulario.
-     *
-     * @return array<string, mixed> Valores predeterminados.
-     */
-    abstract protected function defaults(): array;
-
-    /**
-     * Campo que se debe enfocar cuando se abra el formulario.
-     *
-     * @return string
-     */
-    abstract protected function focusOnOpen(): string;
-
-    /**
      * Define reglas de validación dinámicas según el modo del formulario.
      *
      * @param string $mode Modo actual del formulario ('create', 'edit', 'delete').
@@ -158,18 +137,55 @@ abstract class AbstractFormOffCanvasComponent extends Component
     abstract protected function dynamicRules(string $mode): array;
 
     /**
-     * Devuelve las opciones que se mostrarán en los selectores del formulario.
-     *
-     * @return array<string, mixed> Opciones para los campos del formulario.
-     */
-    abstract protected function options(): array;
-
-    /**
      * Retorna la ruta de la vista asociada al formulario.
      *
      * @return string Ruta de la vista Blade.
      */
     abstract protected function viewPath(): string;
+
+    // ===================== CONFIGURACIÓN =====================
+
+    /**
+     * Define los campos del formulario.
+     *
+     * @return array<string, mixed>
+     */
+    protected function fields(): array
+    {
+        return (new ($this->model()))->getFillable();
+    }
+
+    /**
+     * Retorna los valores por defecto para los campos del formulario.
+     *
+     * @return array<string, mixed> Valores predeterminados.
+     */
+    protected function defaults(): array
+    {
+        return [];
+    }
+
+    /**
+     * Campo que se debe enfocar cuando se abra el formulario.
+     *
+     * @return string
+     */
+    protected function focusOnOpen(): string
+    {
+        return '';
+    }
+
+    // ===================== OPCIONES =====================
+
+    /**
+     * Devuelve las opciones que se mostrarán en los selectores del formulario.
+     *
+     * @return array<string, mixed> Opciones para los campos del formulario.
+     */
+    protected function options(): array
+    {
+        return [];
+    }
 
     // ===================== VALIDACIONES =====================
 
@@ -198,7 +214,7 @@ abstract class AbstractFormOffCanvasComponent extends Component
 
         $model = new ($this->model());
 
-        $this->tagName         = $model->tagName;
+        $this->tagName         = Str::camel($model->tagName);
         $this->columnNameLabel = $model->columnNameLabel;
         $this->singularName    = $model->singularName;
         $this->offcanvasId     = 'offcanvas' . ucfirst(Str::camel($model->tagName));
@@ -288,6 +304,9 @@ abstract class AbstractFormOffCanvasComponent extends Component
         $model = $this->model()::find($id);
 
         if ($model) {
+
+dd($this->fields());
+
             $data = $model->only(['id', ...$this->fields()]);
 
             $this->applyCasts($data);

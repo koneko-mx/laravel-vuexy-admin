@@ -17,5 +17,5 @@
 @endsection
 
 @section('content')
-    @livewire('role-card')
+    @livewire('vuexy-admin::roles-index')
 @endsection

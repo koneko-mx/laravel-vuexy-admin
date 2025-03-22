@@ -112,7 +112,7 @@ return [
                     ],
                 ]
             ],
-            'Configuración de cuenta' => [
+            'Cuenta de usuario' => [
                 'route' => 'admin.core.user-profile.index',
                 'icon' => 'menu-icon tf-icons ti ti-user-cog',
             ],
@@ -377,14 +377,14 @@ return [
                 'can' => 'admin.inventory.product-catalogs.view',
             ],
             'Productos y servicios' => [
-                'route' => 'admin.inventory.products.index',
+                'route' => 'admin.products.products.index',
                 'icon' => 'menu-icon tf-icons ti ti-packages',
-                'can' => 'admin.inventory.products.view',
+                'can' => 'admin.products.products.view',
             ],
             'Agregar producto o servicio' => [
-                'route' => 'admin.inventory.products.create',
+                'route' => 'admin.products.products.create',
                 'icon' => 'menu-icon tf-icons ti ti-package',
-                'can' => 'admin.inventory.products.create',
+                'can' => 'admin.products.products.create',
             ],
         ]
     ],
@@ -616,16 +616,16 @@ return [
                         'can' => 'admin.inventory.suppliers.view',
                     ],
                     'Órdenes de Compra' => [
-                        'route' => 'admin.inventory.orders.index',
-                        'can' => 'admin.inventory.orders.view',
+                        'route' => 'admin.purchase-orders.orders.index',
+                        'can' => 'admin.purchase-orders.orders.view',
                     ],
                     'Recepción de Productos' => [
-                        'route' => 'admin.inventory.reception.index',
-                        'can' => 'admin.inventory.reception.view',
+                        'route' => 'admin.purchase-orders.reception.index',
+                        'can' => 'admin.purchase-orders.reception.view',
                     ],
                     'Gestión de Insumos' => [
-                        'route' => 'admin.inventory.materials.index',
-                        'can' => 'admin.inventory.materials.view',
+                        'route' => 'admin.purchase-orders.materials.index',
+                        'can' => 'admin.purchase-orders.materials.view',
                     ],
                 ],
             ],
@@ -654,20 +654,20 @@ return [
                 'icon' => 'menu-icon tf-icons ti ti-truck',
                 'submenu' => [
                     'Órdenes de Envío' => [
-                        'route' => 'admin.inventory.shipping-orders.index',
-                        'can' => 'admin.inventory.shipping-orders.view',
+                        'route' => 'admin.shipping.orders.index',
+                        'can' => 'admin.shipping.orders.view',
                     ],
                     'Seguimiento de Envíos' => [
-                        'route' => 'admin.inventory.shipping-tracking.index',
-                        'can' => 'admin.inventory.shipping-tracking.view',
+                        'route' => 'admin.shipping.tracking.index',
+                        'can' => 'admin.shipping.tracking.view',
                     ],
                     'Transportistas' => [
-                        'route' => 'admin.inventory.shipping-carriers.index',
-                        'can' => 'admin.inventory.shipping-carriers.view',
+                        'route' => 'admin.shipping.carriers.index',
+                        'can' => 'admin.shipping.carriers.view',
                     ],
                     'Tarifas y Métodos de Envío' => [
-                        'route' => 'admin.inventory.shipping-rates.index',
-                        'can' => 'admin.inventory.shipping-rates.view',
+                        'route' => 'admin.shipping.rates.index',
+                        'can' => 'admin.shipping.rates.view',
                     ],
                 ],
             ],
@@ -679,16 +679,16 @@ return [
                         'can' => 'admin.inventory.asset.view',
                     ],
                     'Mantenimiento Preventivo' => [
-                        'route' => 'admin.inventory.asset-maintenance.index',
-                        'can' => 'admin.inventory.asset-maintenance.view',
+                        'route' => 'admin.assets.maintenance.index',
+                        'can' => 'admin.assets.maintenance.view',
                     ],
                     'Control de Vida Útil' => [
-                        'route' => 'admin.inventory.asset-lifecycle.index',
-                        'can' => 'admin.inventory.asset-lifecycle.view',
+                        'route' => 'admin.assets.lifecycle.index',
+                        'can' => 'admin.assets.lifecycle.view',
                     ],
                     'Asignación de Activos' => [
-                        'route' => 'admin.inventory.asset-assignments.index',
-                        'can' => 'admin.inventory.asset-assignments.view',
+                        'route' => 'admin.assets.assignments.index',
+                        'can' => 'admin.assets.assignments.view',
                     ],
                 ],
             ],

@@ -72,7 +72,7 @@
 @endphp
 
 {{-- ============================ RADIO BUTTON CON INPUT GROUP ============================ --}}
-<div class="{{ $mb0 ? '' : 'mb-4' }} {{ $parentClass }}">
+<div class="{{ $mb0 ? '' : 'mb-4' }} {{ $parentClass }} fv-row">
     @if ($label)
         <label for="{{ $radioId }}" class="{{ $labelClass }}">{{ $label }}</label>
     @endif
@@ -86,7 +86,7 @@
                 type="radio"
                 {{ $livewireRadio }}
                 {{ $disabled ? 'disabled' : '' }}
-                class="form-check-input mt-0"
+                class="form-check-input fv-row mt-0"
                 onchange="toggleRadioInputState('{{ $radioId }}', '{{ $textInputId }}', {{ $focusOnCheck ? 'true' : 'false' }}, {{ $disableOnOffRadio ? 'true' : 'false' }})"
             >
         </div>

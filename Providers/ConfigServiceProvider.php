@@ -21,10 +21,6 @@ class ConfigServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Cargar configuración del sistema
-        $globalSettingsService = app(GlobalSettingsService::class);
-        $globalSettingsService->loadSystemConfig();
-
         // Cargar configuración del sistema a través del servicio
         app(GlobalSettingsService::class)->loadSystemConfig();
     }

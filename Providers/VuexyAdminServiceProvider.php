@@ -2,20 +2,28 @@
 
 namespace Koneko\VuexyAdmin\Providers;
 
-use Koneko\VuexyAdmin\Http\Middleware\AdminTemplateMiddleware;
-use Koneko\VuexyAdmin\Listeners\{ClearUserCache,HandleUserLogin};
-use Koneko\VuexyAdmin\Livewire\Users\{UserIndex,UserShow,UserForm,UserOffCanvasForm};
-use Koneko\VuexyAdmin\Livewire\Roles\RoleIndex;
-use Koneko\VuexyAdmin\Livewire\Permissions\PermissionIndex;
-use Koneko\VuexyAdmin\Livewire\Cache\{CacheFunctions,CacheStats,SessionStats,MemcachedStats,RedisStats};
-use Koneko\VuexyAdmin\Livewire\AdminSettings\{ApplicationSettings,GeneralSettings,InterfaceSettings,MailSmtpSettings,MailSenderResponseSettings};
 use Koneko\VuexyAdmin\Console\Commands\CleanInitialAvatars;
 use Koneko\VuexyAdmin\Helpers\VuexyHelper;
-use Koneko\VuexyAdmin\Models\User;
+use Koneko\VuexyAdmin\Http\Middleware\AdminTemplateMiddleware;
+use Illuminate\Auth\Events\{Login,Logout};
+use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\Facades\{URL,Event,Blade};
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Foundation\AliasLoader;
-use Illuminate\Auth\Events\{Login,Logout};
+use Koneko\VuexyAdmin\Listeners\{ClearUserCache,HandleUserLogin};
+
+use Koneko\VuexyAdmin\Livewire\Cache\{CacheFunctions,CacheStats,SessionStats,MemcachedStats,RedisStats};
+use Koneko\VuexyAdmin\Livewire\Permissions\{PermissionsIndex,PermissionOffCanvasForm};
+use Koneko\VuexyAdmin\Livewire\Profile\{UpdateProfileInformationForm,UpdatePasswordForm,TwoFactorAuthenticationForm,LogoutOtherBrowser,DeleteUserForm};
+use Koneko\VuexyAdmin\Livewire\Roles\{RolesIndex,RoleCards};
+use Koneko\VuexyAdmin\Livewire\Users\{UsersIndex,UsersCount,UserForm,UserOffCanvasForm};
+
+use Koneko\VuexyAdmin\Livewire\VuexyAdmin\{LogoOnLightBgSettings,LogoOnDarkBgSettings,AppDescriptionSettings,AppFaviconSettings};
+use Koneko\VuexyAdmin\Livewire\VuexyAdmin\SendmailSettings;
+use Koneko\VuexyAdmin\Livewire\VuexyAdmin\{VuexyInterfaceSettings};
+use Koneko\VuexyAdmin\Livewire\VuexyAdmin\{GlobalSettingsIndex,GlobalSettingOffCanvasForm};
+use Koneko\VuexyAdmin\Livewire\VuexyAdmin\QuickAccessWidget;
+
+use Koneko\VuexyAdmin\Models\User;
 use Livewire\Livewire;
 use OwenIt\Auditing\AuditableObserver;
 use Spatie\Permission\PermissionServiceProvider;
@@ -48,13 +56,16 @@ class VuexyAdminServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
+
         // Registrar alias del middleware
         $this->app['router']->aliasMiddleware('admin', AdminTemplateMiddleware::class);
+
 
         // Sobrescribir ruta de traducciones para asegurar que se usen las del paquete
         $this->app->bind('path.lang', function () {
             return __DIR__ . '/../resources/lang';
         });
+
 
         // Register the module's routes
         $this->loadRoutesFrom(__DIR__.'/../routes/admin.php');
@@ -62,6 +73,7 @@ class VuexyAdminServiceProvider extends ServiceProvider
 
         // Cargar vistas del paquete
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'vuexy-admin');
+
 
         // Registrar Componentes Blade
         Blade::componentNamespace('VuexyAdmin\\View\\Components', 'vuexy-admin');
@@ -100,31 +112,59 @@ class VuexyAdminServiceProvider extends ServiceProvider
             ]);
         }
 
+
         // Registrar Livewire Components
         $components = [
-            'user-index' => UserIndex::class,
-            'user-show'  => UserShow::class,
-            'user-form'  => UserForm::class,
-            'user-offcanvas-form' => UserOffCanvasForm::class,
-            'role-index' => RoleIndex::class,
-            'permission-index' => PermissionIndex::class,
+            // Usuarios
+            'vuexy-admin::users-index'         => UsersIndex::class,
+            'vuexy-admin::users-count'         => UsersCount::class,
+            'vuexy-admin::user-form'           => UserForm::class,
+            'vuexy-admin::user-offcanvas-form' => UserOffCanvasForm::class,
 
+            // Perfil del usuario
+            'vuexy-admin::update-profile-information-form' => UpdateProfileInformationForm::class,
+            'vuexy-admin::update-password-form'            => UpdatePasswordForm::class,
+            'vuexy-admin::two-factor-authentication'       => TwoFactorAuthenticationForm::class,
+            'vuexy-admin::logout-other-browser'            => LogoutOtherBrowser::class,
+            'vuexy-admin::delete-user-form'                => DeleteUserForm::class,
 
-            'general-settings' => GeneralSettings::class,
-            'application-settings' => ApplicationSettings::class,
-            'interface-settings' => InterfaceSettings::class,
-            'mail-smtp-settings' => MailSmtpSettings::class,
-            'mail-sender-response-settings' => MailSenderResponseSettings::class,
-            'cache-stats' => CacheStats::class,
-            'session-stats' => SessionStats::class,
-            'redis-stats' => RedisStats::class,
-            'memcached-stats' => MemcachedStats::class,
-            'cache-functions' => CacheFunctions::class,
+            // Roles y Permisos
+            'vuexy-admin::roles-index'               => RolesIndex::class,
+            'vuexy-admin::role-cards'                => RoleCards::class,
+            'vuexy-admin::permissions-index'         => PermissionsIndex::class,
+            'vuexy-admin::permission-offcanvas-form' => PermissionOffCanvasForm::class,
+
+            // Identidad de aplicación
+            'vuexy-admin::app-description-settings'  => AppDescriptionSettings::class,
+            'vuexy-admin::app-favicon-settings'      => AppFaviconSettings::class,
+            'vuexy-admin::logo-on-light-bg-settings' => LogoOnLightBgSettings::class,
+            'vuexy-admin::logo-on-dark-bg-settings'  => LogoOnDarkBgSettings::class,
+
+            // Ajustes de interfaz
+            'vuexy-admin::interface-settings' => VuexyInterfaceSettings::class,
+
+            // Cache
+            'vuexy-admin::cache-stats'     => CacheStats::class,
+            'vuexy-admin::session-stats'   => SessionStats::class,
+            'vuexy-admin::redis-stats'     => RedisStats::class,
+            'vuexy-admin::memcached-stats' => MemcachedStats::class,
+            'vuexy-admin::cache-functions' => CacheFunctions::class,
+
+            // Configuración de correo saliente
+            'vuexy-admin::sendmail-settings' => SendmailSettings::class,
+
+            // Configuraciones globales
+            'vuexy-admin::global-settings-index' => GlobalSettingsIndex::class,
+            'vuexy-admin::global-setting-offcanvas-form' => GlobalSettingOffCanvasForm::class,
+
+            // Accesos rápidos de la barra de menú
+            'vuexy-admin::quick-access-widget' => QuickAccessWidget::class,
         ];
 
         foreach ($components as $alias => $component) {
             Livewire::component($alias, $component);
         }
+
 
         // Registrar auditoría en usuarios
         User::observe(AuditableObserver::class);

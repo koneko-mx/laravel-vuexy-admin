@@ -72,7 +72,7 @@
 
 @if ($switch)
     {{-- ============================ MODO SWITCH ============================ --}}
-    <div class="{{ $alignClass }} {{ $inline ? 'd-inline-block' : '' }} {{ $parentClass }} {{ $mb0 ? '' : 'mb-4' }}">
+    <div class="{{ $alignClass }} {{ $inline ? 'd-inline-block' : '' }} {{ $parentClass }} {{ $mb0 ? '' : 'mb-4' }} fv-row">
         <label class="switch {{ $switchTypeClass }} {{ $switchColorClass }} {{ $sizeClass }} {{ $labelClass }}">
             <input
                 {{ $livewireModel ? "wire:model=$livewireModel" : '' }}
@@ -102,7 +102,7 @@
 
 @else
     {{-- ============================ MODO RADIO ============================ --}}
-    <div class="{{ $layoutClass }} {{ $radioColorClass }} {{ $alignClass }} {{ $sizeClass }} {{ $inline ? 'form-check-inline' : '' }} {{ $parentClass }} {{ $mb0 ? '' : 'mb-4' }}">
+    <div class="{{ $layoutClass }} {{ $radioColorClass }} {{ $alignClass }} {{ $sizeClass }} {{ $inline ? 'form-check-inline' : '' }} {{ $parentClass }} {{ $mb0 ? '' : 'mb-4' }} fv-row">
         <input
             {{ $livewireModel ? "wire:model=$livewireModel" : '' }}
             {{ $disabled ? 'disabled' : '' }}

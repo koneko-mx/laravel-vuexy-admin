@@ -6,13 +6,29 @@ use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Koneko\VuexyAdmin\Models\Setting;
 
+/**
+ * Servicio para gestionar la configuración administrativa de VuexyAdmin
+ *
+ * Este servicio maneja el procesamiento y almacenamiento de imágenes del favicon
+ * y logos del panel administrativo, incluyendo diferentes versiones y tamaños.
+ *
+ * @package Koneko\VuexyAdmin\Services
+ */
 class AdminSettingsService
 {
+    /** @var string Driver de procesamiento de imágenes */
     private $driver;
-    private $imageDisk           = 'public';
-    private $favicon_basePath    = 'favicon/';
+
+    /** @var string Disco de almacenamiento para imágenes */
+    private $imageDisk = 'public';
+
+    /** @var string Ruta base para favicons */
+    private $favicon_basePath = 'favicon/';
+
+    /** @var string Ruta base para logos */
     private $image_logo_basePath = 'images/logo/';
 
+    /** @var array<string,array<int>> Tamaños predefinidos para favicons */
     private $faviconsSizes = [
         '180x180' => [180, 180],
         '192x192' => [192, 192],
@@ -22,28 +38,40 @@ class AdminSettingsService
         '16x16' => [16, 16],
     ];
 
-    private $imageLogoMaxPixels1 =  22500; // Primera versión (px^2)
-    private $imageLogoMaxPixels2 =  75625; // Segunda versión (px^2)
-    private $imageLogoMaxPixels3 = 262144; // Tercera versión (px^2)
-    private $imageLogoMaxPixels4 = 230400; // Tercera versión (px^2) en Base64
+    /** @var int Área máxima en píxeles para la primera versión del logo */
+    private $imageLogoMaxPixels1 = 22500;
 
-    protected $cacheTTL = 60 * 24 * 30; // 30 días en minutos
+    /** @var int Área máxima en píxeles para la segunda versión del logo */
+    private $imageLogoMaxPixels2 = 75625;
 
+    /** @var int Área máxima en píxeles para la tercera versión del logo */
+    private $imageLogoMaxPixels3 = 262144;
+
+    /** @var int Área máxima en píxeles para la versión base64 del logo */
+    private $imageLogoMaxPixels4 = 230400;
+
+    /** @var int Tiempo de vida en caché en minutos */
+    protected $cacheTTL = 60 * 24 * 30;
+
+    /**
+     * Constructor del servicio
+     *
+     * Inicializa el driver de procesamiento de imágenes desde la configuración
+     */
     public function __construct()
     {
         $this->driver = config('image.driver', 'gd');
     }
 
-    public function updateSetting(string $key, string $value): bool
-    {
-        $setting = Setting::updateOrCreate(
-            ['key' => $key],
-            ['value' => trim($value)]
-        );
-
-        return $setting->save();
-    }
-
+    /**
+     * Procesa y guarda un nuevo favicon
+     *
+     * Genera múltiples versiones del favicon en diferentes tamaños predefinidos,
+     * elimina las versiones anteriores y actualiza la configuración.
+     *
+     * @param \Illuminate\Http\UploadedFile $image Archivo de imagen subido
+     * @return void
+     */
     public function processAndSaveFavicon($image): void
     {
         Storage::makeDirectory($this->imageDisk . '/' . $this->favicon_basePath);
@@ -66,13 +94,20 @@ class AdminSettingsService
             Storage::disk($this->imageDisk)->put($resizedPath, $image->toPng(indexed: true));
         }
 
-        $this->updateSetting('admin_favicon_ns', $this->favicon_basePath . $imageName);
+        // Actualizar configuración utilizando SettingService
+        $SettingsService = app(SettingsService::class);
+        $SettingsService->set('admin.favicon_ns', $this->favicon_basePath . $imageName, null, 'vuexy-admin');
     }
 
+    /**
+     * Elimina los favicons antiguos del almacenamiento
+     *
+     * @return void
+     */
     protected function deleteOldFavicons(): void
     {
         // Obtener el favicon actual desde la base de datos
-        $currentFavicon = Setting::where('key', 'admin_favicon_ns')->value('value');
+        $currentFavicon = Setting::where('key', 'admin.favicon_ns')->value('value');
 
         if ($currentFavicon) {
             $filePaths = [
@@ -93,6 +128,16 @@ class AdminSettingsService
         }
     }
 
+    /**
+     * Procesa y guarda un nuevo logo
+     *
+     * Genera múltiples versiones del logo con diferentes tamaños máximos,
+     * incluyendo una versión en base64, y actualiza la configuración.
+     *
+     * @param \Illuminate\Http\UploadedFile $image Archivo de imagen subido
+     * @param string $type Tipo de logo ('dark' para modo oscuro, '' para normal)
+     * @return void
+     */
     public function processAndSaveImageLogo($image, string $type = ''): void
     {
         // Crear directorio si no existe
@@ -112,6 +157,15 @@ class AdminSettingsService
         $this->generateAndSaveImageAsBase64($image, $type, $this->imageLogoMaxPixels4); // Versión 3
     }
 
+    /**
+     * Genera y guarda una versión del logo
+     *
+     * @param \Intervention\Image\Interfaces\ImageInterface $image Imagen a procesar
+     * @param string $type Tipo de logo ('dark' para modo oscuro, '' para normal)
+     * @param int $maxPixels Área máxima en píxeles
+     * @param string $suffix Sufijo para el nombre del archivo
+     * @return void
+     */
     private function generateAndSaveImage($image, string $type, int $maxPixels, string $suffix = ''): void
     {
         $imageClone = clone $image;
@@ -120,6 +174,7 @@ class AdminSettingsService
         $this->resizeImageToMaxPixels($imageClone, $maxPixels);
 
         $imageName = 'admin_image_logo' . ($suffix ? '_' . $suffix : '') . ($type == 'dark' ? '_dark' : '');
+        $keyValue  = 'admin.image.logo' . ($suffix ? '_' . $suffix : '') . ($type == 'dark' ? '_dark' : '');
 
         // Generar nombre y ruta
         $imageNameUid = uniqid($imageName .  '_',  ".png");
@@ -129,9 +184,17 @@ class AdminSettingsService
         Storage::disk($this->imageDisk)->put($resizedPath, $imageClone->toPng(indexed: true));
 
         // Actualizar configuración
-        $this->updateSetting($imageName, $resizedPath);
+        $SettingsService = app(SettingsService::class);
+        $SettingsService->set($keyValue, $resizedPath, null, 'vuexy-admin');
     }
 
+    /**
+     * Redimensiona una imagen manteniendo su proporción
+     *
+     * @param \Intervention\Image\Interfaces\ImageInterface $image Imagen a redimensionar
+     * @param int $maxPixels Área máxima en píxeles
+     * @return \Intervention\Image\Interfaces\ImageInterface
+     */
     private function resizeImageToMaxPixels($image, int $maxPixels)
     {
         // Obtener dimensiones originales de la imagen
@@ -163,7 +226,14 @@ class AdminSettingsService
         return $image;
     }
 
-
+    /**
+     * Genera y guarda una versión del logo en formato base64
+     *
+     * @param \Intervention\Image\Interfaces\ImageInterface $image Imagen a procesar
+     * @param string $type Tipo de logo ('dark' para modo oscuro, '' para normal)
+     * @param int $maxPixels Área máxima en píxeles
+     * @return void
+     */
     private function generateAndSaveImageAsBase64($image, string $type, int $maxPixels): void
     {
         $imageClone = clone $image;
@@ -175,12 +245,16 @@ class AdminSettingsService
         $base64Image = (string) $imageClone->toJpg(40)->toDataUri();
 
         // Guardar como configuración
-        $this->updateSetting(
-            "admin_image_logo_base64" . ($type === 'dark' ? '_dark' : ''),
-            $base64Image // Ya incluye "data:image/png;base64,"
-        );
+        $SettingsService = app(SettingsService::class);
+        $SettingsService->set("admin.image.logo_base64" . ($type === 'dark' ? '_dark' : ''), $base64Image, null, 'vuexy-admin');
     }
 
+    /**
+     * Elimina las imágenes antiguas del logo
+     *
+     * @param string $type Tipo de logo ('dark' para modo oscuro, '' para normal)
+     * @return void
+     */
     protected function deleteOldImageWebapp(string $type = ''): void
     {
         // Determinar prefijo según el tipo (normal o dark)
@@ -188,9 +262,9 @@ class AdminSettingsService
 
         // Claves relacionadas con las imágenes que queremos limpiar
         $imageKeys = [
-            "admin_image_logo{$suffix}",
-            "admin_image_logo_small{$suffix}",
-            "admin_image_logo_medium{$suffix}",
+            "admin.image_logo{$suffix}",
+            "admin.image_logo_small{$suffix}",
+            "admin.image_logo_medium{$suffix}",
         ];
 
         // Recuperar las imágenes actuales en una sola consulta

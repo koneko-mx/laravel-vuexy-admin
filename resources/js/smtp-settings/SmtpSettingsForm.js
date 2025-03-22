@@ -1,7 +1,7 @@
 export default class SmtpSettingsForm {
     constructor(config = {}) {
         const defaultConfig = {
-            formSmtpSettingsSelector: '#mail-smtp-settings-card',
+            formSmtpSettingsSelector: '#sendmail-settings-card',
             changeSmtpSettingsId: 'change_smtp_settings',
             testSmtpConnectionButtonId: 'test_smtp_connection_button',
             saveSmtpConnectionButtonId: 'save_smtp_connection_button',

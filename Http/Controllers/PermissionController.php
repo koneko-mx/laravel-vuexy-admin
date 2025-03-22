@@ -3,11 +3,8 @@
 namespace Koneko\VuexyAdmin\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use Spatie\Permission\Models\Permission;
-use Yajra\DataTables\Facades\DataTables;
-
 use App\Http\Controllers\Controller;
+use Koneko\VuexyAdmin\Queries\GenericQueryBuilder;
 
 class PermissionController extends Controller
 {
@@ -19,17 +16,26 @@ class PermissionController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $permissions = Permission::latest()->get();
+            $bootstrapTableIndexConfig = [
+                'table' => 'permissions',
+                'columns' => [
+                    'permissions.id',
+                    'permissions.name',
+                    'permissions.group_name',
+                    'permissions.sub_group_name',
+                    'permissions.action',
+                    'permissions.guard_name',
+                    'permissions.created_at',
+                    'permissions.updated_at',
+                ],
+                'filters' => [
+                    'search' => ['permissions.name', 'permissions.group_name', 'permissions.sub_group_name', 'permissions.action'],
+                ],
+                'sort_column' => 'permissions.name',
+                'default_sort_order' => 'asc',
+            ];
 
-            return DataTables::of($permissions)
-                ->addIndexColumn()
-                ->addColumn('assigned_to', function ($row) {
-                    return (Arr::pluck($row->roles, ['name']));
-                })
-                ->editColumn('created_at', function ($request) {
-                    return $request->created_at->format('Y-m-d h:i:s a');
-                })
-                ->make(true);
+            return (new GenericQueryBuilder($request, $bootstrapTableIndexConfig))->getJson();
         }
 
         return view('vuexy-admin::permissions.index');

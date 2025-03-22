@@ -7,19 +7,38 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\File;
 
+/**
+ * Servicio para gestionar y administrar el sistema de caché.
+ *
+ * Esta clase proporciona funcionalidades para administrar diferentes drivers de caché
+ * (Redis, Memcached, Database, File), incluyendo operaciones como obtener estadísticas,
+ * limpiar la caché y monitorear el uso de recursos.
+ */
 class CacheManagerService
 {
+    /** @var string Driver de caché actualmente seleccionado */
     private string $driver;
 
-    public function __construct(string $driver = null)
+    /**
+     * Constructor del servicio de gestión de caché.
+     *
+     * @param mixed $driver Driver de caché a utilizar. Si es null, se usa el driver predeterminado
+     */
+    public function __construct(mixed $driver = null)
     {
         $this->driver = $driver ?? config('cache.default');
     }
 
     /**
      * Obtiene estadísticas de caché para el driver especificado.
+     *
+     * Recopila información detallada sobre el uso y rendimiento del sistema de caché,
+     * incluyendo uso de memoria, número de elementos y estadísticas específicas del driver.
+     *
+     * @param mixed $driver Driver de caché del cual obtener estadísticas
+     * @return array Estadísticas del sistema de caché
      */
-    public function getCacheStats(string $driver = null): array
+    public function getCacheStats(mixed $driver = null): array
     {
         $driver = $driver ?? $this->driver;
 
@@ -40,7 +59,13 @@ class CacheManagerService
         }
     }
 
-    public function clearCache(string $driver = null): array
+    /**
+     * Limpia la caché del driver especificado.
+     *
+     * @param mixed $driver Driver de caché a limpiar
+     * @return array Resultado de la operación de limpieza
+     */
+    public function clearCache(mixed $driver = null): array
     {
         $driver = $driver ?? $this->driver;
 
@@ -88,6 +113,11 @@ class CacheManagerService
         }
     }
 
+    /**
+     * Obtiene estadísticas detalladas del servidor Redis.
+     *
+     * @return array Información detallada del servidor Redis incluyendo versión, memoria, clientes y más
+     */
     public function getRedisStats()
     {
         try {
@@ -132,6 +162,11 @@ class CacheManagerService
         }
     }
 
+    /**
+     * Obtiene estadísticas detalladas del servidor Memcached.
+     *
+     * @return array Información detallada del servidor Memcached incluyendo versión, memoria y estadísticas de uso
+     */
     public function getMemcachedStats()
     {
         try {
@@ -176,9 +211,10 @@ class CacheManagerService
         }
     }
 
-
     /**
      * Obtiene estadísticas para caché en base de datos.
+     *
+     * @return array Estadísticas de la caché en base de datos incluyendo cantidad de registros y uso de memoria
      */
     private function _getDatabaseStats(): array
     {
@@ -196,6 +232,8 @@ class CacheManagerService
 
     /**
      * Obtiene estadísticas para caché en archivos.
+     *
+     * @return array Estadísticas de la caché en archivos incluyendo cantidad de archivos y uso de memoria
      */
     private function _getFilecacheStats(): array
     {
@@ -211,6 +249,11 @@ class CacheManagerService
         }
     }
 
+    /**
+     * Obtiene estadísticas específicas de Redis para la caché.
+     *
+     * @return array Estadísticas de Redis incluyendo cantidad de claves y uso de memoria
+     */
     private function _getRedisStats()
     {
         try {
@@ -227,6 +270,11 @@ class CacheManagerService
         }
     }
 
+    /**
+     * Obtiene estadísticas específicas de Memcached para la caché.
+     *
+     * @return array Estadísticas de Memcached incluyendo cantidad de elementos y uso de memoria
+     */
     public function _getMemcachedStats(): array
     {
         try {
@@ -254,6 +302,14 @@ class CacheManagerService
         }
     }
 
+    /**
+     * Obtiene información sobre las bases de datos Redis en uso.
+     *
+     * Analiza y recopila información sobre las diferentes bases de datos Redis
+     * configuradas en el sistema (default, cache, sessions).
+     *
+     * @return array Información detallada de las bases de datos Redis
+     */
     private function getRedisDatabases(): array
     {
         // Verificar si Redis está en uso
@@ -300,7 +356,11 @@ class CacheManagerService
         return $result;
     }
 
-
+    /**
+     * Limpia la caché almacenada en base de datos.
+     *
+     * @return bool True si se eliminaron registros, False si no había registros para eliminar
+     */
     private function clearDatabaseCache(): bool
     {
         $count = DB::table(config('cache.stores.database.table'))->count();
@@ -313,6 +373,11 @@ class CacheManagerService
         return false;
     }
 
+    /**
+     * Limpia la caché almacenada en archivos.
+     *
+     * @return bool True si se eliminaron archivos, False si no había archivos para eliminar
+     */
     private function clearFilecache(): bool
     {
         $cachePath = config('cache.stores.file.path');
@@ -326,6 +391,11 @@ class CacheManagerService
         return false;
     }
 
+    /**
+     * Limpia la caché almacenada en Redis.
+     *
+     * @return bool True si se eliminaron claves, False si no había claves para eliminar
+     */
     private function clearRedisCache(): bool
     {
         $prefix = config('cache.prefix', '');
@@ -343,6 +413,11 @@ class CacheManagerService
         return false;
     }
 
+    /**
+     * Limpia la caché almacenada en Memcached.
+     *
+     * @return bool True si se limpió la caché, False en caso contrario
+     */
     private function clearMemcachedCache(): bool
     {
         // Obtener el cliente Memcached directamente
@@ -359,9 +434,11 @@ class CacheManagerService
         return false;
     }
 
-
     /**
-     * Verifica si un driver es soportado.
+     * Verifica si un driver es soportado por el sistema.
+     *
+     * @param string $driver Nombre del driver a verificar
+     * @return bool True si el driver es soportado, False en caso contrario
      */
     private function isSupportedDriver(string $driver): bool
     {
@@ -369,7 +446,10 @@ class CacheManagerService
     }
 
     /**
-     * Convierte bytes en un formato legible.
+     * Convierte bytes en un formato legible por humanos.
+     *
+     * @param int|float $bytes Cantidad de bytes a formatear
+     * @return string Cantidad formateada con unidad (B, KB, MB, GB, TB)
      */
     private function formatBytes($bytes)
     {
@@ -380,7 +460,12 @@ class CacheManagerService
     }
 
     /**
-     * Genera una respuesta estandarizada.
+     * Genera una respuesta estandarizada para las operaciones del servicio.
+     *
+     * @param string $status Estado de la operación ('success', 'warning', 'danger', 'info')
+     * @param string $message Mensaje descriptivo de la operación
+     * @param array $data Datos adicionales de la operación
+     * @return array Respuesta estructurada con estado, mensaje y datos
      */
     private function response(string $status, string $message, array $data = []): array
     {
