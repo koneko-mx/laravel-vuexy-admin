@@ -1,5 +1,5 @@
 @php
-use Laravel\Fortify\Features;
+    use Laravel\Fortify\Features;
 
     $customizerHidden = 'customizer-hide';
     $configData = Helper::appClasses();
@@ -10,16 +10,12 @@ use Laravel\Fortify\Features;
 @section('title', 'Iniciar sesión')
 
 @section('vendor-style')
-    @vite([
-        'vendor/koneko/laravel-vuexy-admin/resources/assets/vendor/libs/@form-validation/form-validation.scss'
-    ])
+    @vite('vendor/koneko/laravel-vuexy-admin/resources/assets/vendor/libs/@form-validation/form-validation.scss')
 @endsection
 
 @push('page-style')
-    @vite([
-        'vendor/koneko/laravel-vuexy-admin/resources/assets/vendor/vuexy-admin/scss/auth/page-auth.scss'
-    ])
-@endsection
+    @vite('vendor/koneko/laravel-vuexy-admin/resources/scss/pages/page-auth.scss'   )
+@endpush
 
 @section('vendor-script')
     @vite([
@@ -30,11 +26,8 @@ use Laravel\Fortify\Features;
 @endsection
 
 @push('page-script')
-    @vite([
-        'vendor/koneko/laravel-vuexy-admin/resources/assets/vendor/vuexy-admin/js/auth/pages-auth.js'
-    ])
+    @vite('vendor/koneko/laravel-vuexy-admin/resources//js/auth/pages-auth.js')
 @endpush
-
 
 @section('content')
     <div class="container-xxl">
