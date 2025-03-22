@@ -7,6 +7,7 @@ use Koneko\VuexyAdmin\Helpers\VuexyHelper;
 use Koneko\VuexyAdmin\Http\Middleware\AdminTemplateMiddleware;
 use Illuminate\Auth\Events\{Login,Logout};
 use Illuminate\Foundation\AliasLoader;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{URL,Event,Blade};
 use Illuminate\Support\ServiceProvider;
 use Koneko\VuexyAdmin\Listeners\{ClearUserCache,HandleUserLogin};
@@ -52,10 +53,21 @@ class VuexyAdminServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if(env('FORCE_HTTPS', false)){
-            URL::forceScheme('https');
+        if (env('TRUST_PROXY', false)) {
+            Request::setTrustedProxies(
+                explode(',', env('TRUST_PROXY_IPS', '*')), // admite múltiples IPs separadas por coma
+                Request::HEADER_X_FORWARDED_PROTO |
+                Request::HEADER_X_FORWARDED_HOST |
+                Request::HEADER_X_FORWARDED_PORT |
+                Request::HEADER_X_FORWARDED_FOR |
+                Request::HEADER_X_FORWARDED_PREFIX
+            );
         }
 
+        if (env('FORCE_HTTPS', false) || request()->header('X-Forwarded-Proto') === 'https') {
+            URL::forceScheme('https');
+            app('request')->server->set('HTTPS', 'on');
+        }
 
         // Registrar alias del middleware
         $this->app['router']->aliasMiddleware('admin', AdminTemplateMiddleware::class);

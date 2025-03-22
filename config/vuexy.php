@@ -33,4 +33,5 @@ return [
             'themes',
         ], // To show/hide customizer options
     ],
+    'force_https' => env('FORCE_HTTPS', false),
 ];
