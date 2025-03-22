@@ -11,7 +11,7 @@ use Laravel\Fortify\Features;
 
 @section('vendor-style')
     @vite([
-        'vendor/koneko/laravel-vuexy-admin/resources/assets/vendor/vuexy-admin/vendor/libs/@form-validation/form-validation.scss'
+        'vendor/koneko/laravel-vuexy-admin/resources/assets/vendor/libs/@form-validation/form-validation.scss'
     ])
 @endsection
 
@@ -23,9 +23,9 @@ use Laravel\Fortify\Features;
 
 @section('vendor-script')
     @vite([
-        'vendor/koneko/laravel-vuexy-admin/resources/assets/vendor/vuexy-admin/vendor/libs/@form-validation/popular.js',
-        'vendor/koneko/laravel-vuexy-admin/resources/assets/vendor/vuexy-admin/vendor/libs/@form-validation/bootstrap5.js',
-        'vendor/koneko/laravel-vuexy-admin/resources/assets/vendor/vuexy-admin/vendor/libs/@form-validation/auto-focus.js'
+        'vendor/koneko/laravel-vuexy-admin/resources/assets/vendor/libs/@form-validation/popular.js',
+        'vendor/koneko/laravel-vuexy-admin/resources/assets/vendor/libs/@form-validation/bootstrap5.js',
+        'vendor/koneko/laravel-vuexy-admin/resources/assets/vendor/libs/@form-validation/auto-focus.js'
     ])
 @endsection
 
