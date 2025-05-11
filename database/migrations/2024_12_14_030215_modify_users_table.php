@@ -1,9 +1,8 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Schema\Blueprint;
-use Koneko\VuexyAdmin\Models\User;
+use Illuminate\Support\Facades\{DB,Schema};
 
 return new class extends Migration
 {
@@ -19,8 +18,11 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->string('last_name', 100)->nullable()->comment('Apellidos')->index()->after('name');
             $table->string('profile_photo_path', 2048)->nullable()->after('remember_token');
-            $table->unsignedTinyInteger('status')->default(User::STATUS_DISABLED)->after('profile_photo_path');
+            $table->boolean('status')->default(1)->after('profile_photo_path');
             $table->unsignedMediumInteger('created_by')->nullable()->index()->after('status');
+
+            // Auditoria
+            $table->softDeletes();
 
             // Definir la relación con created_by
             $table->foreign('created_by')->references('id')->on('users')->onUpdate('restrict')->onDelete('restrict');
@@ -35,10 +37,5 @@ return new class extends Migration
         DB::statement('ALTER TABLE `users` MODIFY `id` MEDIUMINT UNSIGNED NOT NULL;');
         DB::statement('ALTER TABLE `users` DROP PRIMARY KEY;');
         DB::statement('ALTER TABLE `users` MODIFY `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id`);');
-
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['last_name', 'profile_photo_path', 'status', 'created_by']);
-
-        });
     }
 };

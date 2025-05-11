@@ -3,7 +3,7 @@
         <li class="menu-item {{ isset($submenu['active']) && $submenu['active'] ? 'active open' : '' }}">
             <a href="{{ $submenu['url'] ?? 'javascript:void(0);' }}" class="menu-link {{ isset($submenu['submenu']) ? 'menu-toggle' : '' }}" @if (isset($submenu['target']) and !empty($submenu['target'])) target="{{ $submenu['target'] }}" @endif>
                 @isset($submenu['icon'])
-                    <i class="{{ $submenu['icon'] }}"></i>
+                    <i class="menu-icon tf-icons {{ $submenu['icon'] }}"></i>
                 @endisset
                 <div>{{ $submenuName }}</div>
                 @isset($submenu['badge'])

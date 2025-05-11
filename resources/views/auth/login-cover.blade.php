@@ -5,7 +5,7 @@
     $configData = Helper::appClasses();
 @endphp
 
-@extends('vuexy-admin::layouts.vuexy.layoutMaster')
+@extends('vuexy-admin::layouts.vuexy.blankLayout')
 
 @section('title', 'Iniciar sesión')
 

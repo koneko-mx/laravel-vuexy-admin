@@ -1,102 +1,39 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Koneko\VuexyAdmin\Http\Controllers\{HomeController,VuexyAdminController,CacheController,GlobalSettingsController};
-use Koneko\VuexyAdmin\Http\Controllers\{UserController,UserProfileController,RoleController,PermissionController};
-use Koneko\VuexyAdmin\Http\Controllers\LanguageController;
-use Koneko\VuexyAdmin\Http\Controllers\{DocumentController};
+use Koneko\VuexyAdmin\Application\Http\Controllers\{AuditoriaController, GeneralSettingsController, CacheController, KonekoModuleController};
+use Koneko\VuexyAdmin\Support\Routing\RouteScope;
 
-// Grupo raíz para admin con middleware y prefijos comunes
-Route::prefix('admin')->name('admin.core.')->middleware(['web', 'auth', 'admin'])->group(function () {
-    // Páginas
-    Route::controller(HomeController::class)->group(function () {
-        Route::get('/', 'index')->name('home.index');
-        Route::get('acerca-de', 'about')->name('about.index');
-        Route::get('muy-pronto', 'comingsoon')->name('comingsoon.index');
-        Route::get('bajo-mantenimiento', 'underMaintenance')->name('under-maintenance.index');
+RouteScope::auto(__FILE__, function (RouteScope $r) {
+    // Ajustes
+    $r->route('ajustes-de-sistema', 'settings.', GeneralSettingsController::class, function () {
+        Route::get('aplicacion/interfaz-web', 'webInterface')->name('web-interface.index');
+        Route::get('aplicacion/interfaz-vuexy', 'vuexyInterface')->name('vuexy-interface.index');
+        Route::get('correo-electronico/servidor-de-correo-smtp', 'smtpSettings')->name('smtp.index');
+        Route::get('variables-de-entorno', 'environmentVars')->name('env.index');
     });
 
-    // Perfil del usuario
-    Route::controller(UserProfileController::class)->prefix('usuario')->name('user-profile.')->group(function () {
-        Route::get('perfil', 'index')->name('index');
-        Route::patch('perfil', 'update')->name('update');
-        Route::delete('perfil', 'destroy')->name('destroy');
-        Route::get('avatar', 'generateAvatar')->name('avatar');
+    // Herramietnas / Cache
+    $r->route('herramientas/cache', 'cache.', CacheController::class, function () {
+        Route::get('laravel', 'laravelIndex')->name('laravel.index');
+        Route::get('redis', 'redisIndex')->name('redis.index');
+        Route::get('memcache', 'memcacheIndex')->name('memcache.index');
+        Route::get('sessions', 'sessionsIndex')->name('sessions.index');
+        Route::get('carga-de-vite-assets', 'viteAssetsIndex')->name('vite-assets.index');
+        Route::get('manejador-de-ttls', 'manualInvalidatorIndex')->name('ttls.index');
     });
 
-    // Usuarios
-    Route::controller(UserController::class)->prefix('sistema/usuarios')->name('users.')->group(function () {
-        Route::get('/', 'index')->name('index');  // Listar usuarios
-        Route::get('{user}', 'show')->name('show');
-        Route::get('{user}/delete', 'delete')->name('delete');
-        Route::get('{user}/edit', 'edit')->name('edit');
-
-        Route::post('/', 'store')->name('store');  // Guardar usero
-        Route::put('{user}', 'update')->name('update');  // Actualizar usero
+    // Koneko Vuexy Admin
+    $r->route('konek-vuexy-admin', 'modules.', KonekoModuleController::class, function () {
+    //$r->route('konek-vuexy-admin', 'msodules.', KonekoModuleController::class, function () {
+        Route::get('librerias-y-plugins', 'pluginsIndex')->name('plugins.index');
+        Route::get('configuracion-de-modulos', 'modulesManagementIndex')->name('modules-management.index');
     });
 
-    // Roles
-    Route::controller(RoleController::class)->prefix('sistema/rbac/roles')->name('roles.')->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('ajax/check-unique-name', 'checkUniqueRoleName')->name('check-unique-name');
+    // Auditoria / Registros de sistema
+    $r->route('registros-de-sistema', 'audit.', AuditoriaController::class, function () {
+        Route::get('registros-de-accesos', 'usersAuthLogs')->name('users-auth-logs.index');
+        Route::get('eventos-de-auditoria', 'securityEvents')->name('security-events.index');
+        Route::get('registros-de-laravel', 'laravelLogs')->name('laravel-logs.index');
     });
-
-    // Permisos
-    Route::controller(PermissionController::class)->prefix('sistema/rbac/permisos')->name('permissions.')->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/ajax/check-unique-name', 'checkUniquePermissionName')->name('check-unique-name');
-    });
-
-    // Ajustes de la aplicación
-    Route::controller(VuexyAdminController::class)->prefix('ajustes-generales')->group(function () {
-        Route::get('ajustes-generales', 'generalSettings')->name('general-settings.index');
-    });
-
-    // Ajustes de Cache
-    Route::controller(CacheController::class)->prefix('ajustes-generales')->name('cache-manager.')->group(function () {
-        Route::get('ajustes-de-cache', 'index')->name('index');
-    });
-
-    // Ajustes de Cache Actions
-    Route::controller(CacheController::class)->name('cache-manager.')->group(function () {
-        Route::post('config/cache', 'generateConfigCache')->name('config-cache');
-        Route::post('route/cache', 'generateRouteCache')->name('route-cache');
-    });
-
-    // Ajustes de interface
-    Route::controller(VuexyAdminController::class)->prefix('ajustes-generales')->group(function () {
-        Route::get('ajustes-de-interfaz', 'VuexyInterfaceSettings')->name('interface-settings.index');
-    });
-
-    // Servidor de correo Saliente
-    Route::controller(VuexyAdminController::class)->prefix('ajustes-generales')->group(function () {
-        Route::get('servidor-de-correo-smtp', 'smtpSettings')->name('smtp-settings.index');
-    });
-
-    // Configuraciones globales
-    Route::controller(GlobalSettingsController::class)->prefix('ajustes-generales')->group(function () {
-        Route::get('configuraciones-globales', 'index')->name('global-settings.index');
-    });
-
-    // Documentos
-    Route::controller(DocumentController::class)->prefix('documentos')->name('documents.')->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('crear', 'create')->name('create');
-        Route::post('crear', 'store')->name('store');
-        Route::get('editar/{document}', 'edit')->name('edit');
-        Route::post('editar/{document}', 'update')->name('update');
-        Route::delete('editar/{document}', 'destroy')->name('destroy');
-    });
-
-    // Accesos rápidos de la barra de menú
-    Route::controller(VuexyAdminController::class)->group(function () {
-        Route::post('quicklinks-update', 'quickLinksUpdate')->name('quicklinks-navbar.update');
-    });
-
-    // Buscador de la barra de menú
-    Route::get('search-navbar', [VuexyAdminController::class, 'searchNavbar'])->name('search-navbar.index');
-
-    // Cambio de idioma
-    Route::get('language/{locale}', [LanguageController::class, 'swap'])->name('language.swap');
-
 });

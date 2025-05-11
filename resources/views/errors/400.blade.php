@@ -25,7 +25,7 @@
                     {{ __('errors.bad_request') }}
                 @endif
             </p>
-            <a href="{{ route('admin.core.home.index') }}" class="btn btn-primary mb-10">Regresar al inicio</a>
+            <a href="{{ route('admin.core.pages.home.index') }}" class="btn btn-primary mb-10">Regresar al inicio</a>
             <div class="mt-4">
                 <img src="{{ asset('vendor/vuexy-admin/img/illustrations/page-misc-error.png') }}" alt="page-misc-error" width="225" class="img-fluid">
             </div>

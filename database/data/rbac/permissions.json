@@ -1,0 +1,892 @@
+{
+    "module": "admin.core",
+    "name": {
+        "es": "Koneko Vuexy Admin",
+        "en": "Koneko Vuexy Admin"
+    },
+    "_meta": {
+        "description": {
+            "es": "Permisos para la gestión de ajustes de sistema",
+            "en": "Permissions for managing system settings"
+        },
+        "icon": "ti ti-adjustments-alt"
+    },
+    "priority": "first",
+    "groups": {
+        "system-settings":{
+            "name": {
+                "es": "Ajustes de sistema",
+                "en": "System settings"
+            },
+            "_meta": {
+                "description": {
+                    "es": "Permisos para la gestión de ajustes de sistema",
+                    "en": "Permissions for managing system settings"
+                },
+                "icon": "ti ti-adjustments-alt"
+            },
+            "priority": "first",
+            "sub_groups": {
+                "web-interface": {
+                    "name": {
+                        "es": "Interfaz Web",
+                        "en": "Web Interface"
+                    },
+                    "_meta": {
+                        "description": {
+                            "es": "Permisos para la configuración de la interfaz web",
+                            "en": "Permissions for configuring the web interface"
+                        },
+                        "icon": "ti ti-device-desktop-cog"
+                    },
+                    "priority": 100,
+                    "permissions": [
+                        {
+                            "action": "view",
+                            "label": {
+                                "es": "Ver configuración de interfaz web",
+                                "en": "View web interface settings"
+                            },
+                            "key": "settings.web-interface.view"
+                        },
+                        {
+                            "action": "update",
+                            "label": {
+                                "es": "Modificar configuración de interfaz web",
+                                "en": "Update web interface settings"
+                            },
+                            "key": "settings.web-interface.update"
+                        }
+                    ]
+                },
+                "vuexy-interface": {
+                    "name": {
+                        "es": "Interfaz Vuexy",
+                        "en": "Vuexy Interface"
+                    },
+                    "_meta": {
+                        "description": {
+                            "es": "Permisos para la configuración de la interfaz Vuexy",
+                            "en": "Permissions for configuring the Vuexy interface"
+                        },
+                        "icon": "ti ti-template"
+                    },
+                    "priority": 200,
+                    "permissions": [
+                        {
+                            "action": "view",
+                            "label": {
+                                "es": "Ver configuración de interfaz Vuexy",
+                                "en": "View Vuexy interface settings"
+                            },
+                            "key": "settings.vuexy-interface.view"
+                        },
+                        {
+                            "action": "update",
+                            "label": {
+                                "es": "Modificar configuración de interfaz Vuexy",
+                                "en": "Update Vuexy interface settings"
+                            },
+                            "key": "settings.vuexy-interface.update"
+                        }
+                    ]
+                },
+                "smtp": {
+                    "name": {
+                        "es": "Servidor SMTP",
+                        "en": "SMTP Server"
+                    },
+                    "_meta": {
+                        "description": {
+                            "es": "Permisos para la configuración del servidor SMTP",
+                            "en": "Permissions for configuring the SMTP server"
+                        },
+                        "icon": "ti ti-mail-cog"
+                    },
+                    "priority": 300,
+                    "permissions": [
+                        {
+                            "action": "view",
+                            "label": {
+                                "es": "Ver configuración de servidor SMTP",
+                                "en": "View SMTP server settings"
+                            },
+                            "key": "settings.smtp.view"
+                        },
+                        {
+                            "action": "update",
+                            "label": {
+                                "es": "Modificar configuración de servidor SMTP",
+                                "en": "Update SMTP server settings"
+                            },
+                            "key": "settings.smtp.update"
+                        }
+                    ]
+                },
+                "apis": {
+                    "name": {
+                        "es": "APIs",
+                        "en": "APIs"
+                    },
+                    "_meta": {
+                        "description": {
+                            "es": "Permisos para la gestión de APIs e integraciones",
+                            "en": "Permissions for managing APIs and integrations"
+                        },
+                        "icon": "ti ti-plug-connected"
+                    },
+                    "priority": 400,
+                    "permissions": [
+                        {
+                            "action": "view",
+                            "label": {
+                                "es": "Ver configuración de APIs",
+                                "en": "View APIs configuration"
+                            },
+                            "key": "settings.apis.view"
+                        },
+                        {
+                            "action": "update",
+                            "label": {
+                                "es": "Modificar configuración de APIs",
+                                "en": "Update APIs configuration"
+                            },
+                            "key": "settings.apis.update"
+                        }
+                    ]
+                },
+                "env": {
+                    "name": {
+                        "es": "Variables de entorno",
+                        "en": "Environment Variables"
+                    },
+                    "_meta": {
+                        "description": {
+                            "es": "Permisos para la gestión de variables de entorno",
+                            "en": "Permissions for managing environment variables"
+                        },
+                        "icon": "ti ti-settings-code"
+                    },
+                    "priority": 500,
+                    "permissions": [
+                        {
+                            "action": "view",
+                            "label": {
+                                "es": "Ver variables de entorno",
+                                "en": "View environment variables"
+                            },
+                            "key": "settings.env.view"
+                        },
+                        {
+                            "action": "update",
+                            "label": {
+                                "es": "Modificar variables de entorno",
+                                "en": "Update environment variables"
+                            },
+                            "key": "settings.env.update"
+                        }
+                    ]
+                }
+            }
+        },
+        "users-rbac": {
+            "name": {
+                "es": "Usuarios y control de Acceso",
+                "en": "Users and Access Control"
+            },
+            "_meta": {
+                "description": {
+                    "es": "Permisos para la gestión de usuarios y permisos de control de acceso (RBAC)",
+                    "en": "Permissions for managing users and access control (RBAC)"
+                },
+                "icon": "ti ti-lock-access"
+            },
+            "priority": 100,
+            "sub_groups": {
+                "users": {
+                    "name": {
+                        "es": "Usuarios de sistema",
+                        "en": "System users"
+                    },
+                    "_meta": {
+                        "description": {
+                            "es": "Permisos para la gestión de usuarios de sistema",
+                            "en": "Permissions for managing system users"
+                        },
+                        "icon": "__MENU__"
+                    },
+                    "priority": 100,
+                    "permissions": [
+                        {
+                            "action": "view",
+                            "label": {
+                                "es": "Ver listado de usuarios",
+                                "en": "View user list"
+                            },
+                            "key": "users.users.view"
+                        },
+                        {
+                            "action": "create",
+                            "label": {
+                                "es": "Crear usuario",
+                                "en": "Create user"
+                            },
+                            "key": "users.users.create"
+                        },
+                        {
+                            "action": "update",
+                            "label": {
+                                "es": "Editar usuario",
+                                "en": "Update user"
+                            },
+                            "key": "users.users.update"
+                        },
+                        {
+                            "action": "delete",
+                            "label": {
+                                "es": "Eliminar usuario",
+                                "en": "Delete user"
+                            },
+                            "key": "users.users.delete"
+                        },
+                        {
+                            "action": "export",
+                            "label": {
+                                "es": "Exportar listado de usuarios",
+                                "en": "Export userlist"
+                            },
+                            "key": "users.users.export"
+                        },
+                        {
+                            "action": "assign",
+                            "label": {
+                                "es": "Asignar roles",
+                                "en": "Assign roles"
+                            },
+                            "key": "users.users-role.assign"
+                        }
+                    ]
+                },
+                "roles": {
+                    "name": {
+                        "es": "Roles",
+                        "en": "Roles"
+                    },
+                    "_meta": {
+                        "description": {
+                            "es": "Permisos para la gestión de roles",
+                            "en": "Permissions for managing roles"
+                        },
+                        "icon": "ti ti-lock-access"
+                    },
+                    "priority": 200,
+                    "permissions": [
+                        {
+                            "action": "view",
+                            "label": {
+                                "es": "Ver roles",
+                                "en": "View roles"
+                            },
+                            "key": "rbac.roles.view"
+                        },
+                        {
+                            "action": "create",
+                            "label": {
+                                "es": "Crear rol",
+                                "en": "Create role"
+                            },
+                            "key": "rbac.roles.create"
+                        },
+                        {
+                            "action": "update",
+                            "label": {
+                                "es": "Editar rol",
+                                "en": "Update role"
+                            },
+                            "key": "rbac.roles.update"
+                        },
+                        {
+                            "action": "delete",
+                            "label": {
+                                "es": "Eliminar rol",
+                                "en": "Delete role"
+                            },
+                            "key": "rbac.roles.delete"
+                        },
+                        {
+                            "action": "duplicate",
+                            "label": {
+                                "es": "Duplicar rol",
+                                "en": "Duplicate role"
+                            },
+                            "key": "rbac.roles.duplicate"
+                        }
+                    ]
+                },
+                "permissions": {
+                    "name": {
+                        "es": "Permisos",
+                        "en": "Permissions"
+                    },
+                    "_meta": {
+                        "description": {
+                            "es": "Permisos para la gestión de permisos",
+                            "en": "Permissions for managing permissions"
+                        },
+                        "icon": "ti ti-lock-access",
+                        "flags": {
+                            "is_development": true
+                        }
+                    },
+                    "priority": 300,
+                    "permissions": [
+                        {
+                            "action": "view",
+                            "label": {
+                                "es": "Ver permisos",
+                                "en": "View permissions"
+                            },
+                            "key": "rbac.permissions.view"
+                        },
+                        {
+                            "action": "create",
+                            "label": {
+                                "es": "Crear permiso",
+                                "en": "Create permission"
+                            },
+                            "key": "rbac.permissions.create"
+                        },
+                        {
+                            "action": "update",
+                            "label": {
+                                "es": "Editar permiso",
+                                "en": "Update permission"
+                            },
+                            "key": "rbac.permissions.update"
+                        },
+                        {
+                            "action": "delete",
+                            "label": {
+                                "es": "Eliminar permiso",
+                                "en": "Delete permission"
+                            },
+                            "key": "rbac.permissions.delete"
+                        }
+                    ]
+                }
+            }
+        },
+        "tools": {
+            "name": {
+                "es": "Herramientas de sistema",
+                "en": "System Tools"
+            },
+            "_meta": {
+                "description": {
+                    "es": "Permisos para tareas programadas, caché, monitoreo y notificaciones del sistema",
+                    "en": "Permissions for scheduled tasks, cache, monitoring and system notifications"
+                },
+                "icon": "ti ti-tool"
+            },
+            "priority": 200,
+            "sub_groups": {
+                "scheduler": {
+                    "name": {
+                        "es": "Tareas programadas",
+                        "en": "Scheduled Tasks"
+                    },
+                    "_meta": {
+                        "description": {
+                            "es": "Supervisa y gestiona tareas periódicas, workers y ejecución en cola.",
+                            "en": "Monitor and manage periodic tasks, workers, and queued execution."
+                        },
+                        "icon": "ti ti-clock"
+                    },
+                    "priority": 100,
+                    "permissions": [
+                        {
+                            "action": "view",
+                            "label": {
+                                "es": "Ver panel general",
+                                "en": "View scheduler dashboard"
+                            },
+                            "key": "scheduler.dashboard.view"
+                        },
+                        {
+                            "action": "view",
+                            "label": {
+                                "es": "Ver tareas programadas",
+                                "en": "View scheduled tasks"
+                            },
+                            "key": "scheduler.cron.view"
+                        },
+                        {
+                            "action": "view",
+                            "label": {
+                                "es": "Ver jobs en cola",
+                                "en": "View queued jobs"
+                            },
+                            "key": "scheduler.queued-jobs.view"
+                        },
+                        {
+                            "action": "view",
+                            "label": {
+                                "es": "Ver historial de ejecución",
+                                "en": "View execution history"
+                            },
+                            "key": "scheduler.history.view"
+                        },
+                        {
+                            "action": "configure",
+                            "label": {
+                                "es": "Configurar scheduler",
+                                "en": "Configure scheduler"
+                            },
+                            "key": "scheduler.settings.view"
+                        }
+                    ]
+                },
+                "cache": {
+                    "name": {
+                        "es": "Gestión de Caché",
+                        "en": "Cache Management"
+                    },
+                    "_meta": {
+                        "description": {
+                            "es": "Limpieza y configuración de caché del sistema",
+                            "en": "System cache cleaning and configuration"
+                        },
+                        "icon": "ti ti-cpu"
+                    },
+                    "priority": 200,
+                    "permissions": [
+                        {
+                            "action": "clean",
+                            "label": {
+                                "es": "Limpiar caché Redis",
+                                "en": "Clean Redis cache"
+                            },
+                            "key": "cache.redis.view"
+                        },
+                        {
+                            "action": "clean",
+                            "label": {
+                                "es": "Limpiar caché Memcache",
+                                "en": "Clean Memcache cache"
+                            },
+                            "key": "cache.memcache.view"
+                        },
+                        {
+                            "action": "clean",
+                            "label": {
+                                "es": "Limpiar sesiones",
+                                "en": "Clear sessions"
+                            },
+                            "key": "cache.sessions.view"
+                        },
+                        {
+                            "action": "clean",
+                            "label": {
+                                "es": "Limpiar caché Laravel",
+                                "en": "Clean Laravel cache"
+                            },
+                            "key": "cache.laravel.view"
+                        },
+                        {
+                            "action": "clean",
+                            "label": {
+                                "es": "Limpiar caché Vuexy",
+                                "en": "Clean Vuexy cache"
+                            },
+                            "key": "cache.vuexy.view"
+                        },
+                        {
+                            "action": "clean",
+                            "label": {
+                                "es": "Limpiar assets generados",
+                                "en": "Clean Vite assets"
+                            },
+                            "key": "cache.vite-assets.view"
+                        },
+                        {
+                            "action": "configure",
+                            "label": {
+                                "es": "Ajustar TTLs",
+                                "en": "Adjust TTLs"
+                            },
+                            "key": "cache.ttls.view"
+                        }
+                    ]
+                },
+                "notifications": {
+                    "name": {
+                        "es": "Centro de Notificaciones",
+                        "en": "Notification Center"
+                    },
+                    "_meta": {
+                        "description": {
+                            "es": "Notificaciones globales, personales y configuración del centro",
+                            "en": "Global, personal notifications and alert center settings"
+                        },
+                        "icon": "ti ti-bell"
+                    },
+                    "priority": 300,
+                    "permissions": [
+                        {
+                            "action": "view",
+                            "label": {
+                                "es": "Ver notificaciones globales",
+                                "en": "View global notifications"
+                            },
+                            "key": "notifications.system.view"
+                        },
+                        {
+                            "action": "view",
+                            "label": {
+                                "es": "Ver notificaciones personales",
+                                "en": "View personal notifications"
+                            },
+                            "key": "notifications.personal.view"
+                        },
+                        {
+                            "action": "configure",
+                            "label": {
+                                "es": "Configurar centro de alertas",
+                                "en": "Configure alert center"
+                            },
+                            "key": "notifications.settings.view"
+                        }
+                    ]
+                },
+                "monitoring": {
+                    "name": {
+                        "es": "Monitoreo del Sistema",
+                        "en": "System Monitoring"
+                    },
+                    "_meta": {
+                        "description": {
+                            "es": "Supervisión de sesiones activas y uso del sistema",
+                            "en": "Active session and system usage monitoring"
+                        },
+                        "icon": "ti ti-heart-rate-monitor"
+                    },
+                    "priority": 400,
+                    "permissions": [
+                        {
+                            "action": "view",
+                            "label": {
+                                "es": "Ver sesiones activas",
+                                "en": "View active sessions"
+                            },
+                            "key": "monitor.sessions.view"
+                        }
+                    ]
+                }
+            }
+        },
+        "vuexy-admin": {
+            "name": {
+                "es": "Koneko Vuexy Admin",
+                "en": "Koneko Vuexy Admin"
+            },
+            "_meta": {
+                "description": {
+                    "es": "Permisos para la gestión de Koneko Vuexy Admin",
+                    "en": "Permissions for managing Koneko Vuexy Admin"
+                },
+                "icon": "ti ti-lock-access"
+            },
+            "priority": 300,
+            "sub_groups": {
+                "plugins": {
+                    "name": {
+                        "es": "Librerías y plugins",
+                        "en": "Libraries and plugins"
+                    },
+                    "_meta": {
+                        "description": {
+                            "es": "Gestiona las librerías y plugins del módulo Vuexy Admin.",
+                            "en": "Manage libraries and plugins in the Vuexy Admin module."
+                        },
+                        "icon": "ti ti-plug"
+                    },
+                    "priority": 100,
+                    "permissions": [
+                        {
+                            "action": "view",
+                            "label": {
+                            "es": "Ver plugins",
+                            "en": "View plugins"
+                            },
+                            "key": "modules.plugins.view"
+                        },
+                        {
+                            "action": "install",
+                            "label": {
+                            "es": "Instalar plugins",
+                            "en": "Install plugins"
+                            },
+                            "key": "modules.plugins.install"
+                        },
+                        {
+                            "action": "update",
+                            "label": {
+                            "es": "Actualizar plugins",
+                            "en": "Update plugins"
+                            },
+                            "key": "modules.plugins.update"
+                        },
+                        {
+                            "action": "delete",
+                            "label": {
+                            "es": "Eliminar plugins",
+                            "en": "Delete plugins"
+                            },
+                            "key": "modules.plugins.delete"
+                        }
+                    ]
+                },
+                "config": {
+                    "name": {
+                        "es": "Configuración de módulos",
+                        "en": "Modules configuration"
+                    },
+                    "_meta": {
+                        "description": {
+                            "es": "Administra la configuración avanzada de módulos y paquetes instalados.",
+                            "en": "Manage advanced configuration of installed modules and packages."
+                        },
+                        "icon": "ti ti-puzzle"
+                    },
+                    "priority": 200,
+                    "permissions": [
+                        {
+                            "action": "view",
+                            "label": {
+                            "es": "Ver configuración",
+                            "en": "View configuration"
+                            },
+                            "key": "modules.config.view"
+                        },
+                        {
+                            "action": "update",
+                            "label": {
+                            "es": "Editar configuración",
+                            "en": "Edit configuration"
+                            },
+                            "key": "modules.config.update"
+                        }
+                    ]
+                }
+            }
+        },
+        "audit": {
+            "name": {
+                "es": "Auditoría",
+                "en": "Audit"
+            },
+            "_meta": {
+                "description": {
+                    "es": "Permisos para la gestión de auditoría",
+                    "en": "Permissions for managing audit"
+                },
+                "icon": "ti ti-bell"
+            },
+            "priority": 400,
+            "sub_groups": {
+                "access": {
+                    "name": {
+                        "es": "Eventos de Acceso",
+                        "en": "Access Events"
+                    },
+                    "_meta": {
+                        "description": {
+                            "es": "Historial de inicios de sesión y cierres por usuario.",
+                            "en": "Login and logout history per user."
+                        },
+                        "icon": "ti ti-user-shield"
+                    },
+                    "priority": 100,
+                    "permissions": [
+                        {
+                            "action": "view",
+                            "label": {
+                            "es": "Ver logs de acceso",
+                            "en": "View access logs"
+                            },
+                            "key": "audit.access.view"
+                        }
+                    ]
+                },
+                "security-events": {
+                    "name": {
+                        "es": "Eventos de Seguridad",
+                        "en": "Security Events"
+                    },
+                    "_meta": {
+                        "description": {
+                            "es": "Registros enriquecidos con geolocalización, IP, dispositivos y actividad sospechosa.",
+                            "en": "Logs enriched with geolocation, IP, devices, and suspicious activity."
+                        },
+                        "icon": "ti ti-shield"
+                    },
+                    "priority": 200,
+                    "permissions": [
+                        {
+                            "action": "view",
+                            "label": {
+                            "es": "Ver eventos de seguridad",
+                            "en": "View security events"
+                            },
+                            "key": "audit.security-events.view"
+                        }
+                    ]
+                },
+                "user-interactions": {
+                    "name": {
+                        "es": "Interacciones de Usuario",
+                        "en": "User Interactions"
+                    },
+                    "_meta": {
+                        "description": {
+                            "es": "Registro detallado de acciones ejecutadas por usuarios en la interfaz.",
+                            "en": "Detailed log of user interface actions."
+                        },
+                        "icon": "ti ti-user-check"
+                    },
+                    "priority": 300,
+                    "permissions": [
+                        {
+                            "action": "view",
+                            "label": {
+                            "es": "Ver interacciones de usuario",
+                            "en": "View user interactions"
+                            },
+                            "key": "audit.user-interactions.view"
+                        }
+                    ]
+                },
+                "file-logs": {
+                    "name": {
+                        "es": "Logs del Sistema",
+                        "en": "System Logs"
+                    },
+                    "_meta": {
+                        "description": {
+                            "es": "Visualiza logs generados por Laravel u otros sistemas locales.",
+                            "en": "View logs generated by Laravel or other local systems."
+                        },
+                        "icon": "ti ti-file-text"
+                    },
+                    "priority": 400,
+                    "permissions": [
+                        {
+                            "action": "view",
+                            "label": {
+                            "es": "Ver logs del sistema",
+                            "en": "View system logs"
+                            },
+                            "key": "audit.file-logs.view"
+                        }
+                    ]
+                },
+                "db-logs": {
+                    "name": {
+                        "es": "Logs de Base de Datos",
+                        "en": "Database Logs"
+                    },
+                    "_meta": {
+                        "description": {
+                            "es": "Consulta los logs persistidos en la base de datos estructurados por tipo y nivel.",
+                            "en": "Query logs stored in the database by type and level."
+                        },
+                        "icon": "ti ti-database-search"
+                    },
+                    "priority": 500,
+                    "permissions": [
+                        {
+                            "action": "view",
+                            "label": {
+                            "es": "Ver logs de base de datos",
+                            "en": "View database logs"
+                            },
+                            "key": "audit.db-logs.view"
+                        }
+                    ]
+                },
+                "modules": {
+                    "name": {
+                        "es": "Logs por Módulo",
+                        "en": "Module Logs"
+                    },
+                    "_meta": {
+                        "description": {
+                            "es": "Visualiza logs agrupados por componente o módulo.",
+                            "en": "View logs grouped by component or module."
+                        },
+                        "icon": "ti ti-box-multiple"
+                    },
+                    "priority": 600,
+                    "permissions": [
+                        {
+                            "action": "view",
+                            "label": {
+                            "es": "Ver logs por módulo",
+                            "en": "View module logs"
+                            },
+                            "key": "audit.modules.view"
+                        }
+                    ]
+                },
+                "alerts": {
+                    "name": {
+                        "es": "Alertas y Reportes",
+                        "en": "Alerts and Reports"
+                    },
+                    "_meta": {
+                        "description": {
+                            "es": "Configura alertas automáticas, condiciones críticas y reportes periódicos.",
+                            "en": "Configure automatic alerts, critical conditions, and periodic reports."
+                        },
+                        "icon": "ti ti-bell"
+                    },
+                    "priority": 950,
+                    "permissions": [
+                        {
+                            "action": "view",
+                            "label": {
+                            "es": "Ver alertas y reportes",
+                            "en": "View alerts and reports"
+                            },
+                            "key": "audit.alerts.view"
+                        }
+                    ]
+                },
+                "logging-settings": {
+                    "name": {
+                        "es": "Configuración de Logging",
+                        "en": "Logging Configuration"
+                    },
+                    "_meta": {
+                        "description": {
+                            "es": "Configuración avanzada del sistema de logging y auditoría.",
+                            "en": "Advanced configuration of the logging and audit system."
+                        },
+                        "icon": "ti ti-settings"
+                    },
+                    "priority": 999,
+                    "permissions": [
+                        {
+                            "action": "view",
+                            "label": {
+                            "es": "Ver configuración de logging",
+                            "en": "View logging configuration"
+                            },
+                            "key": "audit.logging-settings.view"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

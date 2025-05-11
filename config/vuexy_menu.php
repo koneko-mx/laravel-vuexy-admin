@@ -1,848 +1,495 @@
 <?php
 
+declare(strict_types=1);
+
+// Este archivo **NO se registra como config**, es usado por VuexyMenuRegistry
+
 return [
     'Inicio' => [
-        'breadcrumbs' => false,
-        'icon' => 'menu-icon tf-icons ti ti-home',
+        '_meta' => [
+            'icon' => 'ti ti-home',
+            'description' => 'Accede rápidamente a las funciones principales y configuraciones del sistema.',
+            'priority' => 'first',
+        ],
         'submenu' => [
-            'Inicio' => [
-                'route' => 'admin.core.home.index',
-                'icon' => 'menu-icon tf-icons ti ti-home',
-            ],
-            'Sitio Web' => [
-                'url' => env('APP_URL'),
-                'icon' => 'menu-icon tf-icons ti ti-world-www',
-            ],
-            'Ajustes' => [
-                'icon' => 'menu-icon tf-icons ti ti-settings-cog',
+            'Ajustes de sistema' => [
+                '_meta' => [
+                    'icon' => 'ti ti-adjustments-alt',
+                    'description' => 'Configura los parámetros generales de la aplicación.',
+                    'home_at_root' => true,
+                    'priority'     => 200,
+                ],
                 'submenu' => [
-                    'Aplicación' => [
+                    'Usuarios y permisos' => [
+                        '_meta' => [
+                            'icon' => 'ti ti-user-cog',
+                            'description' => 'Gestiona usuarios, roles y permisos de acceso dentro del sistema.',
+                            'home_at_root' => true,
+                            'priority'     => 100,
+                        ],
                         'submenu' => [
-                            'Ajustes generales' => [
-                                'route' => 'admin.core.general-settings.index',
-                                'can' => 'admin.core.general-settings.allow',
+                            'Usuarios' => [
+                                'icon' => 'ti ti-users',
+                                'description' => 'Administración de usuarios del sistema.',
+                                'route' => 'admin.core.users.users.index',
+                                'can' => 'admin.core.users.users.view',
+                                'priority' => 100,
                             ],
-                            'Ajustes de caché' => [
-                                'route' => 'admin.core.cache-manager.index',
-                                'can' => 'admin.core.cache-manager.view',
+                            'Roles' => [
+                                'icon' => 'ti ti-lock-access',
+                                'description' => 'Configuración de roles y niveles de acceso.',
+                                'route' => 'admin.core.rbac.roles.index',
+                                'can' => 'admin.core.rbac.roles.view',
+                                'priority' => 200,
                             ],
-                            'Servidor de correo SMTP' => [
-                                'route' => 'admin.core.smtp-settings.index',
-                                'can' => 'admin.core.smtp-settings.allow',
+                            'Permisos' => [
+                                'icon' => 'ti ti-key',
+                                'description' => 'Gestión avanzada de permisos de usuario.',
+                                'route' => 'admin.core.rbac.permissions.index',
+                                'can' => 'admin.core.rbac.permissions.view',
+                                'priority' => 300,
+                            ]
+                        ]
+                    ],
+                    'Aplicación' => [
+                        '_meta' => [
+                            'icon' => 'ti ti-device-desktop-cog',
+                            'description' => 'Configura los parámetros generales de la aplicación.',
+                            'widget_label' => 'Configuracione de la aplicación',
+                            'home_at_root' => true,
+                            'priority'     => 200,
+                        ],
+                        'submenu' => [
+                            'Interfaz Web Admin' => [
+                                'icon' => 'ti ti-device-desktop-cog',
+                                'description' => 'Ajustes de entorno Web.',
+                                'route' => 'admin.core.settings.web-interface.index',
+                                'can' => 'admin.core.settings.web-interface.view',
+                                'priority' => 100,
+                            ],
+                            'Inteface Vuexy' => [
+                                'icon' => 'ti ti-template',
+                                'description' => 'Configuración de la apariencia y comportamiento de la interfaz Koneko Vuexy Admin.',
+                                'route' => 'admin.core.settings.vuexy-interface.index',
+                                'can' => 'admin.core.settings.vuexy-interface.view',
+                                'priority' => 200,
+                            ],
+                        ]
+                    ],
+                    'Correo electrónico' => [
+                        '_meta' => [
+                            'icon' => 'ti ti-mail-cog',
+                            'description' => 'Configuración de servidor SMTP para correo electrónico.',
+                            'widget_label' => 'Configuración de correo electrónico',
+                            'home_at_root' => true,
+                            'priority'     => 300,
+                        ],
+                        'submenu' => [
+                            'Servidor de correo saliente' => [
+                                'icon' => 'ti ti-mail-cog',
+                                'description' => 'Configuración de los servidores de correo para notificaciones.',
+                                'route' => 'admin.core.settings.smtp.index',
+                                'can' => 'admin.core.settings.smtp.view',
+                                'priority' => 100,
+                            ],
+                        ]
+                    ],
+                    'Variables de entorno' => [
+                        'icon' => 'ti ti-settings-code',
+                        'description' => 'Visualiza y modifica variables de entorno.',
+                        'route' => 'admin.core.settings.env.index',
+                        'can' => 'admin.core.settings.env.view',
+                        'priority' => 'last',
+                    ],
+                ]
+            ],
+            'Herramientas' => [
+                '_meta' => [
+                    'icon' => 'ti ti-tool',
+                    'description' => 'Conjunto de herramientas para el mantenimiento del sistema.',
+                    'widget_label' => 'Herramientas de sistema',
+                    'home_at_root' => true,
+                    'priority'     => 300,
+                ],
+                'submenu' => [
+                    'Tareas programadas' => [
+                        '_meta' => [
+                            'icon' => 'ti ti-clock',
+                            'description' => 'Supervisa y gestiona tareas periódicas, trabajos en cola y estado del scheduler.',
+                            'widget_label' => 'Planificación de tareas',
+                            'home_at_root' => true,
+                            'priority'     => 100,
+                        ],
+                        'submenu' => [
+                            'Panel general' => [
+                                'icon' => 'ti ti-dashboard',
+                                'description' => 'Resumen del estado del planificador, workers, colas activas y errores recientes.',
+                                'route' => 'admin.core.scheduler.dashboard',
+                                'can' => 'admin.core.scheduler.dashboard.view',
+                                'priority' => 100,
+                            ],
+                            'Tareas programadas' => [
+                                'icon' => 'ti ti-clock-hour-4',
+                                'description' => 'Lista detallada de tareas programadas por Cron o Laravel Scheduler.',
+                                'route' => 'admin.core.scheduler.cron.index',
+                                'can' => 'admin.core.scheduler.cron.view',
+                                'priority' => 200,
+                            ],
+                            'Jobs en cola' => [
+                                'icon' => 'ti ti-list-check',
+                                'description' => 'Supervisa los trabajos en cola, sus estados y tiempos de ejecución.',
+                                'route' => 'admin.core.scheduler.queued-jobs.index',
+                                'can' => 'admin.core.scheduler.queued-jobs.view',
+                                'priority' => 300,
+                            ],
+                            'Historial de ejecución' => [
+                                'icon' => 'ti ti-history',
+                                'description' => 'Revisa el historial de tareas y jobs ejecutados, con resultados y tiempos.',
+                                'route' => 'admin.core.scheduler.history.index',
+                                'can' => 'admin.core.scheduler.history.view',
+                                'priority' => 400,
+                            ],
+                            'Configuración de scheduler' => [
+                                'icon' => 'ti ti-settings-cog',
+                                'description' => 'Configura comportamiento del scheduler, fallback y workers.',
+                                'route' => 'admin.core.scheduler.settings.index',
+                                'can' => 'admin.core.scheduler.settings.view',
+                                'priority' => 500,
                             ],
                         ],
                     ],
-                    'Empresa' => [
+                    'Caché' => [
+                        '_meta' => [
+                            'icon' => 'ti ti-cpu',
+                            'description' => 'Administración y limpieza de caché para mejorar el rendimiento.',
+                            'widget_label' => 'Caché de sistema',
+                            'home_at_root' => true,
+                            'priority' => 200,
+                        ],
                         'submenu' => [
-                            'Información general' => [
-                                'route' => 'admin.store-manager.company.index',
-                                'can' => 'admin.store-manager.company.view',
+                            'Controladores' => [
+                                '_meta' => [
+                                    'icon' => 'ti ti-cpu',
+                                    'description' => 'Administración y limpieza de caché para mejorar el rendimiento.',
+                                    'home_at_root' => true,
+                                    'priority' => 100,
+                                ],
+                                'submenu' => [
+                                    'Controlador de sesiones' => [
+                                        'icon' => 'ti ti-user-check',
+                                        'description' => 'Muestra configuraciones de sesiones de usuarios y permite su limpieza.',
+                                        'route' => 'admin.core.cache.sessions.index',
+                                        'can' => 'admin.core.cache.sessions.view',
+                                        'priority' => 100,
+                                    ],
+                                    'Redis' => [
+                                        'icon' => 'ti ti-cpu',
+                                        'description' => 'Administración y limpieza de caché Redis para mejorar el rendimiento.',
+                                        'route' => 'admin.core.cache.redis.index',
+                                        'can' => 'admin.core.cache.redis.view',
+                                        'priority' => 200,
+                                    ],
+                                    'Memcache' => [
+                                        'icon' => 'ti ti-cpu',
+                                        'description' => 'Administración y limpieza de caché Memcache para mejorar el rendimiento.',
+                                        'route' => 'admin.core.cache.memcache.index',
+                                        'can' => 'admin.core.cache.memcache.view',
+                                        'priority' => 300,
+                                    ],
+                                ]
                             ],
-                            'Sucursales' => [
-                                'route' => 'admin.store-manager.stores.index',
-                                'can' => 'admin.store-manager.stores.view',
-                            ],
-                            'Centros de trabajo' => [
-                                'route' => 'admin.store-manager.work-centers.index',
-                                'can' => 'admin.store-manager.stores.view',
+                            'Gestores' => [
+                                '_meta' => [
+                                    'icon' => 'ti ti-cpu',
+                                    'description' => 'Administración y limpieza de caché para mejorar el rendimiento.',
+                                    'widget_label' => 'Gestores de caché',
+                                    'home_at_root' => true,
+                                    'priority' => 200,
+                                ],
+                                'submenu' => [
+                                    'Caché Laravel' => [
+                                        'icon' => 'ti ti-cpu',
+                                        'description' => 'Administración y limpieza de caché de Laravel.',
+                                        'route' => 'admin.core.cache.laravel.index',
+                                        'can' => 'admin.core.cache.laravel.view',
+                                        'priority' => 100,
+                                    ],
+                                    'Caché Koneko Vuexy' => [
+                                        'icon' => 'ti ti-cpu-2',
+                                        'description' => 'Configura y optimiza la caché del sistema vuexy admin.',
+                                        'route' => 'admin.core.cache.vuexy.index',
+                                        'can' => 'admin.core.cache.vuexy.view',
+                                        'priority' => 200,
+                                    ],
+                                    'Carga de Vite / Assets' => [
+                                        'icon' => 'ti ti-brand-vite',
+                                        'description' => 'Estado de compilación y assets generados por Vite.',
+                                        'route' => 'admin.core.cache.vite-assets.index',
+                                        'can' => 'admin.core.cache.vite-assets.view',
+                                        'priority' => 300,
+                                    ],
+                                    'Manejador de TTLs' => [
+                                        'icon' => 'ti ti-clock-edit',
+                                        'description' => 'Ajuste manual de TTLs e invalidación selectiva por tag.',
+                                        'route' => 'admin.core.cache.ttls.index',
+                                        'can' => 'admin.core.cache.ttls.view',
+                                        'priority' => 700,
+                                    ],
+                                ]
                             ],
                         ]
                     ],
-                    'BANXICO' => [
-                        'route' => 'admin.finance.banxico.index',
-                        'can' => 'admin.finance.banxico.allow',
-                    ],
-                    'Conectividad bancaria' => [
-                        'route' => 'admin.finance.banking.index',
-                        'can' => 'admin.finance.banking.allow',
-                    ],
-                    'Punto de venta' => [
+                    'Notificaciones del sistema' => [
+                        '_meta' => [
+                            'icon' => 'ti ti-bell',
+                            'description' => 'Configura y monitorea notificaciones persistentes del sistema y mensajes push por usuario.',
+                            'widget_label' => 'Centro de notificaciones',
+                            'home_at_root' => true,
+                            'priority'     => 400,
+                        ],
                         'submenu' => [
-                            'Ticket' => [
-                                'route' => 'admin.sales.ticket-config.index',
-                                'can' => 'admin.sales.ticket-config.allow',
+                            'Notificaciones globales' => [
+                                'icon' => 'ti ti-broadcast',
+                                'description' => 'Mensajes visibles por roles, flags o alcance global. Incluye confirmaciones y banners.',
+                                'route' => 'admin.core.notifications.system.index',
+                                'can' => 'admin.core.notifications.system.view',
+                                'priority' => 100,
+                            ],
+                            'Notificaciones individuales' => [
+                                'icon' => 'ti ti-bell-ringing',
+                                'description' => 'Mensajes enviados a usuarios individuales por actividad o eventos.',
+                                'route' => 'admin.core.notifications.personal.index',
+                                'can' => 'admin.core.notifications.personal.view',
+                                'priority' => 200,
+                            ],
+                            'Configuración del centro de alertas' => [
+                                'icon' => 'ti ti-settings-2',
+                                'description' => 'Define estilos, comportamiento y zonas del sistema para las notificaciones.',
+                                'route' => 'admin.core.notifications.settings.index',
+                                'can' => 'admin.core.notifications.settings.view',
+                                'priority' => 300,
+                            ],
+                        ],
+                    ],
+                    'WebSockets' => [
+                        '_meta' => [
+                            'icon' => 'ti ti-plug-connected',
+                            'description' => 'Control y monitoreo de canales WebSocket, usuarios conectados, métricas y eventos en tiempo real.',
+                            'home_at_root' => true,
+                            'priority' => 400,
+                        ],
+                        'submenu' => [
+                            'Canales activos' => [
+                                'icon' => 'ti ti-plug-connected',
+                                'route' => 'admin.websockets.channels.index',
+                                'description' => 'Visualiza todos los canales activos, públicos, privados y presence, con detalles en vivo.',
+                                'can' => 'admin.websockets.channels.view',
+                            ],
+
+                            'Eventos transmitidos' => [
+                                'icon' => 'ti ti-broadcast',
+                                'route' => 'admin.websockets.events.index',
+                                'description' => 'Explora el historial y escucha en tiempo real los eventos emitidos desde el ERP.',
+                                'can' => 'admin.websockets.events.view',
+                            ],
+
+                            'Usuarios conectados' => [
+                                'icon' => 'ti ti-users',
+                                'route' => 'admin.websockets.users.index',
+                                'description' => 'Lista de usuarios activos en tiempo real, con canales, IP, roles y detalles de sesión.',
+                                'can' => 'admin.websockets.users.view',
+                            ],
+
+                            'Métricas en tiempo real' => [
+                                'icon' => 'ti ti-activity',
+                                'route' => 'admin.websockets.metrics.index',
+                                'description' => 'Gráficos de rendimiento por minuto: usuarios conectados, eventos enviados y canales usados.',
+                                'can' => 'admin.websockets.metrics.view',
+                            ],
+
+                            'Simulador de eventos' => [
+                                'icon' => 'ti ti-terminal-2',
+                                'route' => 'admin.websockets.simulator.index',
+                                'description' => 'Prueba la emisión de eventos a canales y usuarios para depuración o integración avanzada.',
+                                'can' => 'admin.websockets.simulator.use',
+                            ],
+
+                            'Estado del servidor' => [
+                                'icon' => 'ti ti-heartbeat',
+                                'route' => 'admin.websockets.status.index',
+                                'description' => 'Estado del backend WebSocket (Echo Server, Pusher, Laravel WebSockets).',
+                                'can' => 'admin.websockets.status.view',
+                            ],
+
+                            'Auditoría de conexiones' => [
+                                'icon' => 'ti ti-shield-lock',
+                                'route' => 'admin.websockets.audit.index',
+                                'description' => 'Registro detallado de conexiones, errores, reconexiones, autenticaciones y desconexiones.',
+                                'can' => 'admin.websockets.audit.view',
+                            ],
+
+                            'Configuración WebSocket' => [
+                                'icon' => 'ti ti-settings',
+                                'route' => 'admin.websockets.settings.index',
+                                'description' => 'Ajusta parámetros como claves Pusher, reconexión, canalización y drivers activos.',
+                                'can' => 'admin.websockets.settings.edit',
+                            ],
+
+                            'Integraciones en tiempo real' => [
+                                'icon' => 'ti ti-link',
+                                'route' => 'admin.websockets.integrations.index',
+                                'description' => 'Controla qué módulos del ERP están conectados a eventos WebSocket: notificaciones, chat, banners.',
+                                'can' => 'admin.websockets.integrations.manage',
+                            ],
+
+                            'Probar canal personalizado' => [
+                                'icon' => 'ti ti-test-pipe',
+                                'route' => 'admin.websockets.tester.index',
+                                'description' => 'Suscríbete y escucha manualmente cualquier canal para fines de desarrollo o debugging.',
+                                'can' => 'admin.websockets.tester.access',
                             ],
                         ]
                     ],
-                    'Facturación' => [
+                    'Monitoreo' => [
+                        '_meta' => [
+                            'icon' => 'ti ti-heart-rate-monitor',
+                            'description' => 'Monitoreo profundo del rendimiento y salud del sistema.',
+                            'home_at_root' => true,
+                            'priority' => 800,
+                        ],
                         'submenu' => [
-                            'Certificados de Sello Digital' => [
-                                'route' => 'admin.billing.csds-settings.index',
-                                'can' => 'admin.billing.csds-settings.allow',
+                            'Sesiones activas' => [
+                                'icon' => 'ti ti-devices',
+                                'description' => 'Control avanzado sobre sesiones activas y accesos concurrentes.',
+                                'route' => 'admin.core.monitor.sessions.index',
+                                'can' => 'admin.core.monitor.sessions.view',
+                                'priority' => 900
                             ],
-                            'Paquete de timbrado' => [
-                                'route' => 'admin.billing.stamping-package.index',
-                                'can' => 'admin.billing.stamping-package.allow',
-                            ],
-                            'Servidor de correo SMTP' => [
-                                'route' => 'admin.billing.smtp-settings.index',
-                                'can' => 'admin.billing.smtp-settings.allow',
-                            ],
-                            'Descarga masiva de CFDI' => [
-                                'route' => 'admin.billing.mass-cfdi-download.index',
-                                'can' => 'admin.billing.mass-cfdi-download.allow',
-                            ],
-                        ]
+                        ],
                     ],
-                ]
+                ],
             ],
-            'Sistema' => [
-                'icon' => 'menu-icon tf-icons ti ti-user-cog',
+            'Koneko Vuexy Admin' => [
+                '_meta' => [
+                    'icon' => 'ti ti-cloud-computing',
+                    'description' => 'Administrador de paquetes del ecosistema Koneko Vuexy Admin.',
+                    'home_at_root' => true,
+                    'priority'     => 'last',
+                ],
                 'submenu' => [
-                    'Usuarios' => [
-                        'route' => 'admin.core.users.index',
-                        'can' => 'admin.core.users.view',
+                    'Librerías y plugins' => [
+                        'icon' => 'ti ti-plug',
+                        'description' => 'Gestiona las librerías y plugins del módulo Vuexy Admin.',
+                        'route' => 'admin.core.modules.plugins.index',
+                        'can' => 'admin.core.modules.plugins.view',
+                        'priority' => 100,
                     ],
-                    'Roles' => [
-                        'route' => 'admin.core.roles.index',
-                        'can' => 'admin.core.roles.view',
+                    'Configuración de módulos' => [
+                        'icon' => 'ti ti-puzzle',
+                        'description' => 'Administra la configuración avanzada de módulos y paquetes instalados.',
+                        'route' => 'admin.core.modules.config.index',
+                        'can' => 'admin.core.modules.config.view',
+                        'priority' => 200,
                     ],
-                    'Permisos' => [
-                        'route' => 'admin.core.permissions.index',
-                        'can' => 'admin.core.permissions.view',
-                    ]
                 ]
             ],
-            'Catálogos' => [
-                'icon' => 'menu-icon tf-icons ti ti-library',
+            'Auditoría' => [
+                '_meta' => [
+                    'icon' => 'ti ti-lock',
+                    'description' => 'Supervisión avanzada de eventos, accesos, acciones de usuario y logs del sistema.',
+                    'home_at_root' => true,
+                    'priority'     => 800,
+                ],
                 'submenu' => [
-                    'Importar catálogos SAT' => [
-                        'route' => 'admin.core.sat-catalogs.index',
-                        'can' => 'admin.core.sat-catalogs.allow',
+                    'Eventos del Sistema' => [
+                        '_meta' => [
+                            'icon' => 'ti ti-shield-lock',
+                            'description' => 'Eventos internos generados por el uso del ERP Koneko Vuexy.',
+                            'home_at_root' => true,
+                            'priority'     => 100,
+                        ],
+                        'submenu' => [
+                            'Logs de Acceso' => [
+                                'icon' => 'ti ti-user-shield',
+                                'description' => 'Historial de inicios de sesión y cierres por usuario.',
+                                'route' => 'admin.core.audit.access.index',
+                                'can' => 'admin.core.audit.access.view',
+                                'priority' => 100
+                            ],
+                            'Eventos de Seguridad' => [
+                                'icon' => 'ti ti-shield',
+                                'description' => 'Registros enriquecidos con geolocalización, IP, dispositivos y actividad sospechosa.',
+                                'route' => 'admin.core.audit.security-events.index',
+                                'can' => 'admin.core.audit.security-events.view',
+                                'priority' => 200
+                            ],
+                            'Interacciones de Usuario' => [
+                                'icon' => 'ti ti-user-check',
+                                'description' => 'Registro detallado de acciones ejecutadas por usuarios en la interfaz.',
+                                'route' => 'admin.core.audit.user-interactions.index',
+                                'can' => 'admin.core.audit.user-interactions.view',
+                                'priority' => 300
+                            ],
+                        ],
+                    ],
+                    'Registros de Log' => [
+                        '_meta' => [
+                            'icon' => 'ti ti-archive',
+                            'description' => 'Registros técnicos del sistema almacenados en archivos o base de datos.',
+                            'widget_label' => 'Registros de Log de auditoría',
+                            'home_at_root' => true,
+                            'priority'     => 200,
+                        ],
+                        'submenu' => [
+                            'Logs del Sistema' => [
+                                'icon' => 'ti ti-file-text',
+                                'description' => 'Visualiza logs generados por Laravel u otros sistemas locales.',
+                                'route' => 'admin.core.audit.file-logs.index',
+                                'can' => 'admin.core.audit.file-logs.view',
+                                'priority' => 100
+                            ],
+                            'Logs de Auditoría' => [
+                                'icon' => 'ti ti-database-search',
+                                'description' => 'Consulta los logs persistidos en la base de datos estructurados por tipo y nivel.',
+                                'route' => 'admin.core.audit.db-logs.index',
+                                'can' => 'admin.core.audit.db-logs.view',
+                                'priority' => 200
+                            ],
+                        ],
+                    ],
+                    'Alertas y Reportes' => [
+                        'icon' => 'ti ti-bell',
+                        'description' => 'Configura alertas automáticas, condiciones críticas y reportes periódicos.',
+                        'route' => 'admin.core.audit.alerts.index',
+                        'can' => 'admin.core.audit.alerts.view',
+                        'priority' => 300
+                    ],
+                    'Configuración de Logging' => [
+                        'icon' => 'ti ti-settings',
+                        'description' => 'Configuración avanzada del sistema de logging y auditoría.',
+                        'route' => 'admin.core.audit.logging-settings.index',
+                        'can' => 'admin.core.audit.logging-settings.view',
+                        'priority' => 400
                     ],
                 ]
-            ],
-            'Cuenta de usuario' => [
-                'route' => 'admin.core.user-profile.index',
-                'icon' => 'menu-icon tf-icons ti ti-user-cog',
             ],
             'Acerca de' => [
-                'route' => 'admin.core.about.index',
-                'icon' => 'menu-icon tf-icons ti ti-cat',
+                'icon' => 'ti ti-cat',
+                'description' => 'Información sobre la versión y desarrolladores del sistema.',
+                'route' => 'admin.core.pages.about.index',
+                'priority' => 'last',
             ],
         ],
     ],
-    'Herramientas Avanzadas' => [
-        'icon' => 'menu-icon tf-icons ti ti-device-ipad-cog',
-        'submenu' => [
-            'Asistente AI' => [
-                'icon' => 'menu-icon tf-icons ti ti-brain',
-                'submenu' => [
-                    'Panel de IA' => [
-                        'route' => 'admin.ai.dashboard.index',
-                        'can' => 'ai.dashboard.view',
-                    ],
-                    'Generación de Contenidos' => [
-                        'route' => 'admin.ai.content.index',
-                        'can' => 'ai.content.create',
-                    ],
-                    'Análisis de Datos' => [
-                        'route' => 'admin.ai.analytics.index',
-                        'can' => 'ai.analytics.view',
-                    ],
-                ],
-            ],
-            'Chatbot' => [
-                'icon' => 'menu-icon tf-icons ti ti-message-chatbot',
-                'submenu' => [
-                    'Configuración' => [
-                        'route' => 'admin.chatbot.config.index',
-                        'can' => 'chatbot.config.view',
-                    ],
-                    'Flujos de Conversación' => [
-                        'route' => 'admin.chatbot.flows.index',
-                        'can' => 'chatbot.flows.manage',
-                    ],
-                    'Historial de Interacciones' => [
-                        'route' => 'admin.chatbot.history.index',
-                        'can' => 'chatbot.history.view',
-                    ],
-                ],
-            ],
-            'IoT Box' => [
-                'icon' => 'menu-icon tf-icons ti ti-cpu',
-                'submenu' => [
-                    'Dispositivos Conectados' => [
-                        'route' => 'admin.iot.devices.index',
-                        'can' => 'iot.devices.view',
-                    ],
-                    'Sensores y Configuración' => [
-                        'route' => 'admin.iot.sensors.index',
-                        'can' => 'iot.sensors.manage',
-                    ],
-                    'Monitoreo en Tiempo Real' => [
-                        'route' => 'admin.iot.monitoring.index',
-                        'can' => 'iot.monitoring.view',
-                    ],
-                ],
-            ],
-            'Reconocimiento Facial' => [
-                'icon' => 'menu-icon tf-icons ti ti-face-id',
-                'submenu' => [
-                    'Gestión de Perfiles' => [
-                        'route' => 'admin.facial-recognition.profiles.index',
-                        'can' => 'facial-recognition.profiles.manage',
-                    ],
-                    'Verificación en Vivo' => [
-                        'route' => 'admin.facial-recognition.live.index',
-                        'can' => 'facial-recognition.live.verify',
-                    ],
-                    'Historial de Accesos' => [
-                        'route' => 'admin.facial-recognition.history.index',
-                        'can' => 'facial-recognition.history.view',
-                    ],
-                ],
-            ],
-            'Servidor de Impresión' => [
-                'icon' => 'menu-icon tf-icons ti ti-printer',
-                'submenu' => [
-                    'Cola de Impresión' => [
-                        'route' => 'admin.print.queue.index',
-                        'can' => 'print.queue.view',
-                    ],
-                    'Historial de Impresiones' => [
-                        'route' => 'admin.print.history.index',
-                        'can' => 'print.history.view',
-                    ],
-                    'Configuración de Impresoras' => [
-                        'route' => 'admin.print.settings.index',
-                        'can' => 'print.settings.manage',
-                    ],
-                ],
-            ],
+    '_extra_quicklinks' => [
+        'Inicio' => [
+            'icon' => 'ti ti-home',
+            'route' => 'admin.core.pages.home.index',
+            'can'   => 'admin.core.pages.home.view',
         ],
-    ],
-    'Sitio Web' => [
-        'icon' => 'menu-icon tf-icons ti ti-tools',
-        'submenu' => [
-            'Ajustes generales' => [
-                'icon' => 'menu-icon tf-icons ti ti-tools',
-                'route' => 'admin.website.general-settings.index',
-                'can' => 'website.general-settings.allow',
-            ],
-            'Avisos legales' => [
-                'route' => 'admin.website.legal.index',
-                'icon' => 'menu-icon tf-icons ti ti-writing-sign',
-                'can' => 'website.legal.view',
-            ],
-            'Preguntas frecuentes' => [
-                'route' => 'admin.website.faq.index',
-                'icon' => 'menu-icon tf-icons ti ti-bubble-text',
-                'can' => 'website.faq.view',
-            ],
-        ]
-    ],
-    'Blog' => [
-        'icon' => 'menu-icon tf-icons ti ti-news',
-        'submenu' => [
-            'Categorias' => [
-                'route' => 'admin.blog.categories.index',
-                'icon' => 'menu-icon tf-icons ti ti-category',
-                'can' => 'blog.categories.view',
-            ],
-            'Etiquetas' => [
-                'route' => 'admin.blog.tags.index',
-                'icon' => 'menu-icon tf-icons ti ti-tags',
-                'can' => 'blog.tags.view',
-            ],
-            'Articulos' => [
-                'route' => 'admin.blog.articles.index',
-                'icon' => 'menu-icon tf-icons ti ti-news',
-                'can' => 'blog.articles.view',
-            ],
-            'Comentarios' => [
-                'route' => 'admin.blog.comments.index',
-                'icon' => 'menu-icon tf-icons ti ti-message',
-                'can' => 'blog.comments.view',
-            ],
-        ]
-    ],
-    'Contactos' => [
-        'icon' => 'menu-icon tf-icons ti ti-users',
-        'submenu' => [
-            'Contactos' => [
-                'route' => 'admin.crm.contacts.index',
-                'icon' => 'menu-icon tf-icons ti ti-users',
-                'can' => 'crm.contacts.view',
-            ],
-            'Campañas de marketing' => [
-                'route' => 'admin.crm.marketing-campaigns.index',
-                'icon' => 'menu-icon tf-icons ti ti-ad-2',
-                'can' => 'crm.marketing-campaigns.view',
-            ],
-            'Oportunidades ' => [
-                'route' => 'admin.crm.leads.index',
-                'icon' => 'menu-icon tf-icons ti ti-target-arrow',
-                'can' => 'crm.leads.view',
-            ],
-            'Newsletter' => [
-                'route' => 'admin.crm.newsletter.index',
-                'icon' => 'menu-icon tf-icons ti ti-notebook',
-                'can' => 'crm.newsletter.view',
-            ],
-        ]
-    ],
-    'RRHH' => [
-        'icon' => 'menu-icon tf-icons ti ti-users-group',
-        'submenu' => [
-            'Gestión de Empleados' => [
-                'icon' => 'menu-icon tf-icons ti ti-id-badge-2',
-                'submenu' => [
-                    'Lista de Empleados' => [
-                        'route' => 'admin.rrhh.employees.index',
-                        'can' => 'rrhh.employees.view',
-                    ],
-                    'Agregar Nuevo Empleado' => [
-                        'route' => 'admin.rrhh.employees.create',
-                        'can' => 'rrhh.employees.create',
-                    ],
-                    'Puestos de trabajo' => [
-                        'route' => 'admin.rrhh.jobs.index',
-                        'can' => 'rrhh.jobs.view',
-                    ],
-                    'Estructura Organizacional' => [
-                        'route' => 'admin.rrhh.organization.index',
-                        'can' => 'rrhh.organization.view',
-                    ],
-                ],
-            ],
-            'Reclutamiento' => [
-                'icon' => 'menu-icon tf-icons ti ti-user-search',
-                'submenu' => [
-                    'Vacantes Disponibles' => [
-                        'route' => 'admin.recruitment.jobs.index',
-                        'can' => 'recruitment.jobs.view',
-                    ],
-                    'Seguimiento de Candidatos' => [
-                        'route' => 'admin.recruitment.candidates.index',
-                        'can' => 'recruitment.candidates.view',
-                    ],
-                    'Entrevistas y Evaluaciones' => [
-                        'route' => 'admin.recruitment.interviews.index',
-                        'can' => 'recruitment.interviews.view',
-                    ],
-                ],
-            ],
-            'Nómina' => [
-                'icon' => 'menu-icon tf-icons ti ti-cash',
-                'submenu' => [
-                    'Contratos' => [
-                        'route' => 'admin.payroll.contracts.index',
-                        'can' => 'payroll.contracts.view',
-                    ],
-                    'Procesar Nómina' => [
-                        'route' => 'admin.payroll.process.index',
-                        'can' => 'payroll.process.view',
-                    ],
-                    'Recibos de Nómina' => [
-                        'route' => 'admin.payroll.receipts.index',
-                        'can' => 'payroll.receipts.view',
-                    ],
-                    'Reportes Financieros' => [
-                        'route' => 'admin.payroll.reports.index',
-                        'can' => 'payroll.reports.view',
-                    ],
-                ],
-            ],
-            'Asistencia' => [
-                'icon' => 'menu-icon tf-icons ti ti-calendar-exclamation',
-                'submenu' => [
-                    'Registro de Horarios' => [
-                        'route' => 'admin.attendance.records.index',
-                        'can' => 'attendance.records.view',
-                    ],
-                    'Asistencia con Biométricos' => [
-                        'route' => 'admin.attendance.biometric.index',
-                        'can' => 'attendance.biometric.view',
-                    ],
-                    'Justificación de Ausencias' => [
-                        'route' => 'admin.attendance.absences.index',
-                        'can' => 'attendance.absences.view',
-                    ],
-                ],
-            ],
+        'Mi perfil' => [
+            'icon' => 'ti ti-user-circle',
+            'route' => 'admin.users.profile',
         ],
-    ],
-    'Productos y servicios' => [
-        'icon' => 'menu-icon tf-icons ti ti-package',
-        'submenu' => [
-            'Categorias' => [
-                'route' => 'admin.inventory.product-categories.index',
-                'icon' => 'menu-icon tf-icons ti ti-category',
-                'can' => 'admin.inventory.product-categories.view',
-            ],
-            'Catálogos' => [
-                'route' => 'admin.inventory.product-catalogs.index',
-                'icon' => 'menu-icon tf-icons ti ti-library',
-                'can' => 'admin.inventory.product-catalogs.view',
-            ],
-            'Productos y servicios' => [
-                'route' => 'admin.products.products.index',
-                'icon' => 'menu-icon tf-icons ti ti-packages',
-                'can' => 'admin.products.products.view',
-            ],
-            'Agregar producto o servicio' => [
-                'route' => 'admin.products.products.create',
-                'icon' => 'menu-icon tf-icons ti ti-package',
-                'can' => 'admin.products.products.create',
-            ],
-        ]
-    ],
-    'Ventas' => [
-        'icon' => 'menu-icon tf-icons ti ti-cash-register',
-        'submenu' => [
-            'Tablero' => [
-                'route' => 'admin.sales.dashboard.index',
-                'icon' => 'menu-icon tf-icons ti ti-chart-infographic',
-                'can' => 'admin.sales.dashboard.allow',
-            ],
-            'Clientes' => [
-                'route' => 'admin.sales.customers.index',
-                'icon' => 'menu-icon tf-icons ti ti-users-group',
-                'can' => 'admin.sales.customers.view',
-            ],
-            'Lista de precios' => [
-                'route' => 'admin.sales.pricelist.index',
-                'icon' => 'menu-icon tf-icons ti ti-report-search',
-                'can' => 'admin.sales.sales.view',
-            ],
-            'Cotizaciones' => [
-                'route' => 'admin.sales.quotes.index',
-                'icon' => 'menu-icon tf-icons ti ti-file-dollar',
-                'can' => 'admin.sales.quotes.view',
-            ],
-            'Ventas' => [
-                'icon' => 'menu-icon tf-icons ti ti-cash-register',
-                'submenu' => [
-                    'Crear venta' => [
-                        'route' => 'admin.sales.sales.create',
-                        'can' => 'admin.sales.sales.create',
-                    ],
-                    'Ventas' => [
-                        'route' => 'admin.sales.sales.index',
-                        'can' => 'admin.sales.sales.view',
-                    ],
-                    'Ventas por producto o servicio' => [
-                        'route' => 'admin.sales.sales-by-product.index',
-                        'can' => 'admin.sales.sales.view',
-                    ],
-                ]
-            ],
-            'Remisiones' => [
-                'icon' => 'menu-icon tf-icons ti ti-receipt',
-                'submenu' => [
-                    'Crear remisión' => [
-                        'route' => 'admin.sales.remissions.create',
-                        'can' => 'admin.sales.remissions.create',
-                    ],
-                    'Remisiones' => [
-                        'route' => 'admin.sales.remissions.index',
-                        'can' => 'admin.sales.remissions.view',
-                    ],
-                    'Remisiones por producto o servicio' => [
-                        'route' => 'admin.sales.remissions-by-product.index',
-                        'can' => 'admin.sales.remissions.view',
-                    ],
-                ]
-            ],
-            'Notas de crédito' => [
-                'icon' => 'menu-icon tf-icons ti ti-receipt-refund',
-                'submenu' => [
-                    'Crear nota de crédito' => [
-                        'route' => 'admin.sales.credit-notes.create',
-                        'can' => 'admin.sales.credit-notes.create',
-                    ],
-                    'Notas de créditos' => [
-                        'route' => 'admin.sales.credit-notes.index',
-                        'can' => 'admin.sales.credit-notes.view',
-                    ],
-                    'Notas de crédito por producto o servicio' => [
-                        'route' => 'admin.sales.credit-notes-by-product.index',
-                        'can' => 'admin.sales.credit-notes.view',
-                    ],
-                ]
-            ],
-        ],
-    ],
-    'Finanzas' => [
-        'icon' => 'menu-icon tf-icons ti ti-coins',
-        'submenu' => [
-            'Tablero Financiero' => [
-                'route' => 'admin.accounting.dashboard.index',
-                'icon' => 'menu-icon tf-icons ti ti-chart-infographic',
-                'can' => 'accounting.dashboard.view',
-            ],
-            'Contabilidad' => [
-                'icon' => 'menu-icon tf-icons ti ti-chart-pie',
-                'submenu' => [
-                    'Cuentas Contables' => [
-                        'route' => 'admin.accounting.charts.index',
-                        'can' => 'accounting.charts.view',
-                    ],
-                    'Cuentas por pagar' => [
-                        'route' => 'admin.finance.accounts-payable.index',
-                        'can' => 'finance.accounts-payable.view',
-                    ],
-                    'Cuentas por cobrar' => [
-                        'route' => 'admin.finance.accounts-receivable.index',
-                        'can' => 'finance.accounts-receivable.view',
-                    ],
-                    'Balance General' => [
-                        'route' => 'admin.accounting.balance.index',
-                        'can' => 'accounting.balance.view',
-                    ],
-                    'Estado de Resultados' => [
-                        'route' => 'admin.accounting.income-statement.index',
-                        'can' => 'accounting.income-statement.view',
-                    ],
-                    'Libro Mayor' => [
-                        'route' => 'admin.accounting.ledger.index',
-                        'can' => 'accounting.ledger.view',
-                    ],
-                    'Registros Contables' => [
-                        'route' => 'admin.accounting.entries.index',
-                        'can' => 'accounting.entries.view',
-                    ],
-                ],
-            ],
-            'Tablero de Gastos' => [
-                'route' => 'admin.expenses.dashboard.index',
-                'icon' => 'menu-icon tf-icons ti ti-chart-infographic',
-                'can' => 'expenses.dashboard.view',
-            ],
-            'Gestión de Gastos' => [
-                'icon' => 'menu-icon tf-icons ti ti-receipt-2',
-                'submenu' => [
-                    'Nuevo gasto' => [
-                        'route' => 'admin.expenses.expenses.create',
-                        'can' => 'expenses.expenses.create',
-                    ],
-                    'Gastos' => [
-                        'route' => 'admin.expenses.expenses.index',
-                        'can' => 'expenses.expenses.view',
-                    ],
-                    'Categorías de Gastos' => [
-                        'route' => 'admin.expenses.categories.index',
-                        'can' => 'expenses.categories.view',
-                    ],
-                    'Historial de Gastos' => [
-                        'route' => 'admin.expenses.history.index',
-                        'can' => 'expenses.history.view',
-                    ],
-                ],
-            ],
-        ],
-    ],
-
-
-
-
-    'Facturación' => [
-        'icon' => 'menu-icon tf-icons ti ti-rubber-stamp',
-        'submenu' => [
-            'Tablero' => [
-                'route' => 'admin.billing.dashboard.index',
-                'icon' => 'menu-icon tf-icons ti ti-chart-infographic',
-                'can' => 'admin.billing.dashboard.allow',
-            ],
-            'Ingresos' => [
-                'icon' => 'menu-icon tf-icons ti ti-file-certificate',
-                'submenu' => [
-                    'Facturar ventas' => [
-                        'route' => 'admin.billing.ingresos-stamp.index',
-                        'can' => 'admin.billing.ingresos.create',
-                    ],
-                    'CFDI Ingresos' => [
-                        'route' => 'admin.billing.ingresos.index',
-                        'can' => 'admin.billing.ingresos.view',
-                    ],
-                    'CFDI Ingresos por producto o servicio' => [
-                        'route' => 'admin.billing.ingresos-by-product.index',
-                        'can' => 'admin.billing.ingresos.view',
-                    ],
-                ]
-            ],
-            'Egresos' => [
-                'icon' => 'menu-icon tf-icons ti ti-file-certificate',
-                'submenu' => [
-                    'Facturar notas de crédito' => [
-                        'route' => 'admin.billing.egresos-stamp.index',
-                        'can' => 'admin.billing.egresos.create',
-                    ],
-                    'CFDI Engresos' => [
-                        'route' => 'admin.billing.egresos.index',
-                        'can' => 'admin.billing.egresos.view',
-                    ],
-                    'CFDI Engresos por producto o servicio' => [
-                        'route' => 'admin.billing.egresos-by-product.index',
-                        'can' => 'admin.billing.egresos.view',
-                    ],
-                ]
-            ],
-            'Pagos' => [
-                'icon' => 'menu-icon tf-icons ti ti-file-certificate',
-                'submenu' => [
-                    'Facturar pagos' => [
-                        'route' => 'admin.billing.pagos-stamp.index',
-                        'can' => 'admin.billing.pagos.created',
-                    ],
-                    'CFDI Pagos' => [
-                        'route' => 'admin.billing.pagos.index',
-                        'can' => 'admin.billing.pagos.view',
-                    ],
-                ]
-            ],
-            'CFDI Nómina' => [
-                'route' => 'admin.billing.nomina.index',
-                'icon' => 'menu-icon tf-icons ti ti-file-certificate',
-                'can' => 'admin.billing.nomina.view',
-            ],
-            'Verificador de CFDI 4.0' => [
-                'route' => 'admin.billing.verify-cfdi.index',
-                'icon' => 'menu-icon tf-icons ti ti-rosette-discount-check',
-                'can' => 'admin.billing.verify-cfdi.allow',
-            ],
-        ]
-    ],
-
-    'Inventario y Logística' => [
-        'icon' => 'menu-icon tf-icons ti ti-truck-delivery',
-        'submenu' => [
-            'Cadena de Suministro' => [
-                'icon' => 'menu-icon tf-icons ti ti-chart-dots-3',
-                'submenu' => [
-                    'Proveedores' => [
-                        'route' => 'admin.inventory.suppliers.index',
-                        'can' => 'admin.inventory.suppliers.view',
-                    ],
-                    'Órdenes de Compra' => [
-                        'route' => 'admin.purchase-orders.orders.index',
-                        'can' => 'admin.purchase-orders.orders.view',
-                    ],
-                    'Recepción de Productos' => [
-                        'route' => 'admin.purchase-orders.reception.index',
-                        'can' => 'admin.purchase-orders.reception.view',
-                    ],
-                    'Gestión de Insumos' => [
-                        'route' => 'admin.purchase-orders.materials.index',
-                        'can' => 'admin.purchase-orders.materials.view',
-                    ],
-                ],
-            ],
-            'Gestión de Almacenes' => [
-                'icon' => 'menu-icon tf-icons ti ti-building-warehouse',
-                'submenu' => [
-                    'Almacenes' => [
-                        'route' => 'admin.inventory.warehouse.index',
-                        'can' => 'admin.inventory.warehouse.view',
-                    ],
-                    'Stock de Inventario' => [
-                        'route' => 'admin.inventory.stock.index',
-                        'can' => 'admin.inventory.stock.view',
-                    ],
-                    'Movimientos de almacenes' => [
-                        'route' => 'admin.inventory.movements.index',
-                        'can' => 'admin.inventory.movements.view',
-                    ],
-                    'Transferencias entre Almacenes' => [
-                        'route' => 'admin.inventory.transfers.index',
-                        'can' => 'admin.inventory.transfers.view',
-                    ],
-                ],
-            ],
-            'Envíos y Logística' => [
-                'icon' => 'menu-icon tf-icons ti ti-truck',
-                'submenu' => [
-                    'Órdenes de Envío' => [
-                        'route' => 'admin.shipping.orders.index',
-                        'can' => 'admin.shipping.orders.view',
-                    ],
-                    'Seguimiento de Envíos' => [
-                        'route' => 'admin.shipping.tracking.index',
-                        'can' => 'admin.shipping.tracking.view',
-                    ],
-                    'Transportistas' => [
-                        'route' => 'admin.shipping.carriers.index',
-                        'can' => 'admin.shipping.carriers.view',
-                    ],
-                    'Tarifas y Métodos de Envío' => [
-                        'route' => 'admin.shipping.rates.index',
-                        'can' => 'admin.shipping.rates.view',
-                    ],
-                ],
-            ],
-            'Gestión de Activos' => [
-                'icon' => 'menu-icon tf-icons ti ti-tools-kitchen',
-                'submenu' => [
-                    'Activos Registrados' => [
-                        'route' => 'admin.inventory.asset.index',
-                        'can' => 'admin.inventory.asset.view',
-                    ],
-                    'Mantenimiento Preventivo' => [
-                        'route' => 'admin.assets.maintenance.index',
-                        'can' => 'admin.assets.maintenance.view',
-                    ],
-                    'Control de Vida Útil' => [
-                        'route' => 'admin.assets.lifecycle.index',
-                        'can' => 'admin.assets.lifecycle.view',
-                    ],
-                    'Asignación de Activos' => [
-                        'route' => 'admin.assets.assignments.index',
-                        'can' => 'admin.assets.assignments.view',
-                    ],
-                ],
-            ],
-        ],
-    ],
-
-    'Gestión Empresarial' => [
-        'icon' => 'menu-icon tf-icons ti ti-briefcase',
-        'submenu' => [
-            'Gestión de Proyectos' => [
-                'icon' => 'menu-icon tf-icons ti ti-layout-kanban',
-                'submenu' => [
-                    'Tablero de Proyectos' => [
-                        'route' => 'admin.projects.dashboard.index',
-                        'can' => 'projects.dashboard.view',
-                    ],
-                    'Proyectos Activos' => [
-                        'route' => 'admin.projects.index',
-                        'can' => 'projects.view',
-                    ],
-                    'Crear Proyecto' => [
-                        'route' => 'admin.projects.create',
-                        'can' => 'projects.create',
-                    ],
-                    'Gestión de Tareas' => [
-                        'route' => 'admin.projects.tasks.index',
-                        'can' => 'projects.tasks.view',
-                    ],
-                    'Historial de Proyectos' => [
-                        'route' => 'admin.projects.history.index',
-                        'can' => 'projects.history.view',
-                    ],
-                ],
-            ],
-            'Producción y Manufactura' => [
-                'icon' => 'menu-icon tf-icons ti ti-building-factory',
-                'submenu' => [
-                    'Órdenes de Producción' => [
-                        'route' => 'admin.production.orders.index',
-                        'can' => 'production.orders.view',
-                    ],
-                    'Nueva Orden de Producción' => [
-                        'route' => 'admin.production.orders.create',
-                        'can' => 'production.orders.create',
-                    ],
-                    'Control de Procesos' => [
-                        'route' => 'admin.production.process.index',
-                        'can' => 'production.process.view',
-                    ],
-                    'Historial de Producción' => [
-                        'route' => 'admin.production.history.index',
-                        'can' => 'production.history.view',
-                    ],
-                ],
-            ],
-            'Control de Calidad' => [
-                'icon' => 'menu-icon tf-icons ti ti-award',
-                'submenu' => [
-                    'Inspecciones de Calidad' => [
-                        'route' => 'admin.quality.inspections.index',
-                        'can' => 'quality.inspections.view',
-                    ],
-                    'Crear Inspección' => [
-                        'route' => 'admin.quality.inspections.create',
-                        'can' => 'quality.inspections.create',
-                    ],
-                    'Reportes de Calidad' => [
-                        'route' => 'admin.quality.reports.index',
-                        'can' => 'quality.reports.view',
-                    ],
-                    'Historial de Inspecciones' => [
-                        'route' => 'admin.quality.history.index',
-                        'can' => 'quality.history.view',
-                    ],
-                ],
-            ],
-            'Flujos de Trabajo y Automatización' => [
-                'icon' => 'menu-icon tf-icons ti ti-chart-dots-3',
-                'submenu' => [
-                    'Gestión de Flujos de Trabajo' => [
-                        'route' => 'admin.workflows.index',
-                        'can' => 'workflows.view',
-                    ],
-                    'Crear Flujo de Trabajo' => [
-                        'route' => 'admin.workflows.create',
-                        'can' => 'workflows.create',
-                    ],
-                    'Automatizaciones' => [
-                        'route' => 'admin.workflows.automations.index',
-                        'can' => 'workflows.automations.view',
-                    ],
-                    'Historial de Flujos' => [
-                        'route' => 'admin.workflows.history.index',
-                        'can' => 'workflows.history.view',
-                    ],
-                ],
-            ],
-        ],
-    ],
-
-
-    'Contratos' => [
-        'icon' => 'menu-icon tf-icons ti ti-writing-sign',
-        'submenu' => [
-            'Mis Contratos' => [
-                'route' => 'admin.contracts.index',
-                'icon' => 'menu-icon tf-icons ti ti-file-description',
-                'can' => 'contracts.view',
-            ],
-            'Firmar Contrato' => [
-                'route' => 'admin.contracts.sign',
-                'icon' => 'menu-icon tf-icons ti ti-signature',
-                'can' => 'contracts.sign',
-            ],
-            'Contratos Automatizados' => [
-                'route' => 'admin.contracts.automated',
-                'icon' => 'menu-icon tf-icons ti ti-robot',
-                'can' => 'contracts.automated.view',
-            ],
-            'Historial de Contratos' => [
-                'route' => 'admin.contracts.history',
-                'icon' => 'menu-icon tf-icons ti ti-archive',
-                'can' => 'contracts.history.view',
-            ],
-        ]
-    ],
-    'Atención al Cliente' => [
-        'icon' => 'menu-icon tf-icons ti ti-messages',
-        'submenu' => [
-            'Tablero' => [
-                'route' => 'admin.sales.dashboard.index',
-                'icon' => 'menu-icon tf-icons ti ti-chart-infographic',
-                'can' => 'ticketing.dashboard.view',
-            ],
-            'Mis Tickets' => [
-                'route' => 'admin.ticketing.tickets.index',
-                'icon' => 'menu-icon tf-icons ti ti-ticket',
-                'can' => 'ticketing.tickets.view',
-            ],
-            'Crear Ticket' => [
-                'route' => 'admin.ticketing.tickets.create',
-                'icon' => 'menu-icon tf-icons ti ti-square-plus',
-                'can' => 'ticketing.tickets.create',
-            ],
-            'Categorías de Tickets' => [
-                'route' => 'admin.ticketing.categories.index',
-                'icon' => 'menu-icon tf-icons ti ti-category',
-                'can' => 'ticketing.categories.view',
-            ],
-            'Estadísticas de Atención' => [
-                'route' => 'admin.ticketing.analytics.index',
-                'icon' => 'menu-icon tf-icons ti ti-chart-bar',
-                'can' => 'ticketing.analytics.view',
-            ],
-        ]
     ],
 ];

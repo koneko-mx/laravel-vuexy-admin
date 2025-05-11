@@ -6,13 +6,13 @@
     'id'              => uniqid(),
     'tagName'         => '',
     'datatableConfig' => [],
-    'routes'          => [],
     'noFilterButtons' => false
 ])
 
 @php
-    if($tagName)
+    if($tagName){
         $id = 'bt-' . Str::kebab($tagName) . 's';
+    }
 @endphp
 
 <div id="{{ $id }}" wire:ignore>
@@ -58,9 +58,9 @@
             });
         });
     </script>
-    @isset($routes)
+    @isset($datatableConfig['routes'])
     <script id="app-routes" type="application/json">
-        {!! json_encode($routes) !!}
+        {!! json_encode($datatableConfig['routes']) !!}
     </script>
     @endisset
 @endpush

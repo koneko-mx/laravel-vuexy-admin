@@ -1,87 +1,91 @@
 @isset($pageConfigs)
-    {!! Helper::updatePageConfig($pageConfigs) !!}
+        {!! Helper::updatePageConfig($pageConfigs) !!}
 @endisset
 @php
-    $configData = Helper::appClasses();
+        $configData = Helper::appClasses();
 @endphp
 
 @extends('vuexy-admin::layouts.vuexy.commonMaster' )
 
 @php
-    $menuHorizontal = true;
-    $navbarFull = true;
+        $menuHorizontal = true;
+        $navbarFull = true;
 
-    /* Display elements */
-    $isNavbar = ($isNavbar ?? true);
-    $isMenu = ($isMenu ?? true);
-    $isFlex = ($isFlex ?? false);
-    $isFooter = ($isFooter ?? true);
-    $customizerHidden = ($customizerHidden ?? '');
+        /* Display elements */
+        $isNavbar = ($isNavbar ?? true);
+        $isMenu = ($isMenu ?? true);
+        $isFlex = ($isFlex ?? false);
+        $isFooter = ($isFooter ?? true);
+        $customizerHidden = ($customizerHidden ?? '');
 
-    /* HTML Classes */
-    $menuFixed = (isset($configData['menuFixed']) ? $configData['menuFixed'] : '');
-    $navbarType = (isset($configData['navbarType']) ? $configData['navbarType'] : '');
-    $footerFixed = (isset($configData['footerFixed']) ? $configData['footerFixed'] : '');
-    $menuCollapsed = (isset($configData['menuCollapsed']) ? $configData['menuCollapsed'] : '');
+        /* HTML Classes */
+        $menuFixed = (isset($configData['menuFixed']) ? $configData['menuFixed'] : '');
+        $navbarType = (isset($configData['navbarType']) ? $configData['navbarType'] : '');
+        $footerFixed = (isset($configData['footerFixed']) ? $configData['footerFixed'] : '');
+        $menuCollapsed = (isset($configData['menuCollapsed']) ? $configData['menuCollapsed'] : '');
 
-    /* Content classes */
-    $container = ($configData['contentLayout'] === 'compact') ? 'container-xxl' : 'container-fluid';
-    $containerNav = ($configData['contentLayout'] === 'compact') ? 'container-xxl' : 'container-fluid';
+        /* Content classes */
+        $container = ($configData['contentLayout'] === 'compact') ? 'container-xxl' : 'container-fluid';
+        $containerNav = ($configData['contentLayout'] === 'compact') ? 'container-xxl' : 'container-fluid';
 @endphp
 
 @section('layoutContent')
 <div class="layout-wrapper layout-navbar-full layout-horizontal layout-without-menu">
-  <div class="layout-container">
+    <div class="layout-container">
 
-    <!-- BEGIN: Navbar-->
-    @if ($isNavbar)
-    @include('vuexy-admin::layouts.vuexy.sections.navbar.navbar')
-    @endif
-    <!-- END: Navbar-->
+        <!-- BEGIN: Navbar-->
+        @if ($isNavbar)
+        @include('vuexy-admin::layouts.vuexy.sections.navbar.navbar')
+        @endif
+        <!-- END: Navbar-->
 
-    <!-- Layout page -->
-    <div class="layout-page">
+        <!-- Layout page -->
+        <div class="layout-page">
 
-      <!-- Content wrapper -->
-      <div class="content-wrapper">
+            <!-- Content wrapper -->
+            <div class="content-wrapper">
+
+                @if ($isMenu)
+                @include('vuexy-admin::layouts.vuexy.sections.menu.horizontalMenu')
+                @endif
+
+                <!-- Content -->
+                @if ($isFlex)
+                <div class="{{$container}} d-flex align-items-stretch flex-grow-1 p-0">
+                    @else
+                    <div class="{{$container}} flex-grow-1 container-p-y">
+                        @endif
+                        <!-- Breadcrumbs -->
+                        @include('vuexy-admin::layouts.vuexy.sections.content.breadcrumbs')
+                        <!-- / Breadcrumbs -->
+
+                        <!-- Notifications -->
+                        <div class="notification-container"></div>
+                        <!-- / Notifications -->
+
+                        @yield('content')
+                    </div>
+                    <!-- / Content -->
+
+                    <!-- Footer -->
+                    @if ($isFooter)
+                    @include('vuexy-admin::layouts.vuexy.sections.footer.footer')
+                    @endif
+                    <!-- / Footer -->
+                    <div class="content-backdrop fade"></div>
+                </div>
+                <!--/ Content wrapper -->
+            </div>
+            <!-- / Layout page -->
+        </div>
+        <!-- / Layout Container -->
 
         @if ($isMenu)
-        @include('vuexy-admin::layouts.vuexy.sections.menu.horizontalMenu')
+        <!-- Overlay -->
+        <div class="layout-overlay layout-menu-toggle"></div>
         @endif
-
-        <!-- Content -->
-        @if ($isFlex)
-        <div class="{{$container}} d-flex align-items-stretch flex-grow-1 p-0">
-          @else
-          <div class="{{$container}} flex-grow-1 container-p-y">
-            @endif
-            <!-- Breadcrumbs -->
-            @include('vuexy-admin::layouts.vuexy.sections.content.breadcrumbs')
-            <!-- / Breadcrumbs -->
-
-            @yield('content')
-          </div>
-          <!-- / Content -->
-
-          <!-- Footer -->
-          @if ($isFooter)
-          @include('vuexy-admin::layouts.vuexy.sections.footer.footer')
-          @endif
-          <!-- / Footer -->
-          <div class="content-backdrop fade"></div>
-        </div>
-        <!--/ Content wrapper -->
-      </div>
-      <!-- / Layout page -->
+        <!-- Drag Target Area To SlideIn Menu On Small Screens -->
+        <div class="drag-target"></div>
     </div>
-    <!-- / Layout Container -->
-
-    @if ($isMenu)
-    <!-- Overlay -->
-    <div class="layout-overlay layout-menu-toggle"></div>
-    @endif
-    <!-- Drag Target Area To SlideIn Menu On Small Screens -->
-    <div class="drag-target"></div>
-  </div>
-  <!-- / Layout wrapper -->
-  @endsection
+    <!-- / Layout wrapper -->
+    @endsection

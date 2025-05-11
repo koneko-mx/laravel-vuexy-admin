@@ -1,0 +1,45 @@
+[
+    {
+        "name": "Cliente de prueba",
+        "email": "cliente@koneko.mx",
+        "password": "cliente123",
+        "rfc": "XAXX010101000",
+        "roles": ["SuperAdmin"]
+    },
+    {
+        "name": "Proveedor Koneko",
+        "email": "proveedor@koneko.mx",
+        "password": "proveedor123",
+        "tipo_persona": 2,
+        "curp": "GOML850927MOCSRN09",
+        "roles": ["SuperAdmin", "Auditor"]
+    },
+    {
+        "code": "U002",
+        "parent_id": 1,
+        "agent_id": 2,
+        "name": "Usuario Completo",
+        "last_name": "Pérez López",
+        "email": "usuario.completo@example.com",
+        "company": "Empresa de Prueba S.A. de C.V.",
+        "c_pais": "MEX",
+        "birth_date": "1990-06-15",
+        "hire_date": "2022-01-10",
+        "curp": "LOPJ900615HDFRNS03",
+        "nss": "12345678901",
+        "rfc": "LOPJ900615ABC",
+        "nombre_fiscal": "López Pérez Juan",
+        "tipo_persona": 1,
+        "c_regimen_fiscal": 601,
+        "domicilio_fiscal": 64000,
+        "enable_credit": 1,
+        "credit_days": 30,
+        "credit_limit": "15000.00",
+        "license_number": "A123456789",
+        "policy_format": "NOM035",
+        "special_requirements": "Ninguno",
+        "password": "proveedor123",
+        "notes": "Este usuario tiene todos los campos completados.",
+        "status": 1
+      }
+  ]

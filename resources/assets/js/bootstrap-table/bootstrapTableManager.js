@@ -1,16 +1,15 @@
-import '../../vendor/libs/bootstrap-table/bootstrap-table';
-import '../notifications/LivewireNotification';
+import '@vuexy-admin/assets/vendor/libs/bootstrap-table/bootstrap-table';
 
 class BootstrapTableManager {
     constructor(bootstrapTableWrap, config = {}) {
         const defaultConfig = {
             header: [],
-            format: [],
+            formatters: [],
             search_columns: [],
             actionColumn: false,
             height: 'auto',
             minHeight: 300,
-            bottomMargin : 195,
+            bottomMargin : 35,
             search: true,
             showColumns: true,
             showColumnsToggleAll: true,
@@ -18,7 +17,7 @@ class BootstrapTableManager {
             exportfileName: 'datatTable',
             exportWithDatetime: true,
             showFullscreen: true,
-            showPaginationSwitch: true,
+            showPaginationSwitch: false,
             showRefresh: true,
             showToggle: true,
             /*
@@ -49,7 +48,7 @@ class BootstrapTableManager {
             pageList: [25, 50, 100, 500, 1000],
             sortName: 'id',
             sortOrder: 'asc',
-            cookie: false,
+            cookie: true,
             cookieExpire: '365d',
             cookieIdTable: 'myTableCookies', // Nombre único para las cookies de la tabla
             cookieStorage: 'localStorage',
@@ -77,7 +76,10 @@ class BootstrapTableManager {
      * Calcula la altura de la tabla.
      */
     getTableHeight() {
-        const btHeight = window.innerHeight - this.$toolbar.height() - this.bottomMargin;
+        let container = document.querySelector('.container-p-y'),
+            toolbat = document.querySelector('.bt-toolbar');
+
+        let btHeight = container?.offsetHeight - toolbat?.offsetHeight - this.config.bottomMargin;
 
         return btHeight < this.config.minHeight ? this.config.minHeight : btHeight;
     }
@@ -106,8 +108,7 @@ class BootstrapTableManager {
      * Carga los formatters dinámicamente
      */
     async loadFormatters() {
-        //const formattersModules = import.meta.glob('../../../../../**/resources/assets/js/bootstrap-table/*Formatters.js');
-        const formattersModules = import.meta.glob('/vendor/koneko/laravel-vuexy-admin/resources/assets/js/bootstrap-table/*Formatters.js');
+        const formattersModules = import.meta.glob('/vendor/koneko/**/resources/assets/js/bootstrap-table/*Formatters.js');
 
         const formatterPromises = Object.entries(formattersModules).map(async ([path, importer]) => {
             const module = await importer();
@@ -121,7 +122,7 @@ class BootstrapTableManager {
         const columns = [];
 
         Object.entries(this.config.header).forEach(([key, value]) => {
-            const columnFormat = this.config.format[key] || {};
+            const columnFormat = this.config.formatters[key] || {};
 
             if (typeof columnFormat.formatter === 'object') {
                 const formatterName = columnFormat.formatter.name;

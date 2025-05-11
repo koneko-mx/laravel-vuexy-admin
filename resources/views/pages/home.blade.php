@@ -1,9 +1,9 @@
-@php
-    $configData = Helper::appClasses();
-@endphp
-
 @extends('vuexy-admin::layouts.vuexy.layoutMaster')
 
+@section('vendor-style')
+    @vite('vendor/koneko/laravel-vuexy-admin/resources/scss/pages/quick-access-card.scss')
+@endsection
+
 @section('content')
-    @livewire('vuexy-admin::quick-access-widget');
+    @livewire('vuexy-admin::menu-access-cards')
 @endsection

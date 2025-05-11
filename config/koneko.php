@@ -1,14 +1,10 @@
 <?php
 // Variables
 return [
-    "appName" => "koneko.mx",
-    "appTitle" => "Koneko Soluciones Tecnológicas",
-    "appDescription" => "Koneko Soluciones Tecnológicas",
-    "appLogo" => "../vendor/vuexy-admin/img/logo/koneko-04.png",
-    "appFavicon" => "../vendor/vuexy-admin/img/logo/koneko-04.png",
-    "author" => "arturo@koneko.mx",
-    "creatorName" => "Koneko Soluciones Tecnológicas",
-    "creatorUrl" => "https://koneko.mx",
-    "licenseUrl" => "https://koneko.mx/koneko-admin/licencia",
-    "supportUrl" => "https://koneko.mx/soporte",
+    "title"       => "Koneko Soluciones Tecnológicas",
+    "description" => "Koneko Soluciones Tecnológicas ofrece desarrollo de sistemas empresariales, sitios web profesionales, inteligencia artificial, infraestructura y soluciones digitales avanzadas para negocios en México.",
+    "author"      => "arturo@koneko.mx",
+    "app_name"    => "koneko.mx",
+    "app_logo"    => "../vendor/vuexy-admin/img/logo/koneko-04.png",
+    "favicon"     => "../vendor/vuexy-admin/img/logo/koneko-04.png",
 ];

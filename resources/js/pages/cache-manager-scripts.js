@@ -1,4 +1,4 @@
-import '../../assets/js/notifications/LivewireNotification.js';
+// import '../../assets/js/notifications/LivewireNotification.js';
 import FormCustomListener from '../../assets/js/forms/formCustomListener';
 
 // Inicializar listener para estadísticas de cache

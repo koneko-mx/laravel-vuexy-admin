@@ -9,7 +9,7 @@
     <a href="https://packagist.org/packages/koneko/laravel-vuexy-admin"><img src="https://img.shields.io/packagist/l/koneko/laravel-vuexy-admin" alt="License"></a>
     <a href="https://git.koneko.mx/koneko"><img src="https://img.shields.io/badge/Git%20Server-Koneko%20Git-orange" alt="Servidor Git"></a> 
     <a href="https://github.com/koneko-mx/laravel-vuexy-admin/actions/workflows/tests.yml"><img src="https://github.com/koneko-mx/laravel-vuexy-admin/actions/workflows/tests.yml/badge.svg" alt="Build Status"></a> 
-    <a href="https://github.com/koneko-mx/laravel-vuexy-admin/issues"><img src="https://img.shields.io/github/issues/koneko/laravel-vuexy-admin" alt="Issues"></a> 
+    <a href="https://github.com/koneko-mx/laravel-vuexy-admin/issues"><img src="https://img.shields.io/github/issues/koneko-mx/laravel-vuexy-admin" alt="Issues"></a> 
 </p>
 
 ---
@@ -30,18 +30,36 @@
 
 ## 📦 Instalación
 
-Instalar vía **Composer**:
+### 🔹 Opción 1: Desde Packagist (Recomendado)
+
+Instala el paquete desde [Packagist](https://packagist.org/packages/koneko/laravel-vuexy-admin):
 
 ```bash
 composer require koneko/laravel-vuexy-admin
 ```
 
-Publicar archivos de configuración y migraciones:
+> Asegúrate de tener habilitado Packagist en tu `composer.json`.
+
+### 🔹 Opción 2: Desde repositorio Git (GitHub o Tea)
+
+También puedes instalarlo como repositorio privado en desarrollo:
+
+```json
+"repositories": {
+    "koneko/laravel-vuexy-admin": {
+        "type": "vcs",
+        "url": "https://github.com/koneko-mx/laravel-vuexy-admin"
+    }
+}
+```
+
+Luego ejecuta:
 
 ```bash
-php artisan vendor:publish --tag=vuexy-admin-config
-php artisan migrate
+composer require koneko/laravel-vuexy-admin:@dev
 ```
+
+> Puedes cambiar la URL por `https://git.koneko.mx/koneko/laravel-vuexy-admin` si usas Tea como servidor Git.
 
 ---
 
@@ -123,7 +141,6 @@ Si deseas contribuir:
 Este paquete es de código abierto bajo la licencia [MIT](LICENSE).
 
 ---
-
 
 <p align="center">
     Hecho con ❤️ por <a href="https://koneko.mx">Koneko Soluciones Tecnológicas</a>

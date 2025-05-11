@@ -188,8 +188,6 @@ return [
         'tel'               => 'teléfono',
         'tel2'              => 'teléfono secundario',
         'status'            => 'estado',
-        'show_on_website'   => 'mostrar en el sitio web',
-        'enable_ecommerce'  => 'habilitar eCommerce',
         'confirmDeletion'   => 'confirmar eliminación',
 
     ],

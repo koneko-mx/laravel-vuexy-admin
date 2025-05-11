@@ -17,7 +17,7 @@
         <div class="misc-wrapper">
             <h4 class="mb-2 mx-2">¡En mantenimiento! 🚧</h4>
             <p class="mb-6 mx-2">Disculpe las molestias, pero estamos realizando tareas de mantenimiento en estos momentos.</p>
-            <a href="{{ route('admin.core.home.index') }}" class="btn btn-primary">Regresar al inicio</a>
+            <a href="{{ route('admin.core.pages.home.index') }}" class="btn btn-primary">Regresar al inicio</a>
             <div class="mt-12">
                 <img src="{{ asset('vendor/vuexy-admin/img/illustrations/page-misc-under-maintenance.png') }}" alt="page-misc-under-maintenance" width="550" class="img-fluid">
             </div>

@@ -13,16 +13,35 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('settings', function (Blueprint $table) {
-            $table->smallIncrements('id');
+            $table->mediumIncrements('id');
 
-            // Clave del setting
-            $table->string('key')->index();
+            $table->string('key')->index();         // Clave del setting
 
-            // Categoría (opcional pero recomendable)
-            $table->string('category')->nullable()->index();
+            $table->string('namespace', 8)->index();                       // Namespace del setting
+            $table->string('environment', 7)->default('prod')->index();    // Entorno de aplicación (prod, dev, test, staging), permite sobrescribir valores según ambiente.
+            $table->string('scope', 6)->default('global')->index();        // Define el alcance: global, tenant, branch, user, etc. Útil en arquitecturas multicliente.
 
-            // Usuario (null para globales)
-            $table->unsignedMediumInteger('user_id')->nullable()->index();
+            $table->string('component', 16)->index();                       // Nombre de Componente o proyecto
+            $table->string('module')->nullable()->index();                  // composerName de módulo Autocalculado
+            $table->string('group', 16)->index();                           // Grupo de configuraciones
+            $table->string('sub_group', 16)->index();                       // Sub grupo de configuraciones
+            $table->string('key_name', 24)->index();                        // Nombre de la clave de configuraciones
+            $table->unsignedMediumInteger('user_id')->nullable()->index();  // Usuario (null para globales)
+
+            $table->boolean('is_system')->default(false)->index();          // Indica si es un setting de sistema
+            $table->boolean('is_encrypted')->default(false)->index();       // Si el valor está cifrado (para secretos, tokens, passwords).
+            $table->boolean('is_sensitive')->default(false)->index();       // Marca datos sensibles (ej. datos personales, claves API). Puede ocultarse en UI o logs.
+            $table->boolean('is_editable')->default(true)->index();         // Permite o bloquea edición desde la UI (útil para settings de solo lectura).
+            $table->boolean('is_active')->default(true)->index();           // Permite activar/desactivar la aplicación de un setting sin eliminarlo.
+
+            $table->string('encryption_key', 64)->nullable()->index();      // Identificador de la clave usada (ej. 'ssl_cert_2025')
+            $table->string('encryption_algorithm', 16)->nullable();         // Ej. 'AES-256-CBC'
+            $table->timestamp('encryption_rotated_at')->nullable();         // Fecha de última rotación de clave
+
+            $table->string('description')->nullable();
+            $table->string('hint')->nullable();
+            $table->timestamp('last_used_at')->nullable();
+            $table->integer('usage_count')->default(0)->index();
 
             // Valores segmentados por tipo para mejor rendimiento
             $table->string('value_string')->nullable();
@@ -35,28 +54,47 @@ return new class extends Migration
             $table->string('file_name')->nullable();
 
             // Auditoría
-            $table->timestamps();
-            $table->unsignedMediumInteger('updated_by')->nullable();
+            $table->unsignedMediumInteger('created_by')->nullable()->index();
+            $table->unsignedMediumInteger('updated_by')->nullable()->index();
+            $table->unsignedMediumInteger('deleted_by')->nullable()->index();
 
-            // Unique constraint para evitar duplicados
-            $table->unique(['key', 'user_id', 'category']);
+            $table->timestamps();
+            $table->softDeletes(); // THIS ONE
+
+            //  Índice de Unicidad Principal (para consultas y updates rápidos)
+            $table->unique(
+                ['namespace', 'environment', 'scope', 'component', 'group', 'sub_group', 'key_name', 'user_id'],
+                'uniq_settings_full_context'
+            );
+
+            // Búsqueda rápida por componente
+            $table->index(['namespace', 'component'], 'idx_settings_ns_component');
+
+            // Listar grupos de un componente por scope
+            $table->index(['namespace', 'scope', 'component', 'group'], 'idx_settings_ns_scope_component_group');
+
+            // Listar subgrupos por grupo y componente en un scope
+            $table->index(['namespace', 'scope', 'component', 'group', 'sub_group'], 'idx_settings_ns_scope_component_sg');
+
+            // Consultas por entorno y usuario
+            $table->index(['namespace', 'environment', 'user_id'], 'idx_settings_ns_env_user');
+
+            // Consultas por scope y usuario
+            $table->index(['namespace', 'scope', 'user_id'], 'idx_settings_ns_scope_user');
+
+            // Consultas por estado de actividad o sistema
+            $table->index(['namespace', 'is_active'], 'idx_settings_ns_is_active');
+            $table->index(['namespace', 'is_system'], 'idx_settings_ns_is_system');
+
+            // Consultas por estado de cifrado y usuario
+            $table->index(['namespace', 'is_encrypted', 'user_id'], 'idx_settings_encrypted_user');
 
             // Relaciones
-            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
+            $table->foreign('user_id')->references('id')->on('users')->restrictOnDelete();
+            $table->foreign('created_by')->references('id')->on('users')->restrictOnDelete();
+            $table->foreign('updated_by')->references('id')->on('users')->restrictOnDelete();
+            $table->foreign('deleted_by')->references('id')->on('users')->restrictOnDelete();
         });
-
-        // Agregar columna virtual unificada
-        DB::statement("ALTER TABLE settings ADD COLUMN value VARCHAR(255) GENERATED ALWAYS AS (
-            CASE
-                WHEN value_string IS NOT NULL THEN value_string
-                WHEN value_integer IS NOT NULL THEN CAST(value_integer AS CHAR)
-                WHEN value_boolean IS NOT NULL THEN IF(value_boolean, 'true', 'false')
-                WHEN value_float IS NOT NULL THEN CAST(value_float AS CHAR)
-                WHEN value_text IS NOT NULL THEN LEFT(value_text, 255)
-                WHEN value_binary IS NOT NULL THEN '[binary_data]'
-                ELSE NULL
-            END
-        ) VIRTUAL");
     }
 
     /**

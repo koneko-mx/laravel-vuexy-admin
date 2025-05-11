@@ -146,14 +146,14 @@
             {{-- Prefijo --}}
             @if ($prefix || $prefixIcon)
                 @if ($prefixClickable)
-                    <button type="button" class="input-group-text cursor-pointer" {{ $prefixAction ? "wire:click=$prefixAction" : '' }}>
+                    <span class="input-group-text cursor-pointer" {{ $prefixAction ? "wire:click=$prefixAction" : '' }}>
                         @if ($prefixIcon)
                             <i class="{{ $prefixIcon }}"></i>
                         @endif
                         @if ($prefix)
                             {{ $prefix }}
                         @endif
-                    </button>
+                    </span>
                 @else
                     <span class="input-group-text">
                         @if ($prefixIcon)
@@ -171,14 +171,14 @@
             {{-- Sufijo --}}
             @if ($suffix || $suffixIcon)
                 @if ($suffixClickable)
-                    <button type="button" class="input-group-text cursor-pointer" {{ $suffixAction ? "wire:click=$suffixAction" : '' }}>
+                    <span class="input-group-text cursor-pointer" {{ $suffixAction ? "wire:click=$suffixAction" : '' }}>
                         @if ($suffixIcon)
                             <i class="{{ $suffixIcon }}"></i>
                         @endif
                         @if ($suffix)
                             {{ $suffix }}
                         @endif
-                    </button>
+                    </span>
                 @else
                     <span class="input-group-text">
                         @if ($suffixIcon)

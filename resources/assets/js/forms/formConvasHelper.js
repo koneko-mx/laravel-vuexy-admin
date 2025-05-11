@@ -335,19 +335,18 @@ export default class FormCanvasHelper {
             return str.charAt(0).toUpperCase() + str.slice(1);
         }
 
-        const singularName    = this.liveWireInstance.get('singularName');
-        const columnNameLabel = this.liveWireInstance.get('columnNameLabel');
-        const editName        = this.liveWireInstance.get(columnNameLabel);
+        const singularName = this.liveWireInstance.get('singularName');
+        const displayName  = this.liveWireInstance.get('displayName');
 
         switch (mode) {
             case 'create':
                 this.offcanvasTitleEl.innerHTML = `<i class="ti ti-plus ml-2"></i> ${capitalizeFirstLetter(singularName)} `;
                 break;
             case 'edit':
-                this.offcanvasTitleEl.innerHTML = `${editName} <i class="ti ti-lg ti-pencil ml-2 text-success"></i>`;
+                this.offcanvasTitleEl.innerHTML = `${displayName} <i class="ti ti-lg ti-pencil ml-2 text-success"></i>`;
                 break;
             case 'delete':
-                this.offcanvasTitleEl.innerHTML = `${editName} <i class="ti ti-lg ti-eraser ml-2 text-danger"></i>`;
+                this.offcanvasTitleEl.innerHTML = `${displayName} <i class="ti ti-lg ti-eraser ml-2 text-danger"></i>`;
                 break;
         }
     }
@@ -432,13 +431,13 @@ export default class FormCanvasHelper {
      * Hace focus en el elemento con el selector dado.
      */
     focusOnOpen() {
-        const focusSelector = this.liveWireInstance.get('focusOnOpen'); // Obtiene el selector de Livewire
+        const focusSelector = this.liveWireInstance.get('focusColumnOnOpen'); // Obtiene el selector de Livewire
 
         if (!focusSelector) return;
 
         setTimeout(() => {
             // Buscar el elemento real en el DOM
-            const focusElement = document.getElementById(focusSelector);
+            const focusElement = document.querySelector(`[name="${focusSelector}"]`);
 
             // Si existe, hacer focus
             if (focusElement) {

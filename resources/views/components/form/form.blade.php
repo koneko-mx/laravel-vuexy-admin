@@ -1,6 +1,6 @@
 @props([
     'id' => uniqid(),                // ID único del formulario
-    'uniqueId' => '',                // ID único del formulario
+    'uid' => '',                // ID único del formulario
     'mode' => 'create',              // Modo actual ('create', 'edit', 'delete')
     'method' => 'POST',              // Método del formulario (POST, GET, PUT, DELETE)
     'action' => '',                  // URL de acción
@@ -31,10 +31,10 @@
 
 <form {{ $attributes->merge($formAttributes) }}>
     @if (!$whitOutId)
-        <x-vuexy-admin::form.input :uid="$uniqueId" type="hidden" model="id" />
+        <x-vuexy-admin::form.input :uid="$uid" type="hidden" model="id" />
     @endif
     @if (!$whitOutMode)
-        <x-vuexy-admin::form.input :uid="$uniqueId" type="hidden" model="mode" />
+        <x-vuexy-admin::form.input :uid="$uid" type="hidden" model="mode" />
     @endif
     @if ($mode !== 'delete' && in_array($actionPosition, ['top', 'both']))
         <div class="notification-container mb-4"></div>

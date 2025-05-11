@@ -29,6 +29,13 @@ export const booleanStatusCatalog = {
         trueClass: 'text-green-800',
         falseClass: '',
     },
+    simpleCheck: {
+        trueText: '',
+        trueIcon: 'ti ti-check',
+        falseIcon: '',
+        trueClass: 'text-green-900',
+        falseText: '',
+    },
     checkbox: {
         trueIcon: 'ti ti-checkbox',
         falseIcon: '',
@@ -130,3 +137,20 @@ export const statusIntBadgeBgCatalog = {
     12: 'Cancelado',
 };
 
+/**
+ * Genera la URL del avatar basado en iniciales o devuelve la foto de perfil si está disponible.
+ * @param {string} fullName - Nombre completo del usuario.
+ * @param {string|null} profilePhoto - Ruta de la foto de perfil.
+ * @returns {string} - URL del avatar.
+ */
+export const getAvatarUrl = (fullName, profilePhoto) => {
+    const baseUrl = window.baseUrl || '';
+
+    if (profilePhoto) {
+        return `${baseUrl}storage/profile-photos/${profilePhoto}`;
+    }
+
+    const name = fullName.replace(/\s+/g, '-').toLowerCase();
+
+    return `${baseUrl}admin/usuario/avatar/?name=${fullName}`;
+}

@@ -1,6 +1,9 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+$ti-font-path: '/public/build/fonts/tabler';
+@import "@tabler/icons-webfont/dist/tabler-icons.scss";
+
 
 [x-cloak] {
     display: none !important;
@@ -13,6 +16,14 @@
 .bg-menu-theme.menu-horizontal .menu-sub .menu-sub > .menu-item .menu-link .menu-icon {
     display: none;
 }
+
+
+.user-profile-header img.user-profile-img{
+    max-width: 110px;
+    max-height: 110px;
+}
+
+
 
 .user-nav .user-name {
     letter-spacing: 0.03rem;
@@ -36,6 +47,28 @@
 .nav-pills .nav-link {
     text-transform: inherit !important;
 }
+
+
+
+
+
+
+
+
+.layout-navbar .navbar-dropdown.dropdown-shortcuts .dropdown-shortcuts-item.active {
+    background-color: #f8f8f8;
+}
+.dark-style .layout-navbar .navbar-dropdown.dropdown-shortcuts .dropdown-shortcuts-item.active {
+    background-color: #282b3f;
+}
+
+
+
+
+
+
+
+
 
 .image-wrapper-16x16 {
     width: 28px;
@@ -411,8 +444,6 @@ html.dark-style .fixed-table-container {
     font-size: .65rem;
     margin-top: 0.25rem;
 }
-
-
 
 
 

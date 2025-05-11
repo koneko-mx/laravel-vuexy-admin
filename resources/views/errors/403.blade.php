@@ -25,7 +25,7 @@
                     {{ __('errors.forbidden') }}
                 @endif
             </p>
-            <a href="{{ route('admin.core.home.index') }}" class="btn btn-primary mb-10">Regresar al inicio</a>
+            <a href="{{ route('admin.core.pages.home.index') }}" class="btn btn-primary mb-10">Regresar al inicio</a>
             <div class="mt-4">
                 <img src="{{ asset('vendor/vuexy-admin/img/illustrations/page-misc-you-are-not-authorized.png') }}" alt="page-misc-not-authorized" width="170" class="img-fluid">
             </div>

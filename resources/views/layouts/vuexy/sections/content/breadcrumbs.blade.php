@@ -3,16 +3,12 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             @foreach ($vuexyBreadcrumbs as $breadcrumb)
-                <li class="breadcrumb-item {{ isset($breadcrumb['active']) && $breadcrumb['active']? 'active': '' }}">
-                    @php
-                        if(isset($breadcrumb['route']) && isset($breadcrumb['link']) == false)
-                            $breadcrumb['link'] = route($breadcrumb['route']);
-                    @endphp
-                    @isset($breadcrumb['link'])
+                <li class="breadcrumb-item {{ $breadcrumb['active'] ? 'active' : '' }}">
+                    @if(!$breadcrumb['active'] && isset($breadcrumb['link']))
                         <a href="{{ $breadcrumb['link'] }}">{{ $breadcrumb['name'] }}</a>
                     @else
                         {{ $breadcrumb['name'] }}
-                    @endisset
+                    @endif
                 </li>
             @endforeach
         </ol>

@@ -11,6 +11,10 @@ $customizerHidden = ($customizerHidden ?? '');
 @extends('vuexy-admin::layouts.vuexy.commonMaster' )
 
 @section('layoutContent')
+    <!-- Notifications -->
+    <div class="notification-container"></div>
+    <!-- / Notifications -->
+
     <!-- Content -->
     @yield('content')
     <!--/ Content -->

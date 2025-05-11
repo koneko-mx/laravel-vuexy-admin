@@ -1,11 +1,59 @@
-/node_modules
-/vendor
-/.vscode
-/.nova
-/.fleet
-/.phpactor.json
-/.phpunit.cache
-/.phpunit.result.cache
-/.zed
-/.idea
+# ⚙️ Laravel Package Defaults
+/vendor/
 composer.lock
+
+# 🧪 PHPUnit
+.phpunit.result.cache
+/.phpunit.cache
+phpunit.xml
+phpunit.xml.dist
+
+# 🧹 Cache y logs
+/.cache
+/storage/*.key
+/storage/pail
+*.log
+*.dump
+*.bak
+*.tmp
+*.swp
+
+# 🔐 Entornos y configuraciones
+.env
+.env.*
+auth.json
+.phpactor.json
+.php-cs-fixer.cache
+phpstan.neon.local
+homestead.yaml
+Homestead.json
+
+# 🧱 Compilación frontend (Vite, Mix, Webpack, Tailwind)
+/node_modules/
+public/build/
+public/hot/
+public/storage/
+.vite
+
+# 🧪 Tests y mocks (solo si generas temporalmente)
+/coverage/
+*.test.*
+*.spec.*
+
+# 🛠️ IDEs y herramientas de desarrollo
+/.idea/
+/.vscode/
+/.nova/
+/.zed/
+/.fleet/
+*.sublime-workspace
+*.sublime-project
+
+# 📦 Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# 🚀 Entornos de staging / producción
+*.local.*
+*.production.*
+*.staging.*

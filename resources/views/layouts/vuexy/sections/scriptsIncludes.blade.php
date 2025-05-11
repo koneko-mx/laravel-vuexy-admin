@@ -11,7 +11,7 @@
 @endif
 
 <!-- Config File -->
-@vite('vendor/koneko/laravel-vuexy-admin/resources/assets/js/config.js')
+@vite('vendor/koneko/laravel-vuexy-admin/resources/assets/js/layout/config.js')
 
 @if ($configData['hasCustomizer'])
     <script type="module">

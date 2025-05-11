@@ -1,0 +1,4 @@
+name,email,password,roles,avatar_path
+Koneko Admin,sadmin@koneko.mx,LAdmin123,"[""SuperAdmin""]",vendor/vuexy-admin/img/logo/koneko-02.png
+Administrador,admin@koneko.mx,LAdmin123,"[""Admin""]",vendor/vuexy-admin/img/logo/koneko-03.png
+Auditor,auditor@koneko.mx,LAdmin123,"[""Auditor""]",vendor/vuexy-admin/img/logo/koneko-03.png

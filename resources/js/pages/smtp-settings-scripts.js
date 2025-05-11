@@ -1,4 +1,4 @@
-import '../../assets/js/notifications/LivewireNotification.js';
+// import '../../assets/js/notifications/LivewireNotification.js';
 import SmtpSettingsForm from '../../js/smtp-settings/SmtpSettingsForm';
 import SenderResponseForm from '../../js/smtp-settings/SenderResponseForm.js';
 
@@ -7,7 +7,7 @@ window.senderResponseForm = new SenderResponseForm();
 
 Livewire.hook('morphed', ({ component }) => {
     switch (component.name) {
-        case 'sendmail-settings':
+        case 'smtp-settings':
             if (window.smtpSettingsForm) {
                 window.smtpSettingsForm.reload(); // Recarga el formulario sin destruir la instancia
             }

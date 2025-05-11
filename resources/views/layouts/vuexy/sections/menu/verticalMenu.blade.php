@@ -7,7 +7,7 @@
     <!-- ! Hide app brand if navbar-full -->
     @if(!isset($navbarFull))
         <div class="app-brand demo">
-            <a href="{{ route('admin.core.home.index') }}" class="app-brand-link">
+            <a href="{{ route('admin.core.pages.home.index') }}" class="app-brand-link">
                 <span class="app-brand-logo demo">
                   <img src="{{ asset('storage/' . $_admin['image_logo']['small']) }}" alt="{{ $_admin['app_name'] }}" />
                 </span>
@@ -33,7 +33,7 @@
                 <li class="menu-item {{ isset($menu['active']) && $menu['active'] ? 'active open' : '' }}">
                     <a href="{{ $menu['url'] ?? 'javascript:void(0);' }}" class="menu-link {{ isset($menu['submenu']) ? 'menu-link menu-toggle' : 'menu-link' }}" @if (isset($menu['target']) and !empty($menu['target'])) target="{{ $menu['target'] }}" @endif>
                         @isset($menu['icon'])
-                            <i class="{{ $menu['icon'] }}"></i>
+                            <i class="menu-icon tf-icons {{ $menu['icon'] }}"></i>
                         @endisset
                         <div>{{ $menuName }}</div>
                         @isset($menu['badge'])

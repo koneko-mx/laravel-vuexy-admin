@@ -1,24 +1,36 @@
-# Normaliza los saltos de línea en diferentes SO
+# Normaliza los saltos de línea para todos los sistemas operativos
 * text=auto eol=lf
 
-# Reglas para archivos específicos
+# Reglas de diferencia por tipo de archivo
 *.blade.php diff=html
-*.css diff=css
-*.html diff=html
-*.md diff=markdown
-*.php diff=php
+*.css       diff=css
+*.html      diff=html
+*.md        diff=markdown
+*.php       diff=php
+*.json      diff=json
+*.yml       diff=yaml
+*.yaml      diff=yaml
+*.stub      diff=php
 
-# Evitar que estos archivos se exporten con Composer create-project
-/.github export-ignore
-/.gitignore export-ignore
-/.git export-ignore
-.gitattributes export-ignore
-.editorconfig export-ignore
-.prettierrc.json export-ignore
-.prettierignore export-ignore
-.eslintrc.json export-ignore
-CHANGELOG.md export-ignore
-CONTRIBUTING.md export-ignore
-README.md export-ignore
-composer.lock export-ignore
-package-lock.json export-ignore
+# Archivos que NO deben exportarse con Composer create-project
+/.github                export-ignore
+/.gitignore             export-ignore
+/.git                   export-ignore
+.gitattributes          export-ignore
+.editorconfig           export-ignore
+.prettierrc.json        export-ignore
+.prettierignore         export-ignore
+.eslintrc.json          export-ignore
+CHANGELOG.md            export-ignore
+CONTRIBUTING.md         export-ignore
+README.md               export-ignore
+phpunit.xml             export-ignore
+phpunit.xml.dist        export-ignore
+composer.lock           export-ignore
+package-lock.json       export-ignore
+vite.config.js          export-ignore
+tailwind.config.js      export-ignore
+tests                   export-ignore
+tests/                  export-ignore
+resources/assets        export-ignore
+resources/sass          export-ignore

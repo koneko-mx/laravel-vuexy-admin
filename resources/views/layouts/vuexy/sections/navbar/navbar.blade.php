@@ -17,7 +17,7 @@ $navbarDetached = ($navbarDetached ?? '');
             <!--  Brand demo (display only for navbar-full and hide on below xl) -->
             @if(isset($navbarFull))
                 <div class="navbar-brand app-brand demo d-none d-xl-flex py-0 me-4">
-                    <a href="{{ route('admin.core.home.index') }}" class="app-brand-link">
+                    <a href="{{ route('admin.core.pages.home.index') }}" class="app-brand-link">
                         <span class="app-brand-logo demo">
                             <img src="{{ asset('storage/' . $_admin['image_logo']['small']) }}" alt="{{ $_admin['app_name'] }}" />
                         </span>
@@ -43,30 +43,68 @@ $navbarDetached = ($navbarDetached ?? '');
             <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
                 @if(!isset($menuHorizontal))
                     <!-- Search -->
-                    @if ($vuexySearch)
-                        <div class="navbar-nav align-items-center">
-                            <div class="nav-item navbar-search-wrapper mb-0">
-                                <a class="nav-item nav-link search-toggler d-flex align-items-center px-0" href="javascript:void(0);">
-                                    <i class="ti ti-search ti-md me-2 me-lg-4 ti-lg"></i>
-                                    <span class="d-none d-md-inline-block text-muted fw-normal">Buscar (Ctrl+/)</span>
-                                </a>
-                            </div>
+                    <div class="navbar-nav align-items-center">
+                        <div class="nav-item navbar-search-wrapper mb-0">
+                            <a class="nav-item nav-link search-toggler d-flex align-items-center px-0" href="javascript:void(0);">
+                                <i class="ti ti-search ti-md me-2 me-lg-4 ti-lg"></i>
+                                <span class="d-none d-md-inline-block text-muted fw-normal">Buscar (Ctrl+/)</span>
+                            </a>
                         </div>
-                    @endif
+                    </div>
                     <!-- /Search -->
                 @endif
                 <ul class="navbar-nav flex-row align-items-center ms-auto">
                     @if(isset($menuHorizontal))
                         <!-- Search -->
-                        @if ($vuexySearch)
-                            <li class="nav-item navbar-search-wrapper">
-                                <a class="nav-link btn btn-text-secondary btn-icon rounded-pill search-toggler" href="javascript:void(0);">
-                                    <i class="ti ti-search ti-md"></i>
-                                </a>
-                            </li>
-                        @endif
+                        <li class="nav-item navbar-search-wrapper">
+                            <a class="nav-link btn btn-text-secondary btn-icon rounded-pill search-toggler" href="javascript:void(0);">
+                            <i class="ti ti-search ti-md"></i>
+                            </a>
+                        </li>
                         <!-- /Search -->
                     @endif
+
+                    <!-- Language -->
+                    <li class="nav-item dropdown-language dropdown">
+                        <a class="nav-link btn btn-text-secondary btn-icon rounded-pill dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+                            <i class='ti ti-language rounded-circle ti-md'></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item pr-2 {{ app()->getLocale() === 'es' ? 'active' : '' }}" href="{{url('lang/es')}}" data-language="es" data-text-direction="ltr">
+                                    <img src="{{ asset('vendor/vuexy-admin/flag-icons/flags/1x1/mx.svg') }}" style="height:16px" class="inline" alt="">
+                                    <span class="ml-1">Español México</span>
+                                </a>
+                            </li>
+                        <li>
+                        <li>
+                            <a class="dropdown-item {{ app()->getLocale() === 'co' ? 'active' : '' }}" href="{{url('lang/co')}}" data-language="co" data-text-direction="ltr">
+                                <img src="{{ asset('vendor/vuexy-admin/flag-icons/flags/1x1/co.svg') }}" style="height:16px" class="inline" alt="">
+                                <span class="ml-1">Español Colombia</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {{ app()->getLocale() === 'en' ? 'active' : '' }}" href="{{url('lang/en')}}" data-language="en" data-text-direction="ltr">
+                                <img src="{{ asset('vendor/vuexy-admin/flag-icons/flags/1x1/us.svg') }}" style="height:16px" class="inline" alt="">
+                                <span class="ml-1">English</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {{ app()->getLocale() === 'fr' ? 'active' : '' }}" href="{{url('lang/fr')}}" data-language="fr" data-text-direction="ltr">
+                                <img src="{{ asset('vendor/vuexy-admin/flag-icons/flags/1x1/fr.svg') }}" style="height:16px" class="inline" alt="">
+                                <span class="ml-1">French</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {{ app()->getLocale() === 'de' ? 'active' : '' }}" href="{{url('lang/de')}}" data-language="de" data-text-direction="ltr">
+                                <img src="{{ asset('vendor/vuexy-admin/flag-icons/flags/1x1/de.svg') }}" style="height:16px" class="inline" alt="">
+                                <span class="ml-1">German</span>
+                            </a>
+                        </li>
+                        </ul>
+                    </li>
+                    <!--/ Language -->
+
 
                     @if($configData['hasCustomizer'] == true)
                         <!-- Style Switcher -->
@@ -96,57 +134,23 @@ $navbarDetached = ($navbarDetached ?? '');
                     @endif
 
                     <!-- Quick links  -->
-                    @if ($vuexyQuickLinks)
-                        <li class="nav-item dropdown-shortcuts navbar-dropdown dropdown">
-                            <a class="nav-link btn btn-text-secondary btn-icon rounded-pill btn-icon dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                                <i class='ti ti-layout-grid-add ti-md'></i>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-end p-0">
-                                <div class="dropdown-menu-header border-bottom">
-                                    <div class="dropdown-header d-flex align-items-center py-3">
-                                        <h6 class="mb-0 me-auto">Atajos</h6>
-                                        @if($vuexyQuickLinks['current_page_in_list'])
-                                            <a href="javascript:void(0)" class="btn btn-text-secondary rounded-pill btn-icon dropdown-shortcuts-remove" data-bs-toggle="tooltip" data-bs-placement="top" title="Remover atajo"><i class="ti ti-trash text-heading"></i></a>
-                                        @else
-                                            @if($vuexyQuickLinks['totalLinks'] < config('vuexy.custom.maxQuickLinks'))
-                                                <a href="javascript:void(0)" class="btn btn-text-secondary rounded-pill btn-icon dropdown-shortcuts-add" data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar atajo"><i class="ti ti-plus text-heading"></i></a>
-                                            @endif
-                                        @endif
-                                    </div>
-                                </div>
-                                <div class="dropdown-shortcuts-list scrollable-container">
-                                    @foreach  ($vuexyQuickLinks['rows'] as $quickLinksRow)
-                                        <div class="row row-bordered overflow-visible g-0">
-                                            @foreach  ($quickLinksRow as $key => $quickLink)
-                                                <div class="dropdown-shortcuts-item col @if($quickLink['route'] === Route::currentRouteName()) active @endif">
-                                                    <span class="dropdown-shortcuts-icon rounded-circle mb-3">
-                                                        <i class="ti ti-{{ $quickLink['icon'] }} ti-26px text-heading"></i>
-                                                    </span>
-                                                    <a href="{{ $quickLink['url'] }}" class="stretched-link">{{ $quickLink['title'] }}</a>
-                                                    <small>{{ $quickLink['subtitle'] }}</small>
-                                                </div>
-                                                @if ($key == 0 && !isset($quickLinksRow[1]))
-                                                    <div class="dropdown-shortcuts-item col"></div>
-                                                @endif
-                                            @endforeach
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </li>
-                    @endif
+                    @livewire('vuexy-admin::vuexy-quicklinks')
                     <!-- Quick links -->
 
                     <!-- Notification -->
-                    {!! $vuexyNotifications !!}
+                    @if($vuexyNotifications)
+                        @foreach ($vuexyNotifications as $vuexyNotification)
+
+                        @endforeach
+                    @endif
                     <!--/ Notification -->
 
                     <!-- User -->
                     <li class="nav-item navbar-dropdown dropdown-user dropdown">
-                        <a class="nav-link dropdown-toggle hide-arrow d-flex align-items-center" href="javascript:void(0);" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle hide-arrow d-flex align-items-center ml-2" href="javascript:void(0);" data-bs-toggle="dropdown">
                             @if (Auth::check())
                                 <div class="user-nav me-2 d-none d-sm-block">
-                                    <span class="user-name d-block text-end">{{ Auth::user()->fullname }}</span>
+                                    <span class="user-name d-block text-end">{{ Auth::user()->full_name }}</span>
                                     <span class="user-email d-block text-end">{{ Auth::user()->email }}</span>
                                 </div>
                             @endif
@@ -179,14 +183,14 @@ $navbarDetached = ($navbarDetached ?? '');
                             @endif
                             @if (Auth::check())
                                 <li>
-                                    <a class="dropdown-item" href="{{ route('admin.core.user-profile.index') }}">
+                                    <a class="dropdown-item" href="{{ route('admin.core.user.profile.index') }}">
                                         <i class="ti ti-user-cog me-2 ti-sm"></i>
                                         <span class="align-middle">Cuenta de usuario</span>
                                     </a>
                                 </li>
                             @endif
                             <li>
-                                <a class="dropdown-item" href="{{ route('admin.core.about.index') }}">
+                                <a class="dropdown-item" href="{{ route('admin.core.pages.about.index') }}">
                                     <i class='ti ti-cat me-2'></i>
                                     <span class="align-middle">Acerca de</span>
                                 </a>
@@ -218,14 +222,12 @@ $navbarDetached = ($navbarDetached ?? '');
                 </ul>
             </div>
 
-            @if ($vuexySearch)
-                <!-- Search Small Screens -->
-                <div class="navbar-search-wrapper search-input-wrapper {{ isset($menuHorizontal) ? $containerNav : '' }} d-none">
-                    <input type="text" class="form-control search-input {{ isset($menuHorizontal) ? '' : $containerNav }} border-0" placeholder="Buscar..." aria-label="Buscar...">
-                    <i class="ti ti-x search-toggler cursor-pointer"></i>
-                </div>
-                <!--/ Search Small Screens -->
-            @endif
+            <!-- Search Small Screens -->
+            <div class="navbar-search-wrapper search-input-wrapper {{ isset($menuHorizontal) ? $containerNav : '' }} d-none">
+                <input type="text" class="form-control search-input {{ isset($menuHorizontal) ? '' : $containerNav }} border-0" placeholder="Search..." aria-label="Search...">
+                <i class="ti ti-x search-toggler cursor-pointer"></i>
+            </div>
+            <!--/ Search Small Screens -->
             @if(isset($navbarDetached) && $navbarDetached == '')
         </div>
         @endif
