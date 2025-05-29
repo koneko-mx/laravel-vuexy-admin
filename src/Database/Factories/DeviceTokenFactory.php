@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Koneko\VuexyAdmin\Database\Factories;
 
 use Koneko\VuexyAdmin\Models\DeviceToken;
-use Koneko\VuexyAdmin\Support\Factories\AbstractModelFactory;
+use Koneko\VuexyAdmin\Support\Factories\Base\AbstractModelFactory;
 use Koneko\VuexyAdmin\Support\Traits\Factories\HasFactorySupport;
 
 /**

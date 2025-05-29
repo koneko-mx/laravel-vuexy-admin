@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Koneko\VuexyAdmin\Support\Traits\Model;
 
 use Illuminate\Support\Str;
-use Koneko\VuexyAdmin\Application\Macros\StrMacros;
+use Koneko\VuexyAdmin\Support\Macros\StrMacros;
 
 StrMacros::register();
 

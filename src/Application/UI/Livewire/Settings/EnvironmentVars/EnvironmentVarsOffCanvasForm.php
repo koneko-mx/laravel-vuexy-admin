@@ -78,14 +78,14 @@ class EnvironmentVarsOffCanvasForm extends AbstractFormOffCanvasComponent
         }
 
         return [
-            'key'            => ['required', 'string', $uniqueRule],
-            'module'       => ['nullable', 'string', 'max:96'],
-            'user_id'        => ['nullable', 'integer', 'exists:users,id'],
-            'value_string'   => ['nullable', 'string', 'max:255'],
-            'value_integer'  => ['nullable', 'integer'],
-            'value_boolean'  => ['nullable', 'boolean'],
-            'value_float'    => ['nullable', 'numeric'],
-            'value_text'     => ['nullable', 'string'],
+            'key'           => ['required', 'string', $uniqueRule],
+            'module'        => ['nullable', 'string', 'max:96'],
+            'user_id'       => ['nullable', 'integer', 'exists:users,id'],
+            'value_string'  => ['nullable', 'string', 'max:255'],
+            'value_integer' => ['nullable', 'integer'],
+            'value_boolean' => ['nullable', 'boolean'],
+            'value_float'   => ['nullable', 'numeric'],
+            'value_text'    => ['nullable', 'string'],
         ];
     }
 

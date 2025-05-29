@@ -6,9 +6,9 @@ namespace Koneko\VuexyAdmin\Database\Seeders;
 
 use Koneko\VuexyAdmin\Models\User;
 use Koneko\VuexyAdmin\Application\Enums\User\UserBaseFlags;
-use Koneko\VuexyAdmin\Application\Traits\Seeders\Main\HasSeederFactorySupport;
+use Koneko\VuexyAdmin\Application\Seeding\Concerns\Main\HasSeederFactorySupport;
 use Koneko\VuexyAdmin\Application\Traits\Seeders\User\{HandlesSeederAvatars,HandlesSeederRoles};
-use Koneko\VuexyAdmin\Support\Seeders\AbstractDataSeeder;
+use Koneko\VuexyAdmin\Support\Seeders\Base\AbstractDataSeeder;
 use Koneko\VuexyAdmin\Support\Traits\Seeders\HandlesFileSeeders;
 
 /**

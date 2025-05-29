@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Koneko\VuexyAdmin\Application\Catalogs;
+namespace Koneko\VuexyAdmin\Support\Catalogs;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;

@@ -7,7 +7,7 @@ namespace Koneko\VuexyAdmin\Models;
 use Illuminate\Database\Eloquent\Model;
 use Koneko\VuexyAdmin\Support\Traits\Audit\HasUser;
 use Koneko\VuexyAdmin\Support\Traits\Model\HasVuexyModelMetadata;
-use Koneko\VuexyAdmin\Support\Traits\Helpers\HasGeolocation;
+use Koneko\VuexyAdmin\Support\Traits\Geolocation\HasGeolocation;
 
 class UserLogin extends Model
 {

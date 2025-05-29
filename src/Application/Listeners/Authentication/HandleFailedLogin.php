@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Koneko\VuexyAdmin\Application\Listeners\Authentication;
 
 use Illuminate\Auth\Events\Failed;
-use Koneko\VuexyAdmin\Application\Logger\KonekoSecurityAuditLogger;
+use Koneko\VuexyAdmin\Application\Loggers\KonekoSecurityAuditLogger;
 
 class HandleFailedLogin
 {

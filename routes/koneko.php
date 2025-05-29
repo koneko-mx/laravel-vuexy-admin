@@ -5,7 +5,6 @@ use Koneko\VuexyAdmin\Application\Http\Controllers\HomeController;
 use Koneko\VuexyAdmin\Application\UX\Menu\VuexyMenuFormatter;
 use Koneko\VuexyAdmin\Support\Routing\RouteScope;
 
-
 RouteScope::auto(__FILE__, function (RouteScope $r) {
     $r->route('', 'pages.', HomeController::class, function () {
         Route::get('acerca-de', 'about')->name('about.index');
@@ -35,5 +34,4 @@ RouteScope::auto(__FILE__, function (RouteScope $r) {
             ]);
         })->name('folder.view');
     });
-
 });

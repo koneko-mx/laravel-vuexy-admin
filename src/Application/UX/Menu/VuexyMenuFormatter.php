@@ -5,75 +5,84 @@ declare(strict_types=1);
 namespace Koneko\VuexyAdmin\Application\UX\Menu;
 
 use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Support\Facades\{Auth , Route};
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
-use Koneko\VuexyAdmin\Support\Cache\AbstractKeyValueCacheBuilder;
+use Koneko\VuexyAdmin\Application\Config\Contracts\ConfigRepositoryInterface;
+use Koneko\VuexyAdmin\Application\Settings\Contracts\SettingsRepositoryInterface;
+use Koneko\VuexyAdmin\Support\Traits\Auth\HasResolvableUser;
 use Spatie\Permission\Exceptions\PermissionDoesNotExist;
 
-class VuexyMenuFormatter extends AbstractKeyValueCacheBuilder
+class VuexyMenuFormatter
 {
-    /** @var string Componente base */
-    private const COMPONENT = 'core';
-    private const GROUP     = 'layout';
+    use HasResolvableUser;
 
-    /** @var string Cache key */
-    private const CACHE_KEY = 'menu';
+    private const GROUP     = 'website-admin';
+    private const SECTION   = 'layout';
+    private const SUB_GROUP = 'menu';
 
-    /** @var bool Cache scope */
-    protected bool $isUserScoped = true;
+    private const MENU_KEY_NAME             = 'menu';
+    private const EXTRA_QUICKLINKS_KEY_NAME = 'extra-quicklinks';
 
-    /** @var array Opciones de formato */
-    private array $options = [];
-
-    public function __construct()
+    public function getMenu(Authenticatable|int|null|false $user = null): array
     {
-        parent::__construct(self::COMPONENT, self::GROUP);
-    }
-
-    public function getMenu(false|null|Authenticatable $user = null, array $options = []): array
-    {
-        $this->user = $user === false ? null : ($user ?? Auth::user());
-
-        $this->options = $options;
-        $this->isUserScoped = $user !== false;
-
-        $menu = $this->rememberCache(self::CACHE_KEY, fn () => $this->format());
+        $menu = self::settings($user)
+            ->setKeyName(self::MENU_KEY_NAME)
+            ->remember(fn () => $this->format($user));
 
         $this->markActiveTrail($menu);
 
         return $menu;
     }
 
-    public function getMenuBySlug(string $slug, false|null|Authenticatable $user = null, array $options = []): ?array
+    public function getMenuBySlug(string $slug, Authenticatable|int|null|false $user = null): ?array
     {
-        $menu = $this->getMenu($user, $options);
+        $menu = $this->getMenu($user);
 
         return $this->findInMenuWithKey($menu, fn($item) => ($item['_slug'] ?? null) === $slug);
     }
 
-    public function getMenuByAutoId(int $autoId, false|null|Authenticatable $user = null, array $options = []): ?array
+    public function getMenuByAutoId(int $autoId, Authenticatable|int|null|false $user = null): ?array
     {
-        $menu = $this->getMenu($user, $options);
+        $menu = $this->getMenu($user);
 
         return $this->findInMenuWithKey($menu, fn($item) => ($item['_meta']['auto_id'] ?? null) === $autoId);
     }
 
-    /**
-     * Retorna los ítems definidos en _extra_quicklinks del menú, procesados como atajos rápidos.
-     */
-    public function getExtraQuicklinks(false|null|Authenticatable $user = null): array
+    public function getExtraQuicklinks(Authenticatable|int|null|false $user = null): array
     {
-        $this->user         = $user === false ? null : ($user ?? Auth::user());
-        $this->isUserScoped = !is_null($this->user);
+        return self::settings($user)
+            ->setKeyName(self::EXTRA_QUICKLINKS_KEY_NAME)
+            ->remember(fn () => $this->buildExtraQuicklinks($user));
+    }
 
-        $rawMenu = app(VuexyMenuRegistry::class)->getMerged();
+    protected function format(Authenticatable|int|null|false $user = null): array
+    {
+        $rawMenu = $this->getRawMenu();
+        $menu    = $this->processRecursive($rawMenu);
 
-        $extra = $rawMenu['_extra_quicklinks'] ?? [];
+        $this->assignAutoIds($menu);
+        $this->assignSlugs($menu);
+        $this->assignCounts($menu);
 
+        if (self::config()->get('debug.show_disallowed_links', false)
+            || self::config()->get('debug.show_hidden_items', false)
+            || self::config()->get('debug.show_broken_routes', false)
+        ) {
+            $this->markDebugFlags($menu, $user);
+        }
+
+        unset($menu['_extra']);
+
+        return $menu;
+    }
+
+    protected function buildExtraQuicklinks(Authenticatable|int|null|false $user = null): array
+    {
+        $extra = $this->getRawMenu()['_extra']['_quicklinks'] ?? [];
         $links = [];
 
         foreach ($extra as $key => $item) {
-            if (!$this->isVisible($item)) continue;
+            if (!$this->isVisible($item, $user)) continue;
 
             $this->convertRouteToUrl($item);
 
@@ -87,6 +96,11 @@ class VuexyMenuFormatter extends AbstractKeyValueCacheBuilder
         }
 
         return $links;
+    }
+
+    protected function getRawMenu(): array
+    {
+        return app(VuexyMenuRegistry::class)->getMerged();
     }
 
     /**
@@ -112,29 +126,6 @@ class VuexyMenuFormatter extends AbstractKeyValueCacheBuilder
         }
 
         return null;
-    }
-
-    protected function format(): array
-    {
-        $rawMenu = app(VuexyMenuRegistry::class)->getMerged();
-
-        $menu = $this->processRecursive($rawMenu);
-
-        $this->assignAutoIds($menu);
-        $this->assignSlugs($menu);
-        $this->assignCounts($menu);
-
-        if (
-            config('koneko.admin.menu.debug.show_disallowed_links', false)
-            || config('koneko.admin.menu.debug.show_hidden_items', false)
-            || config('koneko.admin.menu.debug.show_broken_routers', false)
-        ) {
-            $this->markDebugFlags($menu);
-        }
-
-        unset($menu['_extra_quicklinks']);
-
-        return $menu;
     }
 
     protected function processRecursive(array $menu): array
@@ -253,7 +244,7 @@ class VuexyMenuFormatter extends AbstractKeyValueCacheBuilder
         return $sorted;
     }
 
-    protected function isVisible(array $item): bool
+    protected function isVisible(array $item, Authenticatable|int|null|false $user = null): bool
     {
         if (isset($item['_meta']['visible']) && $item['_meta']['visible'] === false)
             return false;
@@ -261,31 +252,31 @@ class VuexyMenuFormatter extends AbstractKeyValueCacheBuilder
         if (isset($item['visible']) && $item['visible'] === false)
             return false;
 
-        if (isset($item['can']) && !$this->userCan($item['can']))
-            return config('koneko.admin.menu.debug.show_disallowed_links', false);
+        if (isset($item['can']) && !$this->userCan($user, $item['can']))
+            return self::config()->get('debug.show_disallowed_links', false);
 
         if (isset($item['route']) && !Route::has($item['route']))
-            return config('koneko.admin.menu.debug.show_broken_routers', false);
+            return self::config()->get('debug.show_broken_routes', false);
 
         return true;
     }
 
-    protected function userCan(string|array $permissions): bool
+    protected function userCan(Authenticatable|int|null|false $user, string|array $permissions): bool
     {
-        if (!$this->user || !method_exists($this->user, 'hasPermissionTo')) {
-            return false;
-        }
+        $user = $this->resolveUser($user);
+
+        if (!$user || !method_exists($user, 'hasPermissionTo')) { return false; }
 
         try {
             if (is_array($permissions)) {
                 foreach ($permissions as $perm) {
-                    if ($this->user->hasPermissionTo($perm)) return true;
+                    if ($user->hasPermissionTo($perm)) return true;
                 }
 
                 return false;
             }
 
-            return $this->user->hasPermissionTo($permissions);
+            return $user->hasPermissionTo($permissions);
 
         } catch (PermissionDoesNotExist) {
             return false;
@@ -347,7 +338,7 @@ class VuexyMenuFormatter extends AbstractKeyValueCacheBuilder
     protected function markActiveTrail(array &$menu): void
     {
         $currentRoute = Route::currentRouteName();
-        $currentUrl = request()->url();
+        $currentUrl   = request()->url();
 
         $markTrail = function (&$items, $trail = []) use (&$markTrail, $currentRoute, $currentUrl): bool {
             foreach ($items as &$item) {
@@ -355,6 +346,7 @@ class VuexyMenuFormatter extends AbstractKeyValueCacheBuilder
 
                 if (isset($item['route']) && $item['route'] === $currentRoute) {
                     $match = true;
+
                 } elseif (isset($item['url']) && Str::is($item['url'], $currentUrl)) {
                     $match = true;
                 }
@@ -380,49 +372,50 @@ class VuexyMenuFormatter extends AbstractKeyValueCacheBuilder
         $markTrail($menu);
     }
 
-    protected function markDebugFlags(array &$menu): void
+    protected function markDebugFlags(array &$menu, Authenticatable|int|null|false $user): void
     {
         foreach ($menu as &$item) {
             // Flag: el usuario no tiene permiso
-            if (config('koneko.admin.menu.debug.show_disallowed_links', false)) {
-                $item['_meta']['disallowed_link'] = isset($item['can']) && !$this->userCan($item['can']);
+            if (self::config()->get('debug.show_disallowed_links', false)) {
+                $item['_meta']['disallowed_link'] = isset($item['can']) && !$this->userCan($user, $item['can']);
             }
 
             // Flag: está marcado como oculto
-            if (config('koneko.admin.menu.debug.show_hidden_items', false)) {
+            if (self::config()->get('debug.show_hidden_items', false)) {
                 $item['_meta']['hidden_item'] = isset($item['_meta']['visible']) && $item['_meta']['visible'] === false;
             }
 
             // Flag: la ruta no existe
-            if (config('koneko.admin.menu.debug.show_broken_routers', false)) {
+            if (self::config()->get('debug.show_broken_routes', false)) {
                 $item['_meta']['broken_route'] = isset($item['route']) && !Route::has($item['route']);
             }
 
             if (!empty($item['submenu'])) {
-                $this->markDebugFlags($item['submenu']);
+                $this->markDebugFlags($item['submenu'], $user);
             }
         }
     }
 
-    public static function forgetCacheForUser(?int $userId = null): void
+    public static function forgetCacheForUser(Authenticatable|int|null|false $user = null): void
     {
-        $instance = new static();
+        self::settings($user)
+            ->setKeyName(self::MENU_KEY_NAME)
+            ->forgetCache();
 
-        $instance->user         = $userId
-            ? app('auth')->getProvider()->retrieveById($userId)
-            : Auth::user();
-        $instance->isUserScoped = true;
-
-        $instance->forgetCache(self::CACHE_KEY);
+        self::settings($user)
+            ->setKeyName(self::EXTRA_QUICKLINKS_KEY_NAME)
+            ->forgetCache();
     }
 
-    public static function forgetVisitorCache(): void
+    private static function settings(Authenticatable|int|null|false $user = null): SettingsRepositoryInterface
     {
-        $instance = new static();
+        return settings()
+            ->context(self::GROUP, self::SECTION, self::SUB_GROUP)
+            ->setUser($user);
+    }
 
-        $instance->user         = null;
-        $instance->isUserScoped = true;
-
-        $instance->forgetCache(self::CACHE_KEY);
+    private static function config(): ConfigRepositoryInterface
+    {
+        return config_m()->context(self::SECTION, self::SUB_GROUP);
     }
 }

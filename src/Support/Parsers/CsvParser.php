@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Koneko\VuexyAdmin\Support\Parsers;
 
-use Koneko\VuexyAdmin\Application\Contracts\Files\ParsableFileInterface;
+use Koneko\VuexyAdmin\Support\Contracts\Files\ParsableFileInterface;
 use League\Csv\{CharsetConverter,Reader,Statement};
 
 class CsvParser implements ParsableFileInterface

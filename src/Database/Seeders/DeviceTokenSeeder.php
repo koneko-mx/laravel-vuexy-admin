@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Koneko\VuexyAdmin\Database\Seeders;
 
 use Koneko\VuexyAdmin\Models\DeviceToken;
-use Koneko\VuexyAdmin\Support\Seeders\AbstractDataSeeder;
+use Koneko\VuexyAdmin\Support\Seeders\Base\AbstractDataSeeder;
 
 /**
  * 🌱 DeviceTokenSeeder

@@ -6,7 +6,7 @@ namespace Koneko\VuexyAdmin\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Carbon;
+use Carbon\Carbon;
 use Koneko\VuexyAdmin\Database\Factories\NotificationFactory;
 use Koneko\VuexyAdmin\Support\Traits\Audit\{HasEmitter,HasUpdater,HasUser};
 

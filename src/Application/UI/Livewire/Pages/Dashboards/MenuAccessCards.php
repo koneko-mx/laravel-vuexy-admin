@@ -4,7 +4,7 @@ namespace Koneko\VuexyAdmin\Application\UI\Livewire\Pages\Dashboards;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use Koneko\VuexyAdmin\Application\Bootstrap\KonekoModuleRegistry;
+use Koneko\VuexyAdmin\Application\Bootstrap\Registry\KonekoModuleRegistry;
 use Koneko\VuexyAdmin\Application\UX\Menu\VuexyMenuFormatter;
 use Livewire\Component;
 
@@ -83,7 +83,7 @@ class MenuAccessCards extends Component
             ])
             ->push([
                 'tag'   => 'project',
-                'label' => config('koneko.admin.project_label', 'Proyecto'),
+                'label' => config('project.label', 'Proyecto'),
             ])
             ->sortBy(fn($item) => $item['tag'] === 'core' ? -1 : $item['label']);
     }

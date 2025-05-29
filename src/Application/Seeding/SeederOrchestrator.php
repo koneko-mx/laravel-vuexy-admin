@@ -7,10 +7,9 @@ namespace Koneko\VuexyAdmin\Application\Seeding;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 use Koneko\VuexyAdmin\Application\Seeding\SeederReportBuilder;
-use Koneko\VuexyAdmin\Application\Traits\Seeders\Main\HasSeederLogger;
-use Koneko\VuexyAdmin\Application\UI\Avatar\AvatarImageService;
-use Koneko\VuexyAdmin\Application\UI\Avatar\AvatarInitialsService;
-use Koneko\VuexyAdmin\Support\Seeders\AbstractDataSeeder;
+use Koneko\VuexyAdmin\Application\Seeding\Concerns\Main\HasSeederLogger;
+use Koneko\VuexyAdmin\Application\UI\Avatar\{AvatarImageService, AvatarInitialsService};
+use Koneko\VuexyAdmin\Support\Seeders\Base\AbstractDataSeeder;
 
 class SeederOrchestrator
 {

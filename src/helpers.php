@@ -2,16 +2,21 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Model;
 use Koneko\VuexyAdmin\Application\Bootstrap\Extenders\Catalog\CatalogModuleRegistry;
-use Koneko\VuexyAdmin\Application\Cache\KonekoCacheManager;
-use Koneko\VuexyAdmin\Application\Contracts\ApiRegistry\ExternalApiRegistryInterface;
-use Koneko\VuexyAdmin\Application\Contracts\Settings\SettingsRepositoryInterface;
-use Koneko\VuexyAdmin\Application\Enums\Settings\SettingScope;
-use Koneko\VuexyAdmin\Application\Helpers\{VuexyHelper, VuexyNotifyHelper,VuexyToastrHelper};
-use Koneko\VuexyAdmin\Application\System\KonekoSettingManager;
-use Koneko\VuexyAdmin\Models\ExternalApi;
+use Koneko\VuexyAdmin\Application\Cache\Contracts\CacheRepositoryInterface;
+use Koneko\VuexyAdmin\Application\Cache\Manager\KonekoCacheManager;
+use Koneko\VuexyAdmin\Application\Config\Contracts\ConfigRepositoryInterface;
+use Koneko\VuexyAdmin\Application\Config\Manager\KonekoConfigManager;
+use Koneko\VuexyAdmin\Application\Settings\Contracts\SettingsRepositoryInterface;
+use Koneko\VuexyAdmin\Application\Settings\Manager\KonekoSettingManager;
+use Koneko\VuexyAdmin\Application\Helpers\VuexyHelper;
+use Koneko\VuexyAdmin\Application\Loggers\{KonekoSecurityLogger, KonekoSystemLogger, KonekoUserInteractionLogger};
+use Koneko\VuexyAdmin\Application\UX\Notifications\Manager\KonekoNotifyManager;
+use Koneko\VuexyAdmin\Models\SystemLog;
 use Koneko\VuexyAdmin\Models\UserInteraction;
+use Koneko\VuexyAdmin\Support\Enums\SystemLog\LogLevel;
+use Koneko\VuexyAdmin\Support\Enums\UserInteractions\InteractionSecurityLevel;
 
 // =================== HELPERS ===================
 
@@ -22,79 +27,83 @@ if (!function_exists('Helper')) {
     }
 }
 
-// =================== SETTINGS ===================
-if (!function_exists('settings')) {
-    function settings(
-        ?string $component = null,
-        ?string $group = null,
-        ?string $subGroup = null,
-        ?string $scope = null
-    ): SettingsRepositoryInterface {
-        return app(KonekoSettingManager::class)
-            ->setContext(
-                $component,
-                $group,
-                $subGroup,
-                $scope
-            );
+// =================== CONFIG ===================
+
+if (!function_exists('config_m')) {
+    function config_m(?string $moduleComponent = null): ConfigRepositoryInterface
+    {
+        $manager = KonekoConfigManager::make();
+
+        // Componente o Clase de Modulo
+        if ($moduleComponent) {
+            $manager->setComponent($moduleComponent);
+        }
+
+        return $manager;
     }
 }
+
+
+// =================== SETTINGS ===================
+
+if (!function_exists('settings')) {
+    /**
+     * Devuelve una instancia de SettingsManager con contexto aplicado automáticamente.
+     *
+     * @param  string|array|Model|null  $context
+     * - string: asume solo componente.
+     * - array: se mapea a component, group, sub_group, section, key_name, etc.
+     * - Model: se intenta extraer scope con `withScopeFromModel()`.
+     *
+     * @return SettingsRepositoryInterface
+     */
+    function settings(?string $moduleComponent = null): SettingsRepositoryInterface
+    {
+        $manager = KonekoSettingManager::make();
+
+        // Componente o Clase de Modulo
+        if ($moduleComponent) {
+            $manager->setComponent($moduleComponent);
+        }
+
+        return $manager;
+    }
+}
+
 
 // =================== CACHE ===================
-if (!function_exists('cache_manager')) {
-    function cache_manager(
-        ?string $component = null,
-        ?string $group = null,
-        ?string $subGroup = null,
-        ?string $scope = null
-    ): KonekoCacheManager {
-        return (new KonekoCacheManager(VuexyHelper::NAMESPACE))
-            ->setContext(
-                $component,
-                $group,
-                $subGroup,
-                $scope
-            );
-    }
-}
 
-// =================== KEY VAULT ===================
-if (!function_exists('vault_value_key')) {
-    function vault_value_key(): string
+if (!function_exists('cache_m')) {
+    /**
+     * Crea un gestor de caché con contexto aplicado.
+     *
+     * Ejemplos:
+     * - `cache_m('site')`
+     * - `cache_m(['component' => 'site', 'group' => 'seo', 'key_name' => 'enabled'])`
+     * - `cache_m($empresaModel)`
+     *
+     * @param string|array|Model|null $context
+     * @return CacheRepositoryInterface
+     */
+    function cache_m(?string $moduleComponent = null): CacheRepositoryInterface
     {
-        static $cachedKey = null;
+        $manager = KonekoCacheManager::make();
 
-        if ($cachedKey) {
-            return $cachedKey;
+        // Componente o Clase de Modulo
+        if ($moduleComponent) {
+            $manager->setComponent($moduleComponent);
         }
 
-        $path = env('VAULT_VALUE_KEY_PATH');
-
-        if (!$path || !file_exists($path)) {
-            throw new \RuntimeException("Vault Value Key file not found at {$path}");
-        }
-
-        $key = trim(file_get_contents($path));
-
-        if (Str::startsWith($key, 'base64:')) {
-            $key = base64_decode(substr($key, 7));
-        }
-
-        if (empty($key)) {
-            throw new \RuntimeException("Vault Value Key is invalid or empty.");
-        }
-
-        return $cachedKey = $key;
+        return $manager;
     }
 }
-
 
 
 // =================== LOGGERS ===================
 
 if (!function_exists('log_system')) {
     function log_system(
-        string|\Koneko\VuexyAdmin\Application\Enums\SystemLog\LogLevel $level,
+        string|LogLevel $level,
         string $message,
         array $context = [],
         ?\Illuminate\Database\Eloquent\Model $related = null
@@ -121,7 +130,7 @@ if (!function_exists('log_interaction')) {
     function log_interaction(
         string $action,
         array $context = [],
-        \Koneko\VuexyAdmin\Application\Enums\UserInteractions\InteractionSecurityLevel|string $security = 'normal',
+        InteractionSecurityLevel|string $security = 'normal',
         ?string $livewireComponent = null
     ): ?UserInteraction {
         return app(KonekoUserInteractionLogger::class)
@@ -130,7 +139,7 @@ if (!function_exists('log_interaction')) {
 }
 
 // =================== GEOIP ===================
-
+/*
 if (!function_exists('external_api')) {
     function external_api(string $slug): ?ExternalApi
     {
@@ -138,17 +147,27 @@ if (!function_exists('external_api')) {
     }
 }
 
+/*
 if (!function_exists('apis_vuexy')) {
     function apis_vuexy(): ExternalApiRegistryInterface
     {
         return app(ExternalApiRegistryInterface::class);
     }
 }
+*/
 
 
 
 // =================== NOTIFICATIONS ===================
 
+if (!function_exists('notify')) {
+    function notify(): KonekoNotifyManager
+    {
+        return app(KonekoNotifyManager::class);
+    }
+}
+
+/*
 if (!function_exists('vuexy_notify')) {
     function vuexy_notify(
         string $message,
@@ -178,6 +197,7 @@ if (!function_exists('vuexy_toastr')) {
         );
     }
 }
+*/
 
 // =================== CATALOGS ===================
 
@@ -193,3 +213,37 @@ if (!function_exists('catalog')) {
         return CatalogModuleRegistry::get($component);
     }
 }
+
+
+
+// =================== KEY VAULT ===================
+/*
+if (!function_exists('vault_value_key')) {
+    function vault_value_key(): string
+    {
+        static $cachedKey = null;
+
+        if ($cachedKey) {
+            return $cachedKey;
+        }
+
+        $path = env('VAULT_VALUE_KEY_PATH');
+
+        if (!$path || !file_exists($path)) {
+            throw new \RuntimeException("Vault Value Key file not found at {$path}");
+        }
+
+        $key = trim(file_get_contents($path));
+
+        if (Str::startsWith($key, 'base64:')) {
+            $key = base64_decode(substr($key, 7));
+        }
+
+        if (empty($key)) {
+            throw new \RuntimeException("Vault Value Key is invalid or empty.");
+        }
+
+        return $cachedKey = $key;
+    }
+}
+*/

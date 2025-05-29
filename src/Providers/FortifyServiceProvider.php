@@ -7,9 +7,9 @@ namespace Koneko\VuexyAdmin\Providers;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\{ServiceProvider,Str};
-use Illuminate\Support\Facades\{Config,Hash,RateLimiter, Schema};
-use Koneko\VuexyAdmin\Application\Auth\Actions\Fortify\{CreateNewUser,ResetUserPassword,UpdateUserPassword,UpdateUserProfileInformation};
-use Koneko\VuexyAdmin\Application\Cache\VuexyVarsBuilderService;
+use Illuminate\Support\Facades\{Hash, RateLimiter};
+use Koneko\VuexyAdmin\Application\Auth\Actions\Fortify\{CreateNewUser, ResetUserPassword, UpdateUserPassword, UpdateUserProfileInformation};
+use Koneko\VuexyAdmin\Application\Cache\Builders\KonekoAdminVarsBuilder;
 use Koneko\VuexyAdmin\Models\User;
 use Laravel\Fortify\Fortify;
 
@@ -53,17 +53,11 @@ class FortifyServiceProvider extends ServiceProvider
             }
         });
 
-
         // Obtiene el modo de vista de autenticación
-        /*
-        $viewMode = Schema::hasTable('settings')
-            ? settings()->setContext('core', 'auth')->get('vuexy.authViewMode')?? Config::get('koneko.admin.vuexy.authViewMode')
-            : Config::get('koneko.admin.vuexy.authViewMode');
-        */
-        $viewMode = settings()->setContext('core', 'auth')->get('vuexy.authViewMode')?? Config::get('koneko.admin.vuexy.authViewMode');
+        $viewMode = config_m()->get('layout.vuexy.authViewMode', 'cover');
 
         // Share defaults for Fortify views (important!)
-        view()->share(['_admin' => app(VuexyVarsBuilderService::class)->getAdminVars()]);
+        view()->share(['_admin' => app(KonekoAdminVarsBuilder::class)->get()]);
 
         // Configurar la vista del login
         Fortify::loginView(function () use ($viewMode) {

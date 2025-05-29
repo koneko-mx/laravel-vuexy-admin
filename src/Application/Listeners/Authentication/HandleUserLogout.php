@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Koneko\VuexyAdmin\Application\Listeners\Authentication;
 
 use Illuminate\Auth\Events\Logout;
-use Koneko\VuexyAdmin\Application\UX\Navbar\{VuexySearchBarBuilderService,VuexyQuicklinksBuilderService};
+use Koneko\VuexyAdmin\Application\UX\Navbar\VuexySearchBarBuilder;
+use Koneko\VuexyAdmin\Application\UX\Navbar\VuexyQuicklinksBuilder;
 use Koneko\VuexyAdmin\Application\UX\Menu\VuexyMenuFormatter;
-use Koneko\VuexyAdmin\Application\UX\Notifications\VuexyNotificationsBuilderService;
+use Koneko\VuexyAdmin\Application\UX\Notifications\VuexyNotificationsBuilder;
 use Koneko\VuexyAdmin\Models\UserLogin;
 
 class HandleUserLogout
@@ -28,8 +29,8 @@ class HandleUserLogout
     private function clearUserCaches(int $userId): void
     {
         VuexyMenuFormatter::forgetCacheForUser($userId);
-        VuexySearchBarBuilderService::forgetCacheForUser($userId);
-        VuexyQuicklinksBuilderService::clearCacheForUser($userId);
-        VuexyNotificationsBuilderService::clearCacheForUser($userId);
+        VuexySearchBarBuilder::forgetCacheForUser($userId);
+        VuexyQuicklinksBuilder::clearCacheForUser($userId);
+        VuexyNotificationsBuilder::clearCacheForUser($userId);
     }
 }

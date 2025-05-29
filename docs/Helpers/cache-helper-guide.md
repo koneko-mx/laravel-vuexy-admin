@@ -1,12 +1,12 @@
 # Koneko ERP - Cache Helper Guide
 
-> ✨ Esta guía detalla el uso correcto del sistema de cache en Koneko ERP, basado completamente en el helper `cache_manager()`, sin necesidad de interactuar con las clases internas como `KonekoCacheManager` o `LaravelCacheManager`.
+> ✨ Esta guía detalla el uso correcto del sistema de cache en Koneko ERP, basado completamente en el helper `cache_m()`, sin necesidad de interactuar con las clases internas como `KonekoCacheManager` o `LaravelCacheManager`.
 
 ---
 
 ## 🔎 Filosofía
 
-* Toda interacción de componentes con el sistema de cache debe realizarse exclusivamente mediante el helper `cache_manager()`.
+* Toda interacción de componentes con el sistema de cache debe realizarse exclusivamente mediante el helper `cache_m()`.
 * Las clases internas son consideradas **@internal**, y no deben ser accedidas directamente por desarrolladores de componentes.
 * El sistema permite configuración jerárquica basada en namespace del componente, grupo lógico de datos y claves individuales.
 
@@ -15,15 +15,15 @@
 ## 🔍 Sintaxis del Helper
 
 ```php
-cache_manager(string $component = 'admin', string $group = 'cache')
+cache_m(string $component = 'admin', string $group = 'cache')
 ```
 
 Retorna una instancia segura del gestor para el componente y grupo indicados. Ejemplos:
 
 ```php
-cache_manager('admin', 'avatar')->enabled();
-cache_manager('website', 'menu')->ttl();
-cache_manager('website', 'html')->flush();
+cache_m('admin', 'avatar')->enabled();
+cache_m('website', 'menu')->ttl();
+cache_m('website', 'html')->flush();
 ```
 
 ---
@@ -60,13 +60,13 @@ Esto permite granularidad sin perder coherencia global.
 ### Validar TTL efectivo
 
 ```php
-$ttl = cache_manager('website', 'menu')->ttl();
+$ttl = cache_m('website', 'menu')->ttl();
 ```
 
 ### Verificar si está habilitado
 
 ```php
-if (cache_manager('admin', 'avatar')->enabled()) {
+if (cache_m('admin', 'avatar')->enabled()) {
     // Proceder con cache
 }
 ```
@@ -74,7 +74,7 @@ if (cache_manager('admin', 'avatar')->enabled()) {
 ### Limpiar cache con soporte para etiquetas
 
 ```php
-cache_manager('website', 'html')->flush();
+cache_m('website', 'html')->flush();
 ```
 
 ---
@@ -112,6 +112,6 @@ El comando mostrará información relevante para depuración sin exponer clases 
 
 ## 🌟 Conclusión
 
-Este sistema garantiza modularidad, extensibilidad y seguridad. El helper `cache_manager()` es la única puerta de entrada para desarrolladores y debe usarse exclusivamente para mantener la integridad del ecosistema.
+Este sistema garantiza modularidad, extensibilidad y seguridad. El helper `cache_m()` es la única puerta de entrada para desarrolladores y debe usarse exclusivamente para mantener la integridad del ecosistema.
 
 > ✅ Si necesitas agregar un nuevo grupo de cache, simplemente define su configuración y comienza a usar el helper, sin necesidad de modificar clases o contratos.

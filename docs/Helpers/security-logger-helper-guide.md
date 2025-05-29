@@ -90,7 +90,7 @@ El evento registrado se almacena en la tabla `security_events`, con campos como:
 Si tienes habilitado el trait `HasGeolocation`, el sistema hace *GeoIP Lookup* por IP:
 
 ```php
-use Koneko\VuexyAdmin\Support\Traits\Helpers\HasGeolocation;
+use Koneko\VuexyAdmin\Support\Traits\Geolocation\HasGeolocation;
 ```
 
 ---

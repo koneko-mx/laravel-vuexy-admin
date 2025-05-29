@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Koneko\VuexyAdmin\Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Koneko\VuexyAdmin\Application\RBAC\KonekoRbacSyncManager;
+use Koneko\VuexyAdmin\Application\RBAC\Sync\KonekoRbacSyncManager;
 
 class RbacSeeder extends Seeder
 {

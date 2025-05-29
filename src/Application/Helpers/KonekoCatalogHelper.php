@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Koneko\VuexyAdmin\Support\Helpers;
+namespace Koneko\VuexyAdmin\Application\Helpers;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;

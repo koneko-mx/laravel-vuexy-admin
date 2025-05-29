@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Koneko\VuexyAdmin\Database\Factories;
 
-use Illuminate\Support\Carbon;
+use Carbon\Carbon;
 use Koneko\VuexyAdmin\Models\Notification;
 use Koneko\VuexyAdmin\Models\User;
-use Koneko\VuexyAdmin\Support\Factories\AbstractModelFactory;
+use Koneko\VuexyAdmin\Support\Factories\Base\AbstractModelFactory;
 use Koneko\VuexyAdmin\Support\Traits\Factories\HasFactorySupport;
 
 /**

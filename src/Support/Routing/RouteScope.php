@@ -6,7 +6,7 @@ namespace Koneko\VuexyAdmin\Support\Routing;
 
 use Closure;
 use Illuminate\Support\Facades\Route;
-use Koneko\VuexyAdmin\Application\Bootstrap\KonekoModuleRegistry;
+use Koneko\VuexyAdmin\Application\Bootstrap\Registry\KonekoModuleRegistry;
 
 class RouteScope
 {

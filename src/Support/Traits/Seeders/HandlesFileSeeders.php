@@ -96,6 +96,7 @@ trait HandlesFileSeeders
             foreach ($argv as $index => $arg) {
                 if (str_starts_with($arg, '--file=')) {
                     $this->targetFile = substr($arg, 7);
+
                 } elseif ($arg === '--file' && isset($argv[$index + 1]) && !str_starts_with($argv[$index + 1], '--')) {
                     $this->targetFile = $argv[$index + 1];
                 }
@@ -160,4 +161,3 @@ trait HandlesFileSeeders
         }
     }
 }
-

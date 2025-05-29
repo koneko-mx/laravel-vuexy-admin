@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace Koneko\VuexyAdmin\Application\UI\Livewire\KonekoVuexy\Plugins;
 
 use Illuminate\Support\Facades\Route;
-use Koneko\VuexyAdmin\Application\UX\Navbar\VuexyQuicklinksBuilderService;
-use Koneko\VuexyAdmin\Support\Traits\Livewire\Notifications\HandlesAsyncNotifications;
+use Koneko\VuexyAdmin\Application\UX\Navbar\VuexyQuicklinksBuilder;
 use Livewire\Component;
 
 class VuexyQuicklinks extends Component
 {
-    use HandlesAsyncNotifications;
+    //use HandlesAsyncNotifications;
 
     public $vuexyQuickLinks;
 
@@ -20,11 +19,18 @@ class VuexyQuicklinks extends Component
     public string $currentRouteId = '';
     public string $slug = '';
 
+    private VuexyQuicklinksBuilder $quickLinksBuilder;
+
+    public function __construct()
+    {
+        $this->quickLinksBuilder = app(VuexyQuicklinksBuilder::class);
+    }
+
     public function mount()
     {
         $this->slug           = Route::current()->parameter('slug') ?? '';
         $this->currentRouteId = $this->getCurrentRouteId();
-        $this->isRouteAllowed = app(VuexyQuicklinksBuilderService::class)->isRouteAllowed($this->currentRouteId);
+        $this->isRouteAllowed = $this->quickLinksBuilder->isRouteAllowed($this->currentRouteId);
 
         $this->loadQuickLinks();
     }
@@ -33,7 +39,7 @@ class VuexyQuicklinks extends Component
     {
         if (!$this->isRouteAllowed) return;
 
-        app(VuexyQuicklinksBuilderService::class)->addRoute($this->currentRouteId);
+        $this->quickLinksBuilder->addRoute($this->currentRouteId);
 
         $this->loadQuickLinks();
         $this->notify('Atajo agregado correctamente', 'success');
@@ -42,7 +48,7 @@ class VuexyQuicklinks extends Component
 
     public function remove(): void
     {
-        app(VuexyQuicklinksBuilderService::class)->removeRoute($this->currentRouteId);
+        $this->quickLinksBuilder->removeRoute($this->currentRouteId);
 
         $this->loadQuickLinks();
         $this->notify('Atajo removido correctamente', 'warning');
@@ -54,12 +60,11 @@ class VuexyQuicklinks extends Component
         return $this->slug ? "slug:{$this->slug}" : Route::currentRouteName();
     }
 
-
     public function loadQuickLinks(?string $routeId = null): void
     {
         $routeId ??= $this->currentRouteId;
 
-        $quickLinks = app(VuexyQuicklinksBuilderService::class)->getUserQuicklinks();
+        $quickLinks = $this->quickLinksBuilder->getUserQuicklinks();
 
         $quickLinks['current_page_in_list'] = collect($quickLinks['rows'] ?? [])
             ->flatten(1)

@@ -3,24 +3,24 @@
 declare(strict_types=1);
 
 use Illuminate\Auth\Events\{Failed, Login, Logout};
-use Koneko\VuexyAdmin\Alication\Logger\KonekoSystemLogger;
-use Koneko\VuexyAdmin\Application\Cache\KonekoCacheManager;
+use Koneko\VuexyAdmin\Application\Cache\Manager\KonekoCacheManager;
+use Koneko\VuexyAdmin\Application\Config\Cast\VuexyLayoutCast;
 use Koneko\VuexyAdmin\Application\Contracts\Loggers\{SecurityLoggerInterface, SystemLoggerInterface, UserInteractionLoggerInterface};
-use Koneko\VuexyAdmin\Application\Contracts\Settings\SettingsRepositoryInterface;
-use Koneko\VuexyAdmin\Application\Events\Settings\{SettingChanged, VuexyCustomizerSettingsUpdated};
+use Koneko\VuexyAdmin\Application\Settings\Contracts\SettingsRepositoryInterface;
+use Koneko\VuexyAdmin\Application\Events\Settings\VuexyCustomizerSettingsUpdated;
 use Koneko\VuexyAdmin\Application\Helpers\{VuexyHelper, VuexyNotifyHelper, VuexyToastrHelper};
 use Koneko\VuexyAdmin\Application\Http\Middleware\{AdminTemplateMiddleware, LocaleMiddleware, TrackSessionActivity};
+use Koneko\VuexyAdmin\Application\Jobs\Security\RotateVaultKeysJob;
 use Koneko\VuexyAdmin\Application\Jobs\Users\ForceLogoutInactiveUsersJob;
 use Koneko\VuexyAdmin\Application\Listeners\Authentication\{HandleFailedLogin, HandleUserLogin, HandleUserLogout};
-use Koneko\VuexyAdmin\Application\Listeners\Settings\{ApplyVuexyCustomizerSettings, SettingCacheListener};
-use Koneko\VuexyAdmin\Application\Logger\{KonekoSecurityAuditLogger, KonekoUserInteractionLogger};
-use Koneko\VuexyAdmin\Application\System\KonekoSettingManager;
+use Koneko\VuexyAdmin\Application\Listeners\Settings\ApplyVuexyCustomizerSettings;
+use Koneko\VuexyAdmin\Application\Loggers\{KonekoSecurityAuditLogger, KonekoUserInteractionLogger, KonekoSecurityLogger, KonekoSystemLogger};
+use Koneko\VuexyAdmin\Application\Settings\Manager\KonekoSettingManager;
 use Koneko\VuexyAdmin\Application\UI\Livewire\Audit\LaravelLogs\LaravelLogsTable;
 use Koneko\VuexyAdmin\Application\UI\Livewire\Audit\SecurityEvents\SecurityEventsTable;
 use Koneko\VuexyAdmin\Application\UI\Livewire\Audit\UsersAuthLogs\UsersAuthLogsTable;
-use Koneko\VuexyAdmin\Application\UI\Livewire\Tools\Cache\{CacheFunctionsCard, CacheStatsCard, SessionStatsCard, MemcachedStatsCard, RedisStatsCard};
 use Koneko\VuexyAdmin\Application\UI\Livewire\KonekoVuexy\ModuleManagement\ModuleManagementIndex;
-use Koneko\VuexyAdmin\Application\UI\Livewire\KonekoVuexy\Plugins\PluginsIndex;
+use Koneko\VuexyAdmin\Application\UI\Livewire\KonekoVuexy\Plugins\{PluginsIndex, VuexyQuicklinks};
 use Koneko\VuexyAdmin\Application\UI\Livewire\Pages\Dashboards\MenuAccessCards;
 use Koneko\VuexyAdmin\Application\UI\Livewire\Settings\EnvironmentVars\{EnvironmentVarsTable, EnvironmentVarsOffCanvasForm};
 use Koneko\VuexyAdmin\Application\UI\Livewire\Settings\Rbac\Permissions\{PermissionsTable, PermissionOffCanvasForm};
@@ -29,15 +29,18 @@ use Koneko\VuexyAdmin\Application\UI\Livewire\Settings\Smtp\SmtpSettingsCard;
 use Koneko\VuexyAdmin\Application\UI\Livewire\Settings\Users\{UsersTable, UsersCount, UserForm, UserOffCanvasForm};
 use Koneko\VuexyAdmin\Application\UI\Livewire\Settings\VuexyInterface\VuexyInterfaceIndex;
 use Koneko\VuexyAdmin\Application\UI\Livewire\Settings\WebInterface\{LogoOnLightBgCard, LogoOnDarkBgCard, AppDescriptionCard, AppFaviconCard};
+use Koneko\VuexyAdmin\Application\UI\Livewire\Tools\Cache\{CacheFunctionsCard, CacheStatsCard, SessionStatsCard, MemcachedStatsCard, RedisStatsCard};
 use Koneko\VuexyAdmin\Application\UI\Livewire\User\Profile\{UpdateProfileInformationForm, UpdatePasswordForm, TwoFactorAuthenticationForm, LogoutOtherBrowser, DeleteUserForm};
-use Koneko\VuexyAdmin\Application\Cache\VuexyVarsBuilderService;
-use Koneko\VuexyAdmin\Application\Jobs\Security\RotateVaultKeysJob;
-use Koneko\VuexyAdmin\Application\UI\Livewire\KonekoVuexy\Plugins\VuexyQuicklinks;
 use Koneko\VuexyAdmin\Application\UI\Livewire\User\Viewer\UserDetailsViewerIndex;
-use Koneko\VuexyAdmin\Console\Commands\{VuexyAvatarInitialsCommand, VuexyListCatalogsCommand, VuexyMenuBuildCommand, VuexyMenuListModulesCommand, VuexyRbacCommand, VuexySeedCommand};
+use Koneko\VuexyAdmin\Console\Commands\Geolocationg\DownloadGeoIpDatabase;
+use Koneko\VuexyAdmin\Console\Commands\Layout\VuexyMenuBuildCommand;
+use Koneko\VuexyAdmin\Console\Commands\Layout\VuexyMenuListModulesCommand;
+use Koneko\VuexyAdmin\Console\Commands\Notifications\VuexyDeviceTokenPruneCommand;
+use Koneko\VuexyAdmin\Console\Commands\Orquestator\VuexySeedCommand;
+use Koneko\VuexyAdmin\Console\Commands\RBAC\VuexyRbacCommand;
+use Koneko\VuexyAdmin\Console\Commands\UI\VuexyAvatarInitialsCommand;
 use Koneko\VuexyAdmin\Models\{Setting, User};
 use Koneko\VuexyAdmin\Providers\FortifyServiceProvider;
-use Koneko\VuexyAdmin\Support\Logger\KonekoSecurityLogger;
 use Spatie\Permission\PermissionServiceProvider;
 
 return [
@@ -58,9 +61,27 @@ return [
 
     // ⚙️ Archivos de configuración del módulo
     'configs' => [
-        'database'     => 'config/keyvault_db.php',
-        'koneko'       => 'config/koneko.php',
-        'koneko.admin' => 'config/koneko_admin.php',
+        'auth'    => 'config/auth.php',
+        'fortify' => 'config/fortify.php',
+        'image'   => 'config/image.php',
+        'koneko'                => 'config/koneko.php',
+        'koneko.core.layout'    => 'config/koneko_layout.php',
+        'koneko.core.ui'        => 'config/koneko_ui.php',
+        'koneko.core.logging'   => 'config/koneko_logging.php',
+        'koneko.core.security'  => 'config/koneko_security.php',
+        'koneko.core.key_vault' => 'config/koneko_key_vault.php',
+        'database.connections.vault'  => 'config/koneko_key_vault_db.php',
+    ],
+    // 📦 Configuraciones de bloques
+    'configBlocks' => [
+        'koneko.core.layout.vuexy' => [
+            'component' => 'core',
+            'group'     => 'layout',
+            'section'   => 'vuexy',
+            'sub_group' => 'customizer',
+            'key_name'  => 'vuexy-layout',
+            'cast'      => VuexyLayoutCast::class,
+        ],
     ],
 
     // 🏭 Proveedores de servicio, Middleware y Aliases (runtime)
@@ -83,7 +104,7 @@ return [
     'Singletons' => [
         KonekoCacheManager::class,
         KonekoSecurityAuditLogger::class,
-        VuexyVarsBuilderService::class,
+        //KonekoAdminVarsBuilder::class,
     ],
 
     // 🔗 Bindings de interfaces a servicios
@@ -101,8 +122,8 @@ return [
 
     // 🔊 Eventos
     'listeners' => [
-        SettingChanged::class => SettingCacheListener::class,
-        VuexyCustomizerSettingsUpdated::class => ApplyVuexyCustomizerSettings::class,
+        //SettingChanged::class => SettingCacheListener::class,
+        //VuexyCustomizerSettingsUpdated::class => ApplyVuexyCustomizerSettings::class,
         Login::class  => HandleUserLogin::class,
         Logout::class => HandleUserLogout::class,
         Failed::class => HandleFailedLogin::class,
@@ -237,12 +258,18 @@ return [
 
     // 🛠 Comandos Artisan
     'commands' => [
+        DownloadGeoIpDatabase::class,
         VuexyAvatarInitialsCommand::class,
-        VuexyRbacCommand::class,
-        VuexySeedCommand::class,
+        VuexyDeviceTokenPruneCommand::class,
         VuexyMenuBuildCommand::class,
         VuexyMenuListModulesCommand::class,
-        VuexyListCatalogsCommand::class,
+        VuexyRbacCommand::class,
+        VuexySeedCommand::class,
+    ],
+
+    // 📦 Scope Models
+    'scopeModels' => [
+        'user' => User::class,
     ],
 
     // Trabajos programados

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Koneko\VuexyAdmin\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Koneko\VuexyAdmin\Application\Enums\Permissions\PermissionAction;
+use Koneko\VuexyAdmin\Support\Enums\Permissions\PermissionAction;
 use Koneko\VuexyAdmin\Support\Traits\Model\HasVuexyModelMetadata;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

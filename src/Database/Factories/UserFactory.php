@@ -7,8 +7,9 @@ namespace Koneko\VuexyAdmin\Database\Factories;
 use Koneko\VuexyAdmin\Application\Enums\User\UserBaseFlags;
 use Koneko\VuexyAdmin\Application\Traits\Factories\{HasUserFactoryRoleExtension,HasUserFactoryAvatarExtension, HasUserFactoryNotificationExtension};
 use Koneko\VuexyAdmin\Models\User;
-use Koneko\VuexyAdmin\Support\Factories\AbstractModelFactory;
-use Koneko\VuexyAdmin\Support\Traits\Factories\{HasDynamicFactoryExtenders,HasUserFactoryFlagsExtension};
+use Koneko\VuexyAdmin\Support\Factories\Base\AbstractModelFactory;
+use Koneko\VuexyAdmin\Support\Traits\Flags\Factories\HasUserFactoryFlagsExtension;
+use Koneko\VuexyAdmin\Support\Traits\Factories\HasDynamicFactoryExtenders;
 
 /**
  * 🧲 UserFactory

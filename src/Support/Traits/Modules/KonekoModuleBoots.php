@@ -7,7 +7,9 @@ namespace Koneko\VuexyAdmin\Support\Traits\Modules;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
-use Koneko\VuexyAdmin\Application\Bootstrap\{KonekoModule ,KonekoModuleBootManager, KonekoModuleRegistry};
+use Koneko\VuexyAdmin\Application\Bootstrap\KonekoModule;
+use Koneko\VuexyAdmin\Application\Bootstrap\Manager\KonekoModuleBootManager;
+use Koneko\VuexyAdmin\Application\Bootstrap\Registry\KonekoModuleRegistry;
 
 /**
  * Trait universal para bootstrapping de módulos Vuexy,

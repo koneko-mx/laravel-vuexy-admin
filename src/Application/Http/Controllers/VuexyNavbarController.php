@@ -6,8 +6,8 @@ namespace Koneko\VuexyAdmin\Application\Http\Controllers;
 
 use Illuminate\Routing\Controller;
 use Illuminate\Http\{JsonResponse, Request};
-use Illuminate\Support\Facades\Auth;
-use Koneko\VuexyAdmin\Application\UX\Navbar\{VuexyQuicklinksBuilderService,VuexySearchBarBuilderService};
+use Koneko\VuexyAdmin\Application\CoreModule;
+use Koneko\VuexyAdmin\Application\UX\Navbar\VuexySearchBarBuilder;
 
 class VuexyNavbarController extends Controller
 {
@@ -21,7 +21,7 @@ class VuexyNavbarController extends Controller
     {
         abort_if(!request()->expectsJson(), 403, __('errors.ajax_only'));
 
-        return response()->json(app(VuexySearchBarBuilderService::class)->getSearchData());
+        return response()->json(app(VuexySearchBarBuilder::class)->getSearchData());
     }
 
     /**
@@ -36,15 +36,26 @@ class VuexyNavbarController extends Controller
     {
         abort_if(!request()->expectsJson(), 403, __('errors.ajax_only'));
 
+        /** @var string Settings Context */
+        $group     = 'website-admin';
+        $section   = 'layout';
+        $sub_group = 'navbar';
+
+        /** @var string Cache keyName */
+        $key_name = 'quicklinks';
+
+
         $validated = $request->validate([
             'action' => 'required|in:update,remove',
             'route'  => 'required|string',
         ]);
 
-        $key    = 'vuexy-quicklinks.user';
-        $userId = Auth::user()->id;
+        //$userId = Auth::user()->id;
 
-        $quickLinks = settings()->setContext('core', 'navbar')->get($key, $userId)?? [];
+        $quickLinks = settings(CoreModule::COMPONENT)
+            ->context($group, $section, $sub_group)
+            ->setScope($request->user())
+            ->get($key_name)?? [];
 
         if ($validated['action'] === 'update') {
             if (!in_array($validated['route'], $quickLinks)) {
@@ -58,8 +69,11 @@ class VuexyNavbarController extends Controller
             ));
         }
 
-        settings()->setContext('core', 'navbar')->set($key, json_encode($quickLinks), $userId);
+        settings(CoreModule::COMPONENT)
+            ->context($group, $section, $sub_group)
+            ->setScope($request->user())
+            ->set($key_name, json_encode($quickLinks));
 
-        VuexyQuicklinksBuilderService::forgetCacheForUser();
+        //VuexyQuicklinksBuilder::forgetCacheForUser();
     }
 }

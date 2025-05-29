@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Koneko\VuexyAdmin\Database\Seeders;
 
 use Koneko\VuexyAdmin\Models\Setting;
-use Koneko\VuexyAdmin\Support\Seeders\AbstractDataSeeder;
+use Koneko\VuexyAdmin\Support\Seeders\Base\AbstractDataSeeder;
 use Koneko\VuexyAdmin\Support\Traits\Seeders\HandlesFileSeeders;
 
 class SettingSeeder extends AbstractDataSeeder

@@ -6,14 +6,13 @@ namespace Koneko\VuexyAdmin\Application\Helpers;
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
+use Koneko\VuexyAdmin\Application\CoreModule;
 
 class VuexyHelper
 {
-    public const NAMESPACE = 'koneko';
-
     public static function appClasses()
     {
-        $data = config('koneko.admin.vuexy');
+        $data = config_m()->get('layout.vuexy', []);
 
         // default data array
         $DefaultData = [
@@ -203,8 +202,10 @@ class VuexyHelper
     {
         if (isset($pageConfigs)) {
             if (count($pageConfigs) > 0) {
+                $config_path = CoreModule::NAMESPACE . '.' . CoreModule::COMPONENT . '.layout.vuexy.';
+
                 foreach ($pageConfigs as $config => $val) {
-                    Config::set('koneko.admin.vuexy.' . $config, $val);
+                    Config::set($config_path . $config, $val);
                 }
             }
         }

@@ -9,7 +9,7 @@ Este documento define las reglas de exposición y acceso para los servicios téc
 | Clase Técnica                     | Expuesta al Usuario | Acceso Recomendado         | Notas                                                            |
 | --------------------------------- | ------------------- | -------------------------- | ---------------------------------------------------------------- |
 | `KonekoSettingManager`           | ❌ No                | `settings()` helper        | Configuración modular con soporte de namespaces.                 |
-| `KonekoCacheManager`              | ❌ No                | `cache_manager()` helper   | Acceso al sistema de cache multi-driver y con TTL configurables. |
+| `KonekoCacheManager`              | ❌ No                | `cache_m()` helper   | Acceso al sistema de cache multi-driver y con TTL configurables. |
 | `KonekoSystemLogger`              | ❌ No                | `log_system()` helper      | Logger morfable con niveles y contexto extendido.                |
 | `KonekoSecurityLogger`            | ❌ No                | `log_security()` helper    | Eventos de seguridad con GeoIP y proxy detection.                |
 | `KonekoUserInteractionLogger`     | ❌ No                | `log_interaction()` helper | Auditoría de componentes y acciones sensibles.                   |
@@ -28,7 +28,7 @@ Este documento define las reglas de exposición y acceso para los servicios téc
 ## 💡 Buenas prácticas para desarrolladores
 
 * Usa `settings()` para acceder o escribir configuraciones modulares.
-* Usa `cache_manager()` para obtener TTL, flush o debug por componente.
+* Usa `cache_m()` para obtener TTL, flush o debug por componente.
 * Usa `log_system()` para registrar eventos de sistema de forma morfable.
 * Usa `log_security()` para eventos como logins fallidos o IP sospechosas.
 * Usa `log_interaction()` para acciones en Livewire, eventos UI o tracking avanzado.
@@ -40,7 +40,7 @@ Este documento define las reglas de exposición y acceso para los servicios téc
 ```php
 // Correcto
 settings()->in('website')->get('general.site_name');
-cache_manager('admin', 'menu')->ttl();
+cache_m('admin', 'menu')->ttl();
 log_system('info', 'Menú regenerado');
 ```
 

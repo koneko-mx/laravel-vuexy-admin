@@ -63,19 +63,19 @@
                                             <!-- Título -->
                                             <h6 class="mb-0 text-dark dark:text-light fw-semibold search-term">
                                                 {{ $item['title'] }}
-                                                @if(config('koneko.admin.menu.debug.show_broken_routers') && $item['url'] == "javascript:;")
+                                                @if(CoreModule::config('menu.debug.show_broken_routers') && $item['url'] == "javascript:;")
                                                     <p class="text-xs m-0 pt-2 text-gray-500">
                                                         <span class="xs mr-1">❌</span>
                                                         Sin URL valida
                                                     </p>
                                                 @endif
-                                                @if(config('koneko.admin.menu.debug.show_disallowed_links') && $item['disallowed_link'])
+                                                @if(CoreModule::config('menu.debug.show_disallowed_links') && $item['disallowed_link'])
                                                     <p class="text-xs m-0 pt-2 text-gray-500">
                                                         <span class="text-sm mr-1">🔒</span>
                                                         Sin permisos
                                                     </p>
                                                 @endif
-                                                @if(config('koneko.admin.menu.debug.show_hidden_items') && $item['hidden_item'])
+                                                @if(CoreModule::config('menu.debug.show_hidden_items') && $item['hidden_item'])
                                                     <p class="text-xs m-0 pt-2 text-gray-500">
                                                         <span class="text-sm mr-1">🚧</span>
                                                         Vista forzada

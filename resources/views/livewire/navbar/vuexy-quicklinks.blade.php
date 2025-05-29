@@ -1,3 +1,9 @@
+@php
+    use Koneko\VuexyAdmin\Models\User;
+
+    $maxQuickLinks = config_m()->get('layout.vuexy.maxQuickLinks', 8);
+@endphp
+
 <li class="nav-item dropdown-shortcuts navbar-dropdown dropdown">
     <a class="nav-link btn btn-text-secondary btn-icon rounded-pill btn-icon dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
         <i class='ti ti-layout-grid-add ti-md'></i>
@@ -16,7 +22,7 @@
                             <i class="ti ti-trash text-heading"></i>
                         </button>
                     @else
-                        @if($vuexyQuickLinks['totalLinks'] < config('koneko.admin.vuexy.maxQuickLinks', 8))
+                        @if($vuexyQuickLinks['totalLinks'] < $maxQuickLinks)
                             <button
                                 wire:click="add('{{ Route::currentRouteName() }}')"
                                 type="button"

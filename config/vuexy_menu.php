@@ -481,15 +481,16 @@ return [
             ],
         ],
     ],
-    '_extra_quicklinks' => [
-        'Inicio' => [
-            'icon' => 'ti ti-home',
-            'route' => 'admin.core.pages.home.index',
-            'can'   => 'admin.core.pages.home.view',
-        ],
-        'Mi perfil' => [
-            'icon' => 'ti ti-user-circle',
-            'route' => 'admin.users.profile',
+    '_extra' => [
+        '_quicklinks' => [
+            'Inicio' => [
+                'icon' => 'ti ti-home',
+                'route' => 'admin.core.pages.home.index',
+            ],
+            'Mi perfil' => [
+                'icon' => 'ti ti-user-circle',
+                'route' => 'admin.users.profile',
+            ],
         ],
     ],
 ];

@@ -6,30 +6,24 @@ namespace Koneko\VuexyAdmin\Application\Http\Middleware;
 
 use Closure;
 use Illuminate\Support\Facades\View;
-use Koneko\VuexyAdmin\Application\Cache\VuexyVarsBuilderService;
-use Koneko\VuexyAdmin\Application\UX\Content\VuexyBreadcrumbsBuilderService;
+use Koneko\VuexyAdmin\Application\Cache\Builders\KonekoAdminVarsBuilder;
+use Koneko\VuexyAdmin\Application\UX\Breadcrumbs\VuexyBreadcrumbsBuilder;
 use Koneko\VuexyAdmin\Application\UX\Menu\VuexyMenuFormatter;
-use Koneko\VuexyAdmin\Application\UX\Notifications\VuexyNotificationsBuilderService;
-use Koneko\VuexyAdmin\Application\UX\Template\{VuexyConfigSynchronizer};
+use Koneko\VuexyAdmin\Application\UX\Notifications\Builder\VuexyNotificationsBuilder;
 
 class AdminTemplateMiddleware
 {
-    public function __construct()
-    {
-        //
-    }
-
     public function handle($request, Closure $next)
     {
         // Aplicar configuración de layout antes de que la vista se cargue
         if (str_contains($request->header('Accept'), 'text/html')) {
-            app(VuexyConfigSynchronizer::class)->sync();
+            config_m()->syncFromRegistry('koneko.core.layout.vuexy');
 
             View::share([
-                '_admin'             => app(VuexyVarsBuilderService::class)->getAdminVars(),
+                '_admin'             => app(KonekoAdminVarsBuilder::class)->get(),
                 'vuexyMenu'          => app(VuexyMenuFormatter::class)->getMenu(),
-                'vuexyNotifications' => app(VuexyNotificationsBuilderService::class)->getForUser(),
-                'vuexyBreadcrumbs'   => app(VuexyBreadcrumbsBuilderService::class)->getBreadcrumbs(),
+                'vuexyNotifications' => app(VuexyNotificationsBuilder::class)->getNotifications(),
+                'vuexyBreadcrumbs'   => app(VuexyBreadcrumbsBuilder::class)->getBreadcrumbs(),
             ]);
         }
 

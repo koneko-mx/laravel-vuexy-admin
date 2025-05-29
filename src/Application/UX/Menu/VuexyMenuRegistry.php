@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Koneko\VuexyAdmin\Application\UX\Menu;
 
 use Illuminate\Support\Facades\File;
-use Koneko\VuexyAdmin\Application\Bootstrap\KonekoModuleRegistry;
+use Koneko\VuexyAdmin\Application\Bootstrap\Registry\KonekoModuleRegistry;
 
 class VuexyMenuRegistry
 {
@@ -63,7 +63,8 @@ class VuexyMenuRegistry
 
         if (File::exists($fullPath)) {
             $menu = require $fullPath;
-            //dd('core menu', $menu); // verifica si la clave Inicio aparece aquí
+
+            // verifica si la clave Inicio aparece aquí
             return $this->injectComponentMeta($menu, 'core');
         }
 
@@ -125,8 +126,15 @@ class VuexyMenuRegistry
         foreach ($menu as &$item) {
             if (!is_array($item)) continue;
 
+            // Verificaos Extra Quicklinks
+            if (isset($item['_quicklinks'])) {
+                $item['_quicklinks'] = $this->injectComponentMeta($item['_quicklinks'], $component);
+                continue;
+            }
+
             // Inyectar en _meta solo si 'component' no está definido
             $item['_meta'] ??= [];
+
             if (!isset($item['_meta']['component'])) {
                 $item['_meta']['component'] = $component;
             }

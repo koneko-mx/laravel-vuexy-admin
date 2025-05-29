@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Koneko\VuexyAdmin\Database\Factories;
 
 use Illuminate\Support\{Carbon, Str};
-use Koneko\VuexyAdmin\Application\Enums\SystemNotifications\{
+use Koneko\VuexyAdmin\Support\Enums\SystemNotifications\{
     SystemNotificationScope,
     SystemNotificationType,
     SystemNotificationStyle,
     SystemNotificationPriority
 };
 use Koneko\VuexyAdmin\Models\{SystemNotification, SystemNotificationUser};
-use Koneko\VuexyAdmin\Support\Factories\AbstractModelFactory;
+use Koneko\VuexyAdmin\Support\Factories\Base\AbstractModelFactory;
 use Koneko\VuexyAdmin\Models\User;
 
 class SystemNotificationFactory extends AbstractModelFactory

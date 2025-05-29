@@ -3,6 +3,11 @@
      * Vista Blade para mostrar los accesos rápidos.
      * Compatible con Vuexy Admin y modo oscuro.
      */
+    $menuDebug = config_m()->get('menu.debug', []);
+
+    $show_broken_routes   = $menuDebug['show_broken_routes'] ?? false;
+    $show_disallowed_links = $menuDebug['show_disallowed_links'] ?? false;
+    $show_hidden_items     = $menuDebug['show_hidden_items'] ?? false;
 @endphp
 
 <div class="space-y-8">
@@ -59,17 +64,17 @@
                                         <i class="{{ $item['icon'] }} text-3xl text-primary mt-1 mb-3"></i>
                                         <h6 class="mb-0 text-dark dark:text-light fw-semibold search-term">
                                             {{ $item['title'] }}
-                                            @if(config('koneko.admin.menu.debug.show_broken_routers') && $item['url'] == "javascript:;")
+                                            @if($show_broken_routes && $item['url'] == "javascript:;")
                                                 <p class="text-xs m-0 pt-2 text-gray-500">
                                                     <span class="xs mr-1">❌</span> Sin URL válida
                                                 </p>
                                             @endif
-                                            @if(config('koneko.admin.menu.debug.show_disallowed_links') && $item['disallowed_link'])
+                                            @if($show_disallowed_links && $item['disallowed_link'])
                                                 <p class="text-xs m-0 pt-2 text-gray-500">
                                                     <span class="text-sm mr-1">🔒</span> Sin permisos
                                                 </p>
                                             @endif
-                                            @if(config('koneko.admin.menu.debug.show_hidden_items') && $item['hidden_item'])
+                                            @if($show_hidden_items && $item['hidden_item'])
                                                 <p class="text-xs m-0 pt-2 text-gray-500">
                                                     <span class="text-sm mr-1">🚧</span> Vista forzada
                                                 </p>

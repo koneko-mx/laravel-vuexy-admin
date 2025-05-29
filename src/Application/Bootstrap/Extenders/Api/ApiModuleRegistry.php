@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\Log;
 use Koneko\VuexyAdmin\Application\Bootstrap\KonekoModule;
 use Koneko\VuexyApisAndIntegrations\Models\ExternalApi;
 use Illuminate\Support\Collection;
-use Koneko\VuexyAdmin\Application\Bootstrap\KonekoModuleRegistry;
-use Koneko\VuexyAdmin\Application\Bootstrap\KonekoComponentContextRegistrar;
+use Koneko\VuexyAdmin\Application\Bootstrap\Registry\KonekoModuleRegistry;
+use Koneko\VuexyAdmin\Application\Bootstrap\Registry\KonekoComponentContextRegistrar;
 
 class ApiModuleRegistry
 {
