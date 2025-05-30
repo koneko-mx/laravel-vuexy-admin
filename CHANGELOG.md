@@ -1,33 +1,40 @@
-## 📦 CHANGELOG
+# 📦 CHANGELOG
 
-All notable changes to this project will be documented in this file.
-This project adheres to [Semantic Versioning](https://semver.org/).
-
----
-
-### \[1.0.0-beta] - 2025-05-29
-
-**Added**
-
-* Initial public release of Laravel Vuexy Admin (beta version)
-* Modular ERP architecture ready for multi-tenant systems
-* Integration with Laravel 11, Fortify, Livewire 3, Spatie Roles & Permissions
-* PostgreSQL and Redis support
-* Audit log using OwenIt Laravel Auditing
-* Dynamic, modular admin layout (requires legal Vuexy Template)
-* Command publishing and configuration tools
-* Seeders, default roles and permissions
-* Spanish-first UI design for Mexican market
-* GitHub + Git private sync support
-
-**Notes**
-
-* This version is fully functional but still in beta.
-* The Vuexy Admin template is required for full UI compatibility (not included).
-* Licensed under Business Source License 1.1 with transition to MIT.
+Todos los cambios importantes de este proyecto se documentarán en este archivo.  
+Este proyecto sigue las reglas de [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
-## Previous versions
+## 🧪 Versión en desarrollo (`dev-develop`)
 
-*No previous versions. This is the first public release.*
+Esta versión aún no tiene una versión beta o estable publicada.  
+El proyecto está en desarrollo activo y puede cambiar sin previo aviso.
+
+**Añadido (WIP)**
+
+- Estructura base del paquete: plantilla modular basada en Porto HTML Template
+- Soporte para +85 variantes visuales (corporativo, productos, landing, blogs, etc.)
+- Renderizado dinámico por `slug` y modo de plantilla (`page.blade.php`)
+- Publicación de assets y SCSS listos para Vite
+- Sistema de banners, widgets y componentes Blade reutilizables
+- Integración completa con `vuexy-website-admin` y contenidos multiidioma
+- Plantilla registrada como componente visual de tipo `plugin` para la UI de Vuexy Admin
+
+**Notas**
+
+- Esta versión no debe considerarse estable.
+- El diseño está sujeto a cambios en estructura, convenciones y namespaces.
+- La compatibilidad se garantiza con `laravel-vuexy-website-admin` (`dev-develop`).
+
+---
+
+## 🚀 Planeación de versiones
+
+- `1.0.0-beta`: Primera versión funcional pública
+- `1.0.0`: Versión estable con cobertura de variantes, integración completa y documentación final
+
+---
+
+## 📁 Histórico
+
+*Ninguna versión publicada aún.*

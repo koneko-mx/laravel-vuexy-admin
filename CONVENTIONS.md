@@ -97,3 +97,9 @@ component-root/
 - La estructura del componente debe ser lo suficientemente clara para no depender de documentación externa.
 
 ---
+
+## 🤝 ¿Dudas o sugerencias?
+
+Este documento está en constante mejora. Si tienes sugerencias o deseas proponer mejoras, por favor abre un [issue de tipo mejora](.github/ISSUE_TEMPLATE/feature_request.md) o contribuye con un Pull Request.
+
+---

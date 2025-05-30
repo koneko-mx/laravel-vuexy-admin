@@ -123,6 +123,14 @@ Visit our official site: [https://koneko.mx](https://koneko.mx)
 
 This package is licensed under the [custom Business Source License 1.1](LICENSE), transitioning to MIT after 3 years.
 
+---
+
+## 🌎 More Information
+
+* [Documentation in Spanish](README.es.md)
+* [Koneko Official Website](https://koneko.mx)
+* [Contact Email](mailto:opensource@koneko.mx)
+
 <p align="center">
     Made with ❤️ in Mexico by <a href="https://koneko.mx">Koneko Soluciones Tecnológicas</a>
 </p>

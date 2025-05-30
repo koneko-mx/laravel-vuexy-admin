@@ -15,53 +15,122 @@
 
 ---
 
-## 🇲🇽 Español
+## 📌 Descripción
 
-**Laravel Vuexy Admin** es un componente del ecosistema **Koneko ERP** desarrollado en Laravel 11, diseñado para proyectos administrativos y empresariales. Está basado en el template premium **[Vuexy Admin Template](https://themeforest.net/item/vuexy-vuejs-html-laravel-admin-dashboard-template/23328599)** (de pago), el cual **debe adquirirse legalmente** para uso en producción.
+**Laravel Vuexy Admin** es un componente central del ecosistema **Koneko ERP** desarrollado en Laravel 11, orientado a proyectos empresariales y administrativos para el mercado mexicano y latinoamericano. Está basado en el reconocido template premium **[Vuexy Admin Template](https://themeforest.net/item/vuexy-vuejs-html-laravel-admin-dashboard-template/23328599)** (de pago), el cual **debe adquirirse de forma legal** para usarse en proyectos de producción.
 
-Este paquete provee una interfaz moderna, responsiva, segura y escalable. Soporta autenticación, permisos avanzados, auditoría y módulos multilenguaje.
-
-### 🚀 Instalación rápida
-
-```bash
-composer require koneko/laravel-vuexy-admin
-php artisan vendor:publish --tag=vuexy-admin-config
-php artisan migrate --seed
-```
-
-### ⚠️ Legal
-
-Este repositorio **no incluye** archivos del template Vuexy. Es necesario adquirirlo legalmente si se desea usar en producción.
+Este paquete facilita la implementación de interfaces administrativas modernas, responsivas y seguras, con un sistema modular escalable, permisos jerárquicos, roles, trazabilidad de acciones y soporte multilenguaje.
 
 ---
 
-## 🇺🇸 English
+## ✨ Características
 
-**Laravel Vuexy Admin** is a core module of the **Koneko ERP** ecosystem, built on Laravel 11 and aimed at business and administrative projects. It is based on the premium **[Vuexy Admin Template](https://themeforest.net/item/vuexy-vuejs-html-laravel-admin-dashboard-template/23328599)** (commercial license required), which **must be legally purchased** for production use.
-
-This package provides a modern, responsive, secure, and scalable interface. It supports authentication, advanced permissions, audit logging, and multilingual modules.
-
-### 🚀 Quick Installation
-
-```bash
-composer require koneko/laravel-vuexy-admin
-php artisan vendor:publish --tag=vuexy-admin-config
-php artisan migrate --seed
-```
-
-### ⚠️ Legal
-
-This repository **does not include** Vuexy template files. You must purchase a legal license for production use.
+* ✅ Autenticación moderna con Laravel Fortify
+* ✅ Panel de usuarios con Livewire 3
+* ✅ Sistema de permisos basado en Spatie
+* ✅ Auditoría completa con OwenIt Laravel Auditing
+* ✅ Interfaz modular y administración intuitiva
+* ✅ Compatibilidad total con Laravel 11
+* ✅ Compatible con Redis y PostgreSQL
+* ✅ Preparado para cacheo y entornos productivos
 
 ---
 
-## 🌎 Más información / More Info
+## 📦 Instalación
 
-* [Documentación en Español](README.es.md)
-* [English Documentation](README.en.md)
-* [Sitio Web / Website](https://koneko.mx)
-* [Correo de contacto / Contact email](mailto:opensource@koneko.mx)
+### Opcion 1: Desde Packagist (Recomendado)
+
+```bash
+composer require koneko/laravel-vuexy-admin
+```
+
+### Opcion 2: Desde repositorio Git (GitHub o Tea)
+
+```json
+"repositories": {
+    "koneko/laravel-vuexy-admin": {
+        "type": "vcs",
+        "url": "https://github.com/koneko-mx/laravel-vuexy-admin"
+    }
+}
+```
+
+```bash
+composer require koneko/laravel-vuexy-admin:@dev
+```
+
+---
+
+## 🚀 Uso Básico
+
+```php
+use Koneko\VuexyAdmin\Models\User;
+
+$user = User::create([
+    'name' => 'Juan Pérez',
+    'email' => 'juan@example.com',
+    'password' => bcrypt('secret'),
+]);
+```
+
+---
+
+## 📚 Configuración y Publicación
+
+```bash
+php artisan vendor:publish --tag=vuexy-admin-config
+php artisan vendor:publish --tag=vuexy-admin-seeders
+php artisan migrate --seed
+```
+
+---
+
+## 🌍 Consideraciones Legales
+
+Este proyecto se basa parcialmente en el template **Vuexy Admin Template** de ThemeForest, el cual **no está incluido** en este repositorio. Si deseas utilizar este proyecto en producción, debes adquirir una licencia legal del template a través del siguiente enlace:
+
+👉 [https://themeforest.net/item/vuexy-vuejs-html-laravel-admin-dashboard-template/23328599](https://themeforest.net/item/vuexy-vuejs-html-laravel-admin-dashboard-template/23328599)
+
+Koneko Soluciones Tecnológicas no distribuye ni redistribuye archivos de dicho template. Este repositorio es un paquete Laravel desacoplado con soporte para integrarse con dicho sistema.
+
+---
+
+## 🤝 Contribuciones
+
+Este proyecto es de código abierto bajo la licencia Business Source 1.1 con transición a MIT. Está abierto a contribuciones:
+
+* Puedes comenzar revisando los issues etiquetados como `help wanted` o `good first issue`.
+* Por ahora solo existe la rama `release/beta`, pero se aceptarán mejoras y PRs organizados.
+* Todo el desarrollo principal se realiza en el servidor Git privado de Koneko (`git.koneko.mx`), pero el repositorio en GitHub está sincronizado y abierto para colaboraciones.
+
+✉️ Para propuestas mayores o contacto profesional: `opensource@koneko.mx`
+
+---
+
+## 📚 Documentación y Comunidad
+
+Este paquete forma parte del ecosistema **Koneko ERP Modular**, que incluye:
+
+* `koneko/laravel-vuexy-admin` (este repo)
+* `koneko/laravel-vuexy-website-admin`
+* `koneko/laravel-vuexy-website-layout-porto`
+
+Visita el sitio oficial: [https://koneko.mx](https://koneko.mx)
+
+---
+
+## 🌎 Más información
+
+* [Documentación en inglés](README.en.md)
+* [Sitio Web](https://koneko.mx)
+* [Correo de contacto](mailto:opensource@koneko.mx)
+
+---
+
+## 🏅 License
+
+Este paquete se distribuye bajo la [Licencia Business Source 1.1 personalizada](LICENSE), con transición automática a MIT a los 3 años.
 
 <p align="center">
-    Hecho con ❤️ en México / Made with ❤️ in Mexico
+    Hecho con ❤️ en México por <a href="https://koneko.mx">Koneko Soluciones Tecnológicas</a>
 </p>
