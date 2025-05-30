@@ -1,0 +1,25 @@
+# CODEOWNERS para koneko/laravel-vuexy-admin
+
+# Asignar todos los archivos a Arturo Corro Pacheco (mantenedor principal)
+*       @koneko-mx
+
+# Archivos legales y de documentación
+/LICENSE*               @koneko-mx
+/NOTICE.md              @koneko-mx
+/README*                @koneko-mx
+/CHANGELOG*             @koneko-mx
+/.github/SECURITY.md    @koneko-mx
+/.github/CODE_OF_CONDUCT.md @koneko-mx
+/.github/ISSUE_TEMPLATE/    @koneko-mx
+/.github/PULL_REQUEST_TEMPLATE.md @koneko-mx
+
+# Código principal
+/src/                   @koneko-mx
+/config/                @koneko-mx
+/resources/             @koneko-mx
+/routes/                @koneko-mx
+/tests/                 @koneko-mx
+
+# Archivos del paquete
+/composer.json          @koneko-mx
+/package.json           @koneko-mx

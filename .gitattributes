@@ -5,6 +5,9 @@
 *.blade.php diff=html
 *.css       diff=css
 *.html      diff=html
+*.js        diff=javascript
+*.ts        diff=typescript
+*.vue       diff=html
 *.md        diff=markdown
 *.php       diff=php
 *.json      diff=json
@@ -30,7 +33,8 @@ composer.lock           export-ignore
 package-lock.json       export-ignore
 vite.config.js          export-ignore
 tailwind.config.js      export-ignore
-tests                   export-ignore
+webpack.mix.js          export-ignore
 tests/                  export-ignore
-resources/assets        export-ignore
-resources/sass          export-ignore
+resources/assets/       export-ignore
+resources/sass/         export-ignore
+node_modules            export-ignore

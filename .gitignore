@@ -30,6 +30,7 @@ Homestead.json
 
 # 🧱 Compilación frontend (Vite, Mix, Webpack, Tailwind)
 /node_modules/
+node_modules
 public/build/
 public/hot/
 public/storage/

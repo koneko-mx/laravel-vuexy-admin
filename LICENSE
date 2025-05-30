@@ -1,9 +1,74 @@
+Business Source License 1.1 (Koneko Custom Edition)
+
+Licensor: Koneko Soluciones Tecnológicas
+Licensed Work: laravel-vuexy-admin
+License Effective Date: 2025-05-29
+Change Date: 2028-05-29 (3 years after the Effective Date)
+
+---
+
+## 1. Definitions
+
+**"Licensor"** refers to Koneko Soluciones Tecnológicas, represented legally by Arturo Corro Pacheco (RFC: COPA810622V65).
+
+**"Licensed Work"** refers to the source code of the repository `koneko/laravel-vuexy-admin` hosted at [https://github.com/koneko-mx](https://github.com/koneko-mx) and [https://git.koneko.mx](https://git.koneko.mx).
+
+**"Change Date"** is the date on which this license automatically transitions to the MIT license.
+
+**"Use"**, **"Commercial Use"**, and other terms are interpreted according to common software licensing practices.
+
+---
+
+## 2. Usage Permissions
+
+This software is provided under the Business Source License 1.1 with the following additional conditions:
+
+* **Personal, Educational, Community, and Internal Development Use**: ALLOWED without restrictions.
+* **Commercial Deployment**: ALLOWED ONLY under an active commercial license or a specific agreement with the Licensor.
+* **Profit-oriented Projects (clients, product sales, SaaS, services)**: REQUIRE a commercial license.
+* **Redistribution as part of a commercial product or automated service**: REQUIRES a commercial license.
+
+---
+
+## 3. Automatic Transition to MIT License
+
+On the **Change Date**, this license automatically transitions to the standard MIT License:
+
+```
 MIT License
+Copyright (c) 2025 Koneko Soluciones Tecnológicas
+Permission is hereby granted, free of charge, to any person obtaining a copy...
+```
 
-Copyright (c) 2025 koneko
+---
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+## 4. Contact and Commercial Licensing
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+For commercial licenses, partnerships, contributions, or specific agreements:
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+**Official Email:** [opensource@koneko.mx](mailto:opensource@koneko.mx)
+**Website:** [https://koneko.mx](https://koneko.mx) / [https://erp.koneko.mx](https://erp.koneko.mx)
+
+---
+
+## 5. Important Disclaimers
+
+* This project integrates the **Vuexy template**, which is a paid product. A **valid Themeforest license** is required to legally use it in production.
+* This project does NOT distribute the template, it only facilitates its integration.
+* The licensee is responsible for complying with the terms of use of said template and other third-party dependencies.
+
+---
+
+## 6. Disclaimer of Warranty
+
+This software is provided "AS IS", without any warranty. The Licensor is not liable for any direct or indirect damages resulting from the use of this software.
+
+---
+
+## 7. Contributions
+
+Contributions to this repository must follow the policies defined in `CONTRIBUTING.md`. By submitting code, you agree to license it under the same terms of this license.
+
+---
+
+Copyright (c) 2025 - Koneko Soluciones Tecnológicas
