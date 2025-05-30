@@ -1,4 +1,4 @@
-# 🎨 Laravel Vuexy Admin
+# ⚙️ Laravel Vuexy Admin
 
 <p align="center">
     <a href="https://koneko.mx" target="_blank">
@@ -119,17 +119,29 @@ Visit our official site: [https://koneko.mx](https://koneko.mx)
 
 ---
 
-## 🏅 License
+## 🛠️ Requirements
 
-This package is licensed under the [custom Business Source License 1.1](LICENSE), transitioning to MIT after 3 years.
+* PHP `^8.2`
+* Laravel `^11.31`
+* Node + Vite for SCSS customization (optional but recommended)
 
 ---
 
-## 🌎 More Information
+## 📄 License
 
-* [Documentation in Spanish](README.es.md)
-* [Koneko Official Website](https://koneko.mx)
+This package is licensed under the [custom Business Source License 1.1](LICENSE), transitioning to MIT after 3 years. For commercial usage, redistribution, or extended usage, please contact:
+
+📧 [opensource@koneko.mx](mailto:opensource@koneko.mx)
+
+---
+
+## 📚 More Information
+
+* [Documentation in Spanish](README.md)
+* [Koneko ST Official Website](https://koneko.mx)
 * [Contact Email](mailto:opensource@koneko.mx)
+
+---
 
 <p align="center">
     Made with ❤️ in Mexico by <a href="https://koneko.mx">Koneko Soluciones Tecnológicas</a>
