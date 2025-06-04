@@ -35,6 +35,6 @@ vite.config.js          export-ignore
 tailwind.config.js      export-ignore
 webpack.mix.js          export-ignore
 tests/                  export-ignore
-resources/assets/       export-ignore
-resources/sass/         export-ignore
+#resources/assets/       export-ignore
+#resources/sass/         export-ignore
 node_modules            export-ignore
