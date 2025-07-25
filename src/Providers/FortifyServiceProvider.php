@@ -12,6 +12,7 @@ use Koneko\VuexyAdmin\Application\Auth\Actions\Fortify\{CreateNewUser, ResetUser
 use Koneko\VuexyAdmin\Application\Cache\Builders\KonekoAdminVarsBuilder;
 use Koneko\VuexyAdmin\Models\User;
 use Laravel\Fortify\Fortify;
+use Illuminate\Support\Facades\Schema;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -28,6 +29,10 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (! Schema::hasTable('settings')) {
+            return;
+        }
+
         Fortify::createUsersUsing(CreateNewUser::class);
         Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);

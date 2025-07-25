@@ -102,7 +102,7 @@ trait HasBaseContext
     public function setEnvironment(?string $environment = null): static
     {
         $this->context['environment'] = $environment
-            ? $this->validateSlug('environment', $environment, 7)
+            ? $this->validateSlug('environment', $environment, 10)
             : app()->environment();
         return $this;
     }

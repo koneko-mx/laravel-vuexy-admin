@@ -17,7 +17,7 @@ return new class extends Migration {
 
             // Contexto completo del setting
             $table->string('namespace', 8)->index();                         // Ej. 'koneko'
-            $table->string('environment', 7)->default('prod')->index();      // prod, dev, staging, test
+            $table->string('environment', 10)->default('production')->index();      // production, development, staging, test
             $table->string('component', 16)->index();                        // Ej. 'vuexy-admin'
             $table->string('module')->nullable()->index();                   // composerName del módulo
 

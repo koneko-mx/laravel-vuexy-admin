@@ -64,7 +64,7 @@ final class SettingCacheKeyBuilder
     public static function forUser(
         string $namespace,
         Authenticatable|int|null $user,
-        string $environment = 'prod',
+        string $environment = 'production',
         string $component   = CoreModule::COMPONENT,
         string $group       = SettingDefaults::DEFAULT_GROUP,
         string $section     = SettingDefaults::DEFAULT_SECTION,
