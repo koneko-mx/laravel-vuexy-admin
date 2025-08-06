@@ -6,7 +6,7 @@ namespace Koneko\VuexyAdmin\Application\UX\ConfigBuilders\Users;
 
 use Illuminate\Support\Facades\DB;
 use Koneko\VuexyAdmin\Models\UserLogin;
-use Koneko\VuexyAdmin\Support\Builders\AbstractTableConfigBuilder;
+use Koneko\VuexyAdmin\Support\Builders\Table\AbstractTableConfigBuilder;
 
 /**
  * Configuración de la vista indexada para registros de inicio de sesión de usuarios.

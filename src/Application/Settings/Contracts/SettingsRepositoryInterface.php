@@ -21,11 +21,10 @@ interface SettingsRepositoryInterface
 
     // ==================== Context ====================
 
-    public function setNamespace(string $namespace): static;
     public function setEnvironment(string $environment): static;
     public function setComponent(string $component): static;
 
-    public function context(string $group, ?string $section = null, ?string $subGroup = null): static;
+    public function context(?string $group = null, ?string $section, ?string $subGroup = 'default'): static;
     public function setContextArray(array $context): static;
 
     public function setScope(Model|string|false $scope, int|null|false $scopeId = false): static;
@@ -79,6 +78,8 @@ interface SettingsRepositoryInterface
     public function set(mixed $value, ?string $keyName = null): void;
     public function get(?string $keyName = null, mixed $default = null): mixed;
     public function delete(string $qualifiedKey): void;
+    public function all(): Collection|array;
+
     public function deleteByContext(): int;
     public function deleteGroup(): int;
     public function deleteSubGroup(): int;

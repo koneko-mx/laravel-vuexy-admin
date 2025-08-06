@@ -51,6 +51,8 @@ trait HasContextQueryBuilder
             });
         }
 
+
+
         return $query;
     }
 
@@ -86,6 +88,8 @@ trait HasContextQueryBuilder
     protected function queryByGroup(): Builder
     {
         return $this->applyContextFilters($this->newQuery(), [
+            'namespace' => true,
+            'environment' => true,
             'scope' => true,
             'scope_id' => true,
             'component' => true,
@@ -96,6 +100,8 @@ trait HasContextQueryBuilder
     protected function queryBySection(): Builder
     {
         return $this->applyContextFilters($this->newQuery(), [
+            'namespace' => true,
+            'environment' => true,
             'scope' => true,
             'scope_id' => true,
             'component' => true,
@@ -107,6 +113,8 @@ trait HasContextQueryBuilder
     protected function queryBySubGroup(): Builder
     {
         return $this->applyContextFilters($this->newQuery(), [
+            'namespace' => true,
+            'environment' => true,
             'scope' => true,
             'scope_id' => true,
             'component' => true,

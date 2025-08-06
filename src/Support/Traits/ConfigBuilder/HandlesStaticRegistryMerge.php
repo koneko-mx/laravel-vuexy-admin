@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Koneko\VuexyAdmin\Application\Traits\Indexing;
+namespace Koneko\VuexyAdmin\Support\Traits\ConfigBuilder;
 
 use Koneko\VuexyAdmin\Application\Bootstrap\Extenders\Model\ModelExtensionRegistry;
 

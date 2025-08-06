@@ -35,9 +35,9 @@ final class KonekoSettingManager implements SettingsRepositoryInterface
 
     public function __construct()
     {
-        $this->setNamespace(CoreModule::NAMESPACE)
+        $this->setNamespace()
             ->setEnvironment()
-            ->setComponent(CoreModule::COMPONENT)
+            ->setComponent(CoreModule::class)
             ->setGroup(SettingDefaults::DEFAULT_GROUP)
             ->setSection(SettingDefaults::DEFAULT_SECTION)
             ->setSubGroup(SettingDefaults::DEFAULT_SUB_GROUP);
@@ -80,11 +80,11 @@ final class KonekoSettingManager implements SettingsRepositoryInterface
 
     public function set(mixed $value, ?string $keyName = null): void
     {
-        $this->validateContextWithScope();
-
         if ($keyName) {
             $this->setKeyName($keyName);
         }
+
+        $this->validateContextWithScope();
 
         $qualifiedKey = $this->qualifiedKey();
 
@@ -194,6 +194,43 @@ final class KonekoSettingManager implements SettingsRepositoryInterface
         $this->getCacheManager()->setKeyName($qualifiedKey)->forget();
     }
 
+    public function all(): Collection|array
+    {
+        // Shortcut si la tabla no existe
+        if ($this->isTableNotExists()) {
+            return $this->asArray ? [] : collect();
+        }
+
+        $query = $this->settingModel::query();
+
+        // Filtra usando el contexto actual
+        foreach ($this->context as $field => $value) {
+            if (!is_null($value)) {
+                $query->where($field, $value);
+            }
+        }
+
+        // Siempre filtra activos, a menos que se indique lo contrario
+        if (!$this->includeDisabled) {
+            $query->where('is_active', true);
+        }
+
+        if (!$this->includeExpired) {
+            $query->where(function ($q) {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
+            });
+        }
+
+        // Devuelve como array clave/valor si así se pidió
+        $result = $query->get();
+
+        if ($this->asArray) {
+            return $result->mapWithKeys(fn($s) => [$s->key_name => $s->value])->toArray();
+        }
+
+        return $result;
+    }
+
     public function deleteByContext(): int
     {
         $this->validateContextWithScope();
@@ -268,7 +305,6 @@ final class KonekoSettingManager implements SettingsRepositoryInterface
 
     // ======================= HELPERS =========================
 
-
     public function queryForModel(): ?Model
     {
         return $this->queryByKey()->first();
@@ -296,8 +332,6 @@ final class KonekoSettingManager implements SettingsRepositoryInterface
             'expires_at' => now(),
         ]);
     }
-
-
 
 
     public function has(string $qualifiedKey): bool

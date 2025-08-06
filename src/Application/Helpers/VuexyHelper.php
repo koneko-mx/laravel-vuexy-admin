@@ -202,7 +202,7 @@ class VuexyHelper
     {
         if (isset($pageConfigs)) {
             if (count($pageConfigs) > 0) {
-                $config_path = CoreModule::NAMESPACE . '.' . CoreModule::COMPONENT . '.layout.vuexy.';
+                $config_path = 'koneko.core.layout.vuexy.';
 
                 foreach ($pageConfigs as $config => $val) {
                     Config::set($config_path . $config, $val);

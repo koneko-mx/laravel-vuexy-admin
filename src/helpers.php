@@ -39,13 +39,13 @@ if (!function_exists('Helper')) {
 // =================== CONFIG ===================
 
 if (!function_exists('config_m')) {
-    function config_m(?string $moduleComponent = null): ConfigRepositoryInterface
+    function config_m(?string $component = null): ConfigRepositoryInterface
     {
         $manager = KonekoConfigManager::make();
 
         // Componente o Clase de Modulo
-        if ($moduleComponent) {
-            $manager->setComponent($moduleComponent);
+        if ($component) {
+            $manager->setComponent($component);
         }
 
         return $manager;
@@ -59,20 +59,19 @@ if (!function_exists('settings')) {
     /**
      * Devuelve una instancia de SettingsManager con contexto aplicado automáticamente.
      *
-     * @param  string|array|Model|null  $context
+     * @param  string|Model|null  $component
      * - string: asume solo componente.
-     * - array: se mapea a component, group, sub_group, section, key_name, etc.
      * - Model: se intenta extraer scope con `withScopeFromModel()`.
      *
      * @return SettingsRepositoryInterface
      */
-    function settings(?string $moduleComponent = null): SettingsRepositoryInterface
+    function settings(?string $component = null): SettingsRepositoryInterface
     {
         $manager = KonekoSettingManager::make();
 
         // Componente o Clase de Modulo
-        if ($moduleComponent) {
-            $manager->setComponent($moduleComponent);
+        if ($component) {
+            $manager->setComponent($component);
         }
 
         return $manager;
@@ -91,16 +90,16 @@ if (!function_exists('cache_m')) {
      * - `cache_m(['component' => 'site', 'group' => 'seo', 'key_name' => 'enabled'])`
      * - `cache_m($empresaModel)`
      *
-     * @param string|array|Model|null $context
+     * @param string|Model|null $component
      * @return CacheRepositoryInterface
      */
-    function cache_m(?string $moduleComponent = null): CacheRepositoryInterface
+    function cache_m(?string $component = null): CacheRepositoryInterface
     {
         $manager = KonekoCacheManager::make();
 
         // Componente o Clase de Modulo
-        if ($moduleComponent) {
-            $manager->setComponent($moduleComponent);
+        if ($component) {
+            $manager->setComponent($component);
         }
 
         return $manager;

@@ -16,11 +16,10 @@ interface ConfigRepositoryInterface
 
     // ==================== Context ====================
 
-    public function setNamespace(string $namespace): static;
     public function setEnvironment(?string $environment = null): static;
     public function setComponent(string $component): static;
 
-    public function context(string $group, ?string $section = null, ?string $subGroup = null): static;
+    public function context(?string $group = null, ?string $section, ?string $subGroup = 'default'): static;
     public function setContextArray(array $context): static;
 
     public function setScope(Model|string|false $scope, int|null|false $scopeId = false): static;

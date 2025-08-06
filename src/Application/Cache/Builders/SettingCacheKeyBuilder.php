@@ -8,7 +8,7 @@ use Koneko\VuexyAdmin\Application\CoreModule;
 
 final class SettingCacheKeyBuilder
 {
-    private const MAX_KEY_LENGTH = 120;
+    private const MAX_KEY_LENGTH = 64;
 
     /**
      * Construye una clave canónica de cache para un setting.
@@ -16,7 +16,7 @@ final class SettingCacheKeyBuilder
     public static function build(
         string $namespace,
         string $environment = 'local',
-        ?string $scope     = null,
+        ?string $scope    = null,
         int|string|null $scopeId = null,
         string $component = CoreModule::COMPONENT,
         string $group     = SettingDefaults::DEFAULT_GROUP,

@@ -145,5 +145,4 @@ class BootstrapTableQueryBuilder
             'rows' => $rows,
         ]);
     }
-
 }

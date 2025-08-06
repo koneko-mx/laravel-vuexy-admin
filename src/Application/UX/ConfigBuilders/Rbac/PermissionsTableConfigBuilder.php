@@ -6,7 +6,7 @@ namespace Koneko\VuexyAdmin\Application\UX\ConfigBuilders\Rbac;
 
 use Illuminate\Support\Facades\DB;
 use Koneko\VuexyAdmin\Models\PermissionMeta;
-use Koneko\VuexyAdmin\Support\Builders\AbstractTableConfigBuilder;
+use Koneko\VuexyAdmin\Support\Builders\Table\AbstractTableConfigBuilder;
 
 class PermissionsTableConfigBuilder extends AbstractTableConfigBuilder
 {
@@ -26,11 +26,11 @@ class PermissionsTableConfigBuilder extends AbstractTableConfigBuilder
         return [
             'permissions.id',
             'permissions.name',
-            'permissions.group_name',
-            'permissions.sub_group_name',
+            DB::raw("(SELECT GROUP_CONCAT(roles.name SEPARATOR '|') as roles FROM role_has_permissions INNER JOIN roles ON (role_has_permissions.role_id = roles.id) WHERE role_has_permissions.permission_id = permissions.id) as roles"),
+            'permissions.label',
+            'permissions.ui_metadata',
             'permissions.action',
             'permissions.guard_name',
-            DB::raw("(SELECT GROUP_CONCAT(roles.name SEPARATOR '|') as roles FROM role_has_permissions INNER JOIN roles ON (role_has_permissions.role_id = roles.id) WHERE role_has_permissions.permission_id = permissions.id) as roles"),
             'permissions.created_at',
             'permissions.updated_at',
         ];
@@ -45,11 +45,11 @@ class PermissionsTableConfigBuilder extends AbstractTableConfigBuilder
         return [
             'action'         => 'Acciones',
             'name'           => 'Permiso',
-            'group_name'     => 'Grupo',
-            'sub_group_name' => 'Sub grupo',
+            'roles'          => 'Roles',
+            'label'          => 'Etiqueta',
+            'ui_metadata'    => 'Metadata',
             'action'         => 'Acción',
             'guard_name'     => 'Guardia',
-            'roles'          => 'Roles',
             'created_at'     => 'Creado',
             'updated_at'     => 'Actualizado',
         ];
@@ -80,12 +80,6 @@ class PermissionsTableConfigBuilder extends AbstractTableConfigBuilder
                 'onlyFormatter' => true,
             ],
             'name' => [
-                'formatter' => 'textNowrapFormatter',
-            ],
-            'group_name' => [
-                'formatter' => 'textNowrapFormatter',
-            ],
-            'sub_group_name' => [
                 'formatter' => 'textNowrapFormatter',
             ],
             'roles' => [

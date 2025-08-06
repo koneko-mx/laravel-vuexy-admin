@@ -59,7 +59,7 @@ class PermissionMeta extends Permission
             return $this->label[$locale] ?? $this->label['es'] ?? $this->name;
         }
 
-        return $this->label ?? $this->name;
+        return (string) $this->label ?? $this->name;
     }
 
     public function getActionLabel(): string

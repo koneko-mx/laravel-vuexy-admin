@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Koneko\VuexyAdmin\Application\UI\Livewire\Settings\VuexyInterface;
 
+use Koneko\VuexyAdmin\Application\Cache\Builders\KonekoVuexyCustomizerVarsBuilder;
 use Koneko\VuexyAdmin\Application\Events\Settings\VuexyCustomizerSettingsUpdated;
-use Koneko\VuexyAdmin\Application\Cache\Builders\KonekoAdminVarsBuilder;
 use Livewire\Component;
 
 class VuexyInterfaceIndex extends Component
@@ -64,7 +64,7 @@ class VuexyInterfaceIndex extends Component
     public function clearCustomConfig()
     {
         // Elimina las claves koneko.admin.vuexy.* para cargar los valores por defecto
-        KonekoAdminVarsBuilder::deleteVuexyCustomizerVars();
+        app(KonekoVuexyCustomizerVarsBuilder::class)->clear();
 
         // Refrescar el componente actual
         $this->dispatch('refreshAndNotify');
@@ -73,7 +73,8 @@ class VuexyInterfaceIndex extends Component
     public function loadForm()
     {
         // Obtener los valores de las configuraciones de la base de datos
-        $settings = app(KonekoAdminVarsBuilder::class)->getVuexyCustomizerVars();
+        $settings = app(KonekoVuexyCustomizerVarsBuilder::class)->get();
+dump($settings);
 
         $this->vuexy_myLayout            = $settings['myLayout'];
         $this->vuexy_myTheme             = $settings['myTheme'];

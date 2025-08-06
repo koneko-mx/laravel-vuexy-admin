@@ -6,7 +6,7 @@ namespace Koneko\VuexyAdmin\Application\UX\ConfigBuilders\System;
 
 use Illuminate\Support\Facades\DB;
 use Koneko\VuexyAdmin\Models\Setting;
-use Koneko\VuexyAdmin\Support\Builders\AbstractTableConfigBuilder;
+use Koneko\VuexyAdmin\Support\Builders\Table\AbstractTableConfigBuilder;
 
 /**
  * Configuración de la vista indexada para parámetros y configuraciones (`settings`) del sistema.
@@ -28,27 +28,56 @@ class EnvironmentVarsTableConfigBuilder extends AbstractTableConfigBuilder
     public static function getIndexColumns(): array
     {
         return [
-            'settings.id',
             'settings.key',
+            'settings.namespace',
+            'settings.environment',
+            'settings.component',
             'settings.module',
-            'settings.user_id',
-            DB::raw('CONCAT_WS(" ", users.name, users.last_name) AS user_name'),
-            'users.email AS user_email',
-            'users.profile_photo_path AS user_profile_photo_path',
+            'settings.scope',
+            'settings.scope_id',
+            'settings.group',
+            'settings.section',
+            'settings.sub_group',
+            'settings.key_name',
+            'settings.is_system',
+            'settings.is_sensitive',
+            'settings.is_file',
+            'settings.is_encrypted',
+            'settings.is_config',
+            'settings.is_editable',
+            'settings.is_track_usage',
+            'settings.is_should_cache',
+            'settings.is_active',
+            'settings.mime_type',
+            'settings.file_name',
+            'settings.encryption_algorithm',
+            'settings.encryption_key',
+            'settings.encryption_rotated_at',
+            'settings.expires_at',
+            'settings.usage_count',
+            'settings.last_used_at',
+            'settings.cache_ttl',
+            'settings.cache_expires_at',
+            'settings.description',
+            'settings.hint',
             'settings.value_string',
             'settings.value_integer',
             'settings.value_boolean',
             'settings.value_float',
             DB::raw('LENGTH(settings.value_text) as value_text_length'),
             DB::raw('OCTET_LENGTH(settings.value_binary) AS value_binary_length'),
-            'settings.mime_type',
-            'settings.file_name',
+
             'settings.created_at',
-            'settings.updated_at',
-            'settings.updated_by',
+            'creator.id AS creator_id',
             DB::raw('CONCAT_WS(" ", creator.name, creator.last_name) AS creator_name'),
             'creator.email AS creator_email',
             'creator.profile_photo_path AS creator_profile_photo_path',
+
+            'settings.updated_at',
+            'updater.id AS updater_id',
+            DB::raw('CONCAT_WS(" ", updater.name, updater.last_name) AS updater_name'),
+            'updater.email AS updater_email',
+            'updater.profile_photo_path AS updater_profile_photo_path',
         ];
     }
 
@@ -61,20 +90,47 @@ class EnvironmentVarsTableConfigBuilder extends AbstractTableConfigBuilder
         return [
             'action'              => 'Acciones',
             'key'                 => 'Clave',
-            'module'              => 'modulo',
-            'user_id'             => 'Usuario',
-            'value_string'        => 'Texto corto',
-            'value_integer'       => 'Entero',
-            'value_boolean'       => 'Activo',
-            'value_float'         => 'Decimal',
-            'value_text_length'   => 'Texto largo',
-            'value_binary_length' => 'Archivo (Tamaño)',
+            'namespace'           => 'Namespace',
+            'environment'         => 'Entorno',
+            'component'           => 'Componente',
+            'module'              => 'Modulo',
+            'scope'               => 'Scope',
+            'scope_id'            => 'Scope ID',
+            'group'               => 'Grupo',
+            'section'             => 'Sección',
+            'sub_group'           => 'Sub Grupo',
+            'key_name'            => 'Nombre',
+            'is_system'           => 'Sistema',
+            'is_sensitive'        => 'Sensible',
+            'is_file'             => 'Archivo',
+            'is_encrypted'        => 'Encriptado',
+            'is_config'           => 'Config',
+            'is_editable'         => 'Editable',
+            'is_track_usage'      => 'Seguimiento',
+            'is_should_cache'     => 'Cache',
+            'is_active'           => 'Activo',
             'mime_type'           => 'Tipo MIME',
             'file_name'           => 'Archivo',
+            'encryption_algorithm'=> 'Algoritmo',
+            'encryption_key'      => 'Clave',
+            'encryption_rotated_at'=> 'Rotado',
+            'expires_at'          => 'Expira',
+            'usage_count'         => 'Uso',
+            'last_used_at'        => 'Ultimo Uso',
+            'cache_ttl'           => 'Cache TTL',
+            'cache_expires_at'    => 'Cache Expira',
+            'description'         => 'Descripcion',
+            'hint'                => 'Ayuda',
+            'value_string'        => 'Texto',
+            'value_integer'       => 'Entero',
+            'value_boolean'       => 'Booleano',
+            'value_float'         => 'Decimal',
+            'value_text_length'   => 'Texto Largo',
+            'value_binary_length' => 'Archivo (Tamaño)',
             'created_at'          => 'Creado',
-            'created_by'          => 'Creado por',
+            'creator_id'          => 'Creado por',
             'updated_at'          => 'Actualizado',
-            'created_by'          => 'Modificado por',
+            'updater_id'          => 'Modificado por',
         ];
     }
 
@@ -84,8 +140,8 @@ class EnvironmentVarsTableConfigBuilder extends AbstractTableConfigBuilder
     public static function getIndexJoins(): array
     {
         return [
-            ["users", "users.id", "=", "settings.user_id", ["type" => "leftJoin"]],
             ["users AS creator", "settings.created_by", "=", "creator.id", ["type" => "leftJoin"]],
+            ["users AS updater", "settings.updated_by", "=", "updater.id", ["type" => "leftJoin"]],
         ];
     }
 
@@ -97,15 +153,6 @@ class EnvironmentVarsTableConfigBuilder extends AbstractTableConfigBuilder
         return [
             'search' => [
                 'settings.key',
-                'settings.module',
-                'users.name',
-                'users.last_name',
-                'users.email',
-                'creator.name',
-                'creator.last_name',
-                'value_string',
-                'mime_type',
-                'file_name',
             ],
         ];
     }
@@ -124,8 +171,8 @@ class EnvironmentVarsTableConfigBuilder extends AbstractTableConfigBuilder
             'module' => [
                 'formatter' => 'textNowrapFormatter',
             ],
-            'user_id' => [
-                'formatter' => 'userProfileFormatter',
+            'creator_id' => [
+                'formatter' => 'creatorProfileFormatter',
             ],
             'value_boolean' => [
                 'formatter' => 'dynamicBooleanFormatter',
@@ -142,7 +189,7 @@ class EnvironmentVarsTableConfigBuilder extends AbstractTableConfigBuilder
                 'formatter' => 'dateClassicFormatter',
                 'align'     => 'center',
             ],
-            'created_by' => [
+            'creator_id' => [
                 'formatter' => 'creatorProfileFormatter',
                 'visible'   => false,
             ],
@@ -150,7 +197,7 @@ class EnvironmentVarsTableConfigBuilder extends AbstractTableConfigBuilder
                 'formatter' => 'dateClassicFormatter',
                 'align'     => 'center',
             ],
-            'updated_by' => [
+            'updater_id' => [
                 'formatter' => 'updaterProfileFormatter',
                 'visible'   => false,
             ],

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Koneko\VuexyAdmin\Application\Traits\Indexing;
+namespace Koneko\VuexyAdmin\Application\Traits\ConfigBuilder;
 
 /**
  * Trait para configurar la tabla Bootstrap o equivalentes.

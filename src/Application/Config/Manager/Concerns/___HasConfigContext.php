@@ -12,7 +12,7 @@ trait __HasConfigContext
 
     protected function validateKeyName(string $keyName): string
     {
-        if (!preg_match('/^[a-zA-Z0-9]+$/', $keyName)) {
+        if (!preg_match('/^[a-zA-Z0-9-._]+$/', $keyName)) {
             throw new \InvalidArgumentException("El valor '{$keyName}' de 'keyName' debe ser un slug válido.");
         }
 

@@ -2,21 +2,17 @@
 
 namespace Koneko\VuexyAdmin\Application\Cache\Builders;
 
-use Koneko\VuexyAdmin\Application\Settings\Contracts\SettingsRepositoryInterface;
-use Koneko\VuexyAdmin\Application\Settings\Manager\KonekoSettingManager;
+use Koneko\VuexyAdmin\Application\UX\ImageHandler\WebAdminImageHandler;
 
 /**
  * 🎛️ Builder de variables administrativas para el layout de administración.
- * - Fuente primaria: settings globales (namespace 'koneko.core.layout.admin')
  * - Permite override explícito por usuario autenticado.
  */
 class KonekoAdminVarsBuilder
 {
-    public function __construct(
-        protected SettingsRepositoryInterface $settings
-    ) {
-        $this->settings->setGroup('layout');
-    }
+    private $group   = 'layout';
+    private $section = 'admin';
+    private $keyName = 'meta';
 
     /**
      * Devuelve las variables visuales del layout administrativo.
@@ -24,9 +20,9 @@ class KonekoAdminVarsBuilder
      */
     public function get(): array
     {
-        return $this->settings
-            ->setSection('admin')
-            ->setKeyName('meta')
+        return settings()
+            ->context($this->group, $this->section)
+            ->setKeyName($this->keyName)
             ->remember(fn () => $this->resolveAdminVars());
     }
 
@@ -35,24 +31,10 @@ class KonekoAdminVarsBuilder
      */
     public function clear(): void
     {
-        $this->settings
-            ->setSection('admin')
-            ->forgetCache('meta');
+        settings()
+            ->context($this->group, $this->section)
+            ->forgetCache($this->keyName);
     }
-
-    /**
-     * Devuelve metainformación del contexto del builder (debug, auditoría).
-     */
-    /*
-    public function info(): array
-    {
-        return [
-            'context' => $this->settings->getContext(),
-            'cache_key' => $this->settings->cacheKey('meta'),
-            'source' => 'config + settings + optional user override',
-        ];
-    }
-    */
 
     /**
      * Construye el array de variables administrativas del layout.
@@ -60,17 +42,17 @@ class KonekoAdminVarsBuilder
      */
     protected function resolveAdminVars(): array
     {
-        $base = $this->settings
-            ->setSection('admin')
+        $base = settings()
+            ->context($this->group, $this->section, null)
             ->asArray()
-            ->getSubGroup();
+            ->all();
 
         return [
-            'title'       => $base['title'] ?? config_m()->get('layout.admin.title', 'Koneko Admin'),
-            'author'      => $base['author'] ?? config_m()->get('layout.admin.author', 'Default Author'),
-            'description' => $base['description'] ?? config_m()->get('layout.admin.description', 'Default Description'),
+            'title'       => $base['title'] ?? config('koneko.title', 'Koneko Admin'),
+            'author'      => $base['author'] ?? config('koneko.author', 'Default Author'),
+            'description' => $base['description'] ?? config('koneko.description', 'Default Description'),
             'favicon'     => $this->buildFaviconPaths($base),
-            'app_name'    => $base['app_name'] ?? config_m()->get('app_name', 'Koneko Admin'),
+            'app_name'    => $base['app_name'] ?? config('koneko.app_name', 'Koneko Admin'),
             'image_logo'  => $this->buildImageLogoPaths($base),
         ];
     }
@@ -80,9 +62,11 @@ class KonekoAdminVarsBuilder
      */
     protected function buildFaviconPaths(array $settings): array
     {
-        $ns = $settings['favicon_ns'] ?? null;
+        $ns = isset($settings['favicon_ns']) && $settings['favicon_ns']
+            ? WebAdminImageHandler::FAVICON_BASE_PATH . $settings['favicon_ns']
+            : '';
 
-        $default = config_m()->get('favicon', 'favicon.ico');
+        $default = config('koneko.favicon', 'favicon.ico');
 
         return [
             'namespace' => $ns,
@@ -100,15 +84,16 @@ class KonekoAdminVarsBuilder
      */
     protected function buildImageLogoPaths(array $settings): array
     {
-        $default = config_m()->get('app_logo', 'logo-default.png');
+        $default = config('koneko.app_logo', 'logo-default.png');
+        $path = WebAdminImageHandler::LOGO_BASE_PATH;
 
         return [
-            'small'       => $settings['image_logo_small'] ?? $default,
-            'medium'      => $settings['image_logo_medium'] ?? $default,
-            'large'       => $settings['image_logo'] ?? $default,
-            'small_dark'  => $settings['image_logo_small_dark'] ?? $default,
-            'medium_dark' => $settings['image_logo_medium_dark'] ?? $default,
-            'large_dark'  => $settings['image_logo_dark'] ?? $default,
+            'small'       => isset($settings['image_logo_small'])          ? $path . $settings['image_logo_small']          : $default,
+            'medium'      => isset($settings['image_logo_medium'])         ? $path . $settings['image_logo_medium']         : $default,
+            'large'       => isset($settings['image_logo'])                ? $path . $settings['image_logo']                : $default,
+            'small_dark'  => isset($settings['image_logo_small_dark'])     ? $path . $settings['image_logo_small_dark']     : $default,
+            'medium_dark' => isset($settings['image_logo_medium_dark'])    ? $path . $settings['image_logo_medium_dark']    : $default,
+            'large_dark'  => isset($settings['image_logo_dark'])           ? $path . $settings['image_logo_dark']           : $default,
         ];
     }
 }

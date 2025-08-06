@@ -6,7 +6,7 @@ namespace Koneko\VuexyAdmin\Application\UX\ConfigBuilders\System;
 
 use Illuminate\Support\Facades\DB;
 use Koneko\VuexyAdmin\Models\SecurityEvent;
-use Koneko\VuexyAdmin\Support\Builders\AbstractTableConfigBuilder;
+use Koneko\VuexyAdmin\Support\Builders\Table\AbstractTableConfigBuilder;
 
 class SecurityEventsTableConfigBuilder extends AbstractTableConfigBuilder
 {

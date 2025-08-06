@@ -7,8 +7,8 @@ namespace Koneko\VuexyAdmin\Application\UX\ConfigBuilders\Users;
 use Koneko\VuexyAdmin\Models\User;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use Koneko\VuexyAdmin\Support\Builders\AbstractTableConfigBuilder;
-use Koneko\VuexyAdmin\Application\Traits\Indexing\HandlesStaticRegistryMerge;
+use Koneko\VuexyAdmin\Support\Builders\Table\AbstractTableConfigBuilder;
+use Koneko\VuexyAdmin\Support\Traits\ConfigBuilder\HandlesStaticRegistryMerge;
 
 /**
  * UsersTableConfigBuilder

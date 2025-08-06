@@ -171,7 +171,7 @@ abstract class AbstractDataSeeder extends Seeder
             $this->processedCount++;
 
         } catch (Throwable $e) {
-            $this->log("⚠️ Error al procesar fila: " . json_encode($row) . " → {$e->getMessage()}");
+            $this->log("⚠️  Error al procesar fila: " . json_encode($row) . " → {$e->getMessage()}");
         }
     }
 

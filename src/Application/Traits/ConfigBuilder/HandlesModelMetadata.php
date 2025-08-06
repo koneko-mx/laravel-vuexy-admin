@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Koneko\VuexyAdmin\Application\Traits\Indexing;
+namespace Koneko\VuexyAdmin\Application\Traits\ConfigBuilder;
 
 use Illuminate\Database\Eloquent\Model;
 use Koneko\VuexyAdmin\Support\Traits\Model\HasVuexyModelMetadata;

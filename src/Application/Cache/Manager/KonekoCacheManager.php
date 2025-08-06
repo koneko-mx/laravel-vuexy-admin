@@ -15,7 +15,7 @@ final class KonekoCacheManager implements CacheRepositoryInterface
 
     public function __construct()
     {
-        $this->setNamespace(CoreModule::NAMESPACE)
+        $this->setNamespace()
             ->setEnvironment()
             ->setComponent(CoreModule::COMPONENT);
     }

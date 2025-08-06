@@ -61,12 +61,11 @@ class FortifyServiceProvider extends ServiceProvider
         // Obtiene el modo de vista de autenticación
         $viewMode = config_m()->get('layout.vuexy.authViewMode', 'cover');
 
-        // Share defaults for Fortify views (important!)
-        view()->share(['_admin' => app(KonekoAdminVarsBuilder::class)->get()]);
-
         // Configurar la vista del login
         Fortify::loginView(function () use ($viewMode) {
             $pageConfigs = ['myLayout' => 'blank'];
+
+            view()->share(['_admin' => app(KonekoAdminVarsBuilder::class)->get()]);
 
             return view("vuexy-admin::auth.login-{$viewMode}", ['pageConfigs' => $pageConfigs]);
         });
@@ -75,6 +74,8 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::registerView(function () use ($viewMode) {
             $pageConfigs = ['myLayout' => 'blank'];
 
+            view()->share(['_admin' => app(KonekoAdminVarsBuilder::class)->get()]);
+
             return view("vuexy-admin::auth.register-{$viewMode}", ['pageConfigs' => $pageConfigs]);
         });
 
@@ -82,23 +83,33 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::requestPasswordResetLinkView(function () use ($viewMode) {
             $pageConfigs = ['myLayout' => 'blank'];
 
+            view()->share(['_admin' => app(KonekoAdminVarsBuilder::class)->get()]);
+
             return view("vuexy-admin::auth.forgot-password-{$viewMode}", ['pageConfigs' => $pageConfigs]);
         });
 
         Fortify::resetPasswordView(function ($request) use ($viewMode) {
             $pageConfigs = ['myLayout' => 'blank'];
 
+            view()->share(['_admin' => app(KonekoAdminVarsBuilder::class)->get()]);
+
             return view("vuexy-admin::auth.reset-password-{$viewMode}", ['pageConfigs' => $pageConfigs, 'request' => $request]);
         });
 
         // Vista de verificación de correo electrónico
         Fortify::verifyEmailView(function () use ($viewMode) {
-            return view("vuexy-admin::auth.verify-email-{$viewMode}");
+            $pageConfigs = ['myLayout' => 'blank'];
+
+            view()->share(['_admin' => app(KonekoAdminVarsBuilder::class)->get()]);
+
+            return view("vuexy-admin::auth.verify-email-{$viewMode}", ['pageConfigs' => $pageConfigs]);
         });
 
         // Vista de confirmación de contraseña
         Fortify::confirmPasswordView(function () use ($viewMode) {
             $pageConfigs = ['myLayout' => 'blank'];
+
+            view()->share(['_admin' => app(KonekoAdminVarsBuilder::class)->get()]);
 
             return view("vuexy-admin::auth.confirm-password-{$viewMode}", ['pageConfigs' => $pageConfigs]);
         });
@@ -106,6 +117,8 @@ class FortifyServiceProvider extends ServiceProvider
         // Configurar la vista para la verificación de dos factores
         Fortify::twoFactorChallengeView(function () use ($viewMode) {
             $pageConfigs = ['myLayout' => 'blank'];
+
+            view()->share(['_admin' => app(KonekoAdminVarsBuilder::class)->get()]);
 
             return view("vuexy-admin::auth.two-factor-challenge-{$viewMode}", ['pageConfigs' => $pageConfigs]);
         });

@@ -6,7 +6,6 @@ namespace Koneko\VuexyAdmin\Application\UX\ImageHandler;
 
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
-use Koneko\VuexyAdmin\Application\Settings\Contracts\SettingsRepositoryInterface;
 
 /**
  * Servicio para gestionar favicon y logos administrativos.
@@ -15,18 +14,17 @@ class WebAdminImageHandler
 {
     private string $driver;
     private string $imageDisk = 'public';
-    private string $faviconBasePath = 'favicon/';
-    private string $logoBasePath = 'images/logo/';
 
-    private SettingsRepositoryInterface $settings;
+    public const FAVICON_BASE_PATH = 'favicon-admin/';
+    public const LOGO_BASE_PATH = 'logo-admin/';
 
-    /**
-     * Constructor.
-     */
-    public function __construct(SettingsRepositoryInterface $settings)
+    private string $group = 'layout';
+    private string $section = 'admin';
+
+
+    public function __construct()
     {
         $this->driver = config('image.driver', 'gd');
-        $this->settings = $settings->self();
     }
 
     /**
@@ -37,9 +35,12 @@ class WebAdminImageHandler
      */
     public function processAndSaveFavicon(\Illuminate\Http\UploadedFile $image): void
     {
-        Storage::makeDirectory("{$this->imageDisk}/{$this->faviconBasePath}");
+        Storage::makeDirectory(self::FAVICON_BASE_PATH);
 
-        $currentNamespace = $this->settings->get('favicon_ns');
+        $currentNamespace = settings()
+            ->context($this->group, $this->section, 'favicon')
+            ->get('favicon_ns');
+
         if ($currentNamespace) {
             $this->deleteOldFiles($this->generateFaviconPaths($currentNamespace));
         }
@@ -50,10 +51,12 @@ class WebAdminImageHandler
         foreach ($this->getFaviconSizes() as $size => [$w, $h]) {
             $resized = $imageManager->read($image->getRealPath())->cover($w, $h);
             Storage::disk($this->imageDisk)
-                ->put("{$this->faviconBasePath}{$baseName}_{$size}.png", $resized->toPng(indexed: true));
+                ->put(self::FAVICON_BASE_PATH . "{$baseName}_{$size}.png", $resized->toPng(indexed: true));
         }
 
-        $this->settings->set('favicon_ns', "{$this->faviconBasePath}{$baseName}");
+        settings()
+            ->context($this->group, $this->section, 'favicon')
+            ->set($baseName, 'favicon_ns');
     }
 
     /**
@@ -65,7 +68,7 @@ class WebAdminImageHandler
      */
     public function processAndSaveImageLogo(\Illuminate\Http\UploadedFile $image, string $type = ''): void
     {
-        Storage::makeDirectory("{$this->imageDisk}/{$this->logoBasePath}");
+        Storage::makeDirectory(self::LOGO_BASE_PATH);
 
         $this->deleteOldLogoImages($type);
 
@@ -83,15 +86,23 @@ class WebAdminImageHandler
      */
     private function saveResizedLogo($image, int $maxPixels, string $suffix = '', string $type = ''): void
     {
+        $suffix = $suffix ? "_{$suffix}" : '';
+        $type   = $type ? "_{$type}" : '';
+
         $resized = clone $image;
         $this->resizeImageToMaxPixels($resized, $maxPixels);
 
-        $fileName = uniqid("logo_{$suffix}{$type}", true) . '.png';
-        $path = "{$this->logoBasePath}{$fileName}";
+        $fileName = uniqid("logo{$suffix}{$type}_", true) . '.png';
+        $path = self::LOGO_BASE_PATH . $fileName;
 
-        Storage::disk($this->imageDisk)->put($path, $resized->toPng(indexed: true));
+        Storage::disk($this->imageDisk)
+            ->put($path, $resized->toPng(indexed: true));
 
-        $this->settings->set("image_logo" . ($suffix ? "_{$suffix}" : '') . ($type ? "_{$type}" : ''), $path);
+        $keyName = "image_logo{$suffix}{$type}";
+
+        settings()
+            ->context($this->group, $this->section, "logo{$type}")
+            ->set($fileName, $keyName);
     }
 
     /**
@@ -104,7 +115,12 @@ class WebAdminImageHandler
 
         $base64 = (string) $resized->toJpg(40)->toDataUri();
 
-        $this->settings->set("image_logo_base64" . ($type ? "_{$type}" : ''), $base64);
+        $type = $type ? "_{$type}" : '';
+        $keyName = "image_logo_base64{$type}";
+
+        settings()
+            ->context($this->group, $this->section, "logo{$type}")
+            ->set($base64, $keyName);
     }
 
     /**
@@ -124,16 +140,21 @@ class WebAdminImageHandler
      */
     private function deleteOldLogoImages(string $type = ''): void
     {
+        $type = $type ? "_{$type}" : '';
+
         $keys = [
-            "image_logo" . ($type ? "_{$type}" : ''),
-            "image_logo_small" . ($type ? "_{$type}" : ''),
-            "image_logo_medium" . ($type ? "_{$type}" : ''),
+            "image_logo{$type}",
+            "image_logo_small{$type}",
+            "image_logo_medium{$type}",
         ];
 
         $paths = [];
 
         foreach ($keys as $key) {
-            $path = $this->settings->get($key);
+            $path = settings()
+                ->context($this->group, $this->section, "logo{$type}")
+                ->get($key);
+
             if ($path) {
                 $paths[] = $path;
             }
@@ -172,7 +193,6 @@ class WebAdminImageHandler
         return $image;
     }
 
-
     /**
      * Obtiene los tamaños estándar para favicons.
      */
@@ -193,6 +213,6 @@ class WebAdminImageHandler
      */
     private function generateFaviconPaths(string $base): array
     {
-        return array_map(fn($size) => "{$this->faviconBasePath}{$base}_{$size}.png", array_keys($this->getFaviconSizes()));
+        return array_map(fn($size) => self::FAVICON_BASE_PATH . "{$base}_{$size}.png", array_keys($this->getFaviconSizes()));
     }
 }

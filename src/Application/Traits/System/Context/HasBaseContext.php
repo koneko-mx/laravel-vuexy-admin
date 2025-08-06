@@ -6,8 +6,8 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Koneko\VuexyAdmin\Application\Cache\Builders\SettingCacheKeyBuilder;
 use Koneko\VuexyAdmin\Application\CoreModule;
+use Koneko\VuexyAdmin\Application\Cache\Builders\SettingCacheKeyBuilder;
 use Koneko\VuexyAdmin\Application\Settings\Registry\ScopeRegistry;
 use Koneko\VuexyAdmin\Application\Traits\System\Context\HasBaseContextValidator;
 use Koneko\VuexyAdmin\Support\Traits\Auth\HasResolvableUser;
@@ -57,17 +57,11 @@ trait HasBaseContext
         return $this;
     }
 
-    public function context(string $group, ?string $section = null, ?string $subGroup = null): static
+    public function context(?string $group = null, ?string $section, ?string $subGroup = 'default'): static
     {
-        $this->context['group'] = $this->validateSlug('group', $group, 16);
-
-        if ($section) {
-            $this->context['section'] = $this->validateSlug('section', $section, 16);
-        }
-
-        if ($subGroup) {
-            $this->context['sub_group'] = $this->validateSlug('sub_group', $subGroup, 16);
-        }
+        $this->context['group']     = $group ? $this->validateSlug('group', $group, 16) : null;
+        $this->context['section']   = $section ? $this->validateSlug('section', $section, 16) : null;
+        $this->context['sub_group'] = $subGroup ? $this->validateSlug('sub_group', $subGroup, 16) : null;
 
         return $this;
     }
@@ -76,7 +70,6 @@ trait HasBaseContext
     {
         $this->reset();
 
-        if (isset($context['namespace']))   $this->setNamespace($context['namespace']);
         if (isset($context['environment'])) $this->setEnvironment($context['environment']);
         if (isset($context['component']))   $this->setComponent($context['component']);
         if (isset($context['group']))       $this->setGroup($context['group']);
@@ -93,9 +86,9 @@ trait HasBaseContext
 
     // ======================= Context Base =========================
 
-    public function setNamespace(string $namespace): static
+    private function setNamespace(): static
     {
-        $this->context['namespace'] = $this->validateSlug('namespace', $namespace, 8);
+        $this->context['namespace'] = $this->validateSlug('namespace', config('koneko.namespace'), 8);
         return $this;
     }
 
@@ -117,21 +110,27 @@ trait HasBaseContext
         return $this;
     }
 
+    public function setModule(string $module): static
+    {
+        $this->context['module'] = $this->validateModule($module);
+        return $this;
+    }
+
     /**
      * Carga el contexto de un módulo usando una clase declarativa.
      */
     protected function loadModuleClass(string $moduleClass): static
     {
-        if (!defined("$moduleClass::NAMESPACE") || !defined("$moduleClass::COMPONENT")) {
-            throw new \InvalidArgumentException("La clase de módulo debe definir las constantes NAMESPACE y COMPONENT.");
+        if (!defined("$moduleClass::COMPONENT") || !defined("$moduleClass::MODULE")) {
+            throw new \InvalidArgumentException("La clase de módulo debe definir las constantes COMPONENT y MODULE.");
         }
 
-        $namespace = constant("$moduleClass::NAMESPACE");
         $component = constant("$moduleClass::COMPONENT");
+        $module    = constant("$moduleClass::MODULE");
 
         return $this
-            ->setNamespace($namespace)
-            ->setComponent($component);
+            ->setComponent($component)
+            ->setModule($module);
     }
 
     // ======================= Scope =========================
@@ -296,7 +295,6 @@ trait HasBaseContext
 
     public function resetComponentContext(): void
     {
-        $this->context['namespace']   = CoreModule::NAMESPACE;
         $this->context['environment'] = app()->environment();
         $this->context['component']   = CoreModule::COMPONENT;
     }
@@ -313,4 +311,5 @@ trait HasBaseContext
         $this->context['section']     = null;
         $this->context['sub_group']   = null;
     }
+
 }

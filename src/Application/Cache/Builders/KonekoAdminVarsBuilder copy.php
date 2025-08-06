@@ -11,7 +11,7 @@ use Koneko\VuexyAdmin\Application\Cache\Services\KonekoVarsService;
  * - Fuente primaria: settings globales (namespace 'koneko.core.layout.admin')
  * - Permite override explícito por usuario autenticado.
  */
-class KonekoAdminVarsBuilder
+class ___KonekoAdminVarsBuilder
 {
     public function __construct(
         protected KonekoVarsService $vars

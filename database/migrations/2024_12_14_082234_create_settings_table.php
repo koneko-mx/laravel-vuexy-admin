@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->integerIncrements('id');
 
             // Clave identificadora única para uso directo en Redis u otras estructuras rápidas
-            $table->string('key')->unique();
+            $table->string('key', 64)->unique();
 
             // Contexto completo del setting
             $table->string('namespace', 8)->index();                         // Ej. 'koneko'

@@ -20,8 +20,8 @@ use Koneko\VuexyAdmin\Application\Cache\Manager\KonekoCacheManager;
  */
 class KonekoVarsService
 {
-    protected string $namespace = CoreModule::NAMESPACE;
-    protected string $component = CoreModule::COMPONENT;
+    protected string $namespace;
+    protected string $component;
 
     protected string $group;
     protected string $section;

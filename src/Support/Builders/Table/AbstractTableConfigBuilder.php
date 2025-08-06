@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Koneko\VuexyAdmin\Support\Builders;
+namespace Koneko\VuexyAdmin\Support\Builders\Table;
 
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Koneko\VuexyAdmin\Application\Traits\Indexing\HandlesModelMetadata;
-use Koneko\VuexyAdmin\Application\Traits\Indexing\{HandlesIndexColumns,HandlesIndexLabels,HandlesTableConfig};
-use Koneko\VuexyAdmin\Application\Traits\Indexing\HandlesQueryBuilder;
+use Koneko\VuexyAdmin\Application\Traits\ConfigBuilder\HandlesModelMetadata;
+use Koneko\VuexyAdmin\Application\Traits\ConfigBuilder\{HandlesIndexColumns,HandlesIndexLabels,HandlesTableConfig};
+use Koneko\VuexyAdmin\Application\Traits\ConfigBuilder\HandlesQueryBuilder;
 use Koneko\VuexyAdmin\Support\Traits\Model\HasVuexyModelMetadata;
 
 /**

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Koneko\VuexyAdmin\Application\UI\Livewire\Settings\WebInterface;
 
 use Koneko\VuexyAdmin\Application\Cache\Builders\KonekoAdminVarsBuilder;
-use Koneko\VuexyAdmin\Application\Template\ImageHandler\WebAdminImageHandler;
+use Koneko\VuexyAdmin\Application\UX\ImageHandler\WebAdminImageHandler;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -33,7 +33,7 @@ class LogoOnDarkBgCard extends Component
         app(WebAdminImageHandler::class)->processAndSaveImageLogo($this->upload_image_logo_dark, 'dark');
 
         // Limpiamos la cache
-        app(KonekoAdminVarsBuilder::class)->clearCache();
+        app(KonekoAdminVarsBuilder::class)->clear();
 
         // Recargamos el formulario
         $this->loadForm();
@@ -50,7 +50,7 @@ class LogoOnDarkBgCard extends Component
     public function loadForm()
     {
         // Obtener los valores de las configuraciones de la base de datos
-        $settings = app(KonekoAdminVarsBuilder::class)->getAdminVars();
+        $settings = app(KonekoAdminVarsBuilder::class)->get();
 
         $this->upload_image_logo_dark = null;
         $this->admin_image_logo_dark  = $settings['image_logo']['large_dark'];

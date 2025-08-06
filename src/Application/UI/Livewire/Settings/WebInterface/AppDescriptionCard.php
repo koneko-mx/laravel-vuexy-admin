@@ -4,15 +4,23 @@ declare(strict_types=1);
 
 namespace Koneko\VuexyAdmin\Application\UI\Livewire\Settings\WebInterface;
 
+use Koneko\VuexyAdmin\Application\Settings\Manager\KonekoSettingManager;
 use Livewire\Component;
 
 class AppDescriptionCard extends Component
 {
     private $targetNotify = "#app-description-card-card .notification-container";
+    private $group   = 'layout';
+    private $section = 'admin';
 
     public $app_name,
         $title,
         $description;
+
+    private function settings(): KonekoSettingManager
+    {
+        return settings()->context($this->group, $this->section);
+    }
 
     public function mount()
     {
@@ -22,15 +30,15 @@ class AppDescriptionCard extends Component
     public function save()
     {
         $this->validate([
-            'app_name'    => 'required|string|max:255',
-            'title'       => 'required|string|max:255',
+            'app_name'    => 'required|string|max:32',
+            'title'       => 'required|string|max:64',
             'description' => 'nullable|string|max:255',
         ]);
 
         // Guardar título del sitio en configuraciones
-        settings()->self()->set('app_name', $this->app_name);
-        settings()->self()->set('title', $this->title);
-        settings()->self()->set('description', $this->description);
+        $this->settings()->set(trim($this->app_name), 'app_name');
+        $this->settings()->set(trim($this->title), 'title');
+        $this->settings()->set(trim($this->description), 'description');
 
         // Notificación de éxito
         $this->dispatch(
@@ -43,9 +51,9 @@ class AppDescriptionCard extends Component
 
     public function loadForm()
     {
-        $this->title       = settings()->self()->get('title')?? config('koneko.title');
-        $this->description = settings()->self()->get('description')?? config('koneko.description');
-        $this->app_name    = settings()->self()->get('app_name')?? config('koneko.app_name');
+        $this->app_name    = $this->settings()->get('app_name')?? config('koneko.app_name');
+        $this->title       = $this->settings()->get('title')?? config('koneko.title');
+        $this->description = $this->settings()->get('description')?? config('koneko.description');
     }
 
     public function render()

@@ -17,7 +17,7 @@ final class KonekoConfigManager implements ConfigRepositoryInterface
 
     public function __construct()
     {
-        $this->setNamespace(CoreModule::NAMESPACE)
+        $this->setNamespace()
             ->setEnvironment()
             ->setComponent(CoreModule::COMPONENT);
     }
@@ -99,6 +99,7 @@ final class KonekoConfigManager implements ConfigRepositoryInterface
 
     // ======================= HELPERS =========================
 
+    /*
     protected function validateSlug(string $field, string $value, int $maxLength): string
     {
         if (!preg_match('/^[a-zA-Z0-9_\-]+$/', $value)) {
@@ -111,11 +112,12 @@ final class KonekoConfigManager implements ConfigRepositoryInterface
 
         return $value;
     }
+    */
 
     protected function validateKeyName(string $keyName): string
     {
         if (!preg_match('/^[a-zA-Z0-9-._]+$/', $keyName)) {
-            throw new \InvalidArgumentException("El valor '{$keyName}' de 'keyName' debe ser un slug válido.");
+            throw new \InvalidArgumentException("El valor '{$keyName}' de 'keyName' debe ser un string válido.");
         }
 
         if (strlen($keyName) > 64) {
