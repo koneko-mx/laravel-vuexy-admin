@@ -50,6 +50,9 @@ trait HasBaseContextValidator
 
     protected function validateScopeContext(?string $scope, ?int $scopeId): void
     {
+//dump($scope, $scopeId);
+
+
         if ($scope === null && $scopeId === null) {
             return;
         }

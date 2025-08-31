@@ -17,7 +17,7 @@ trait HasSettingFileSupport
         return $this;
     }
 
-    public function setFile(string $mime_type, string $file_name): static
+    public function file(string $mime_type, string $file_name): static
     {
         $this->attributes['is_file'] = true;
         $this->file['mime_type'] = $mime_type;
@@ -26,7 +26,7 @@ trait HasSettingFileSupport
         return $this;
     }
 
-    public function setMimeType(string $mime_type): static
+    public function mimeType(string $mime_type): static
     {
         $this->attributes['is_file'] = true;
         $this->file['mime_type'] = $mime_type;
@@ -34,7 +34,7 @@ trait HasSettingFileSupport
         return $this;
     }
 
-    public function setFileName(string $file_name): static
+    public function fileName(string $file_name): static
     {
         $this->attributes['is_file'] = true;
         $this->file['file_name'] = $file_name;
@@ -46,7 +46,7 @@ trait HasSettingFileSupport
     {
         $path = $file->store('settings_files', $storageDisk);
 
-        $this->setFile(
+        $this->file(
             mime_type: $file->getMimeType() ?? 'application/octet-stream',
             file_name: basename($path)
         );

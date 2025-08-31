@@ -26,6 +26,9 @@ class PermissionsTableConfigBuilder extends AbstractTableConfigBuilder
         return [
             'permissions.id',
             'permissions.name',
+            'permission_groups.module',
+            'permission_groups.grupo',
+            'permission_groups.sub_grupo',
             DB::raw("(SELECT GROUP_CONCAT(roles.name SEPARATOR '|') as roles FROM role_has_permissions INNER JOIN roles ON (role_has_permissions.role_id = roles.id) WHERE role_has_permissions.permission_id = permissions.id) as roles"),
             'permissions.label',
             'permissions.ui_metadata',
@@ -43,8 +46,10 @@ class PermissionsTableConfigBuilder extends AbstractTableConfigBuilder
     public static function getIndexLabels(): array
     {
         return [
-            'action'         => 'Acciones',
             'name'           => 'Permiso',
+            'module'         => 'Módulo',
+            'grupo'          => 'Grupo',
+            'sub_grupo'      => 'Sub Grupo',
             'roles'          => 'Roles',
             'label'          => 'Etiqueta',
             'ui_metadata'    => 'Metadata',
@@ -56,14 +61,23 @@ class PermissionsTableConfigBuilder extends AbstractTableConfigBuilder
     }
 
     /**
+     * Devuelve los JOINs requeridos para la consulta.
+     */
+    public static function getIndexJoins(): array
+    {
+        return [
+            ["permission_groups", "permissions.group_id", "=", "permission_groups.id", ["type" => "leftJoin"]],
+        ];
+    }
+
+    /**
      * Devuelve los filtros aplicables en la búsqueda.
      */
     public static function getIndexFilters(): array
     {
         return [
             'search' => [
-                'permissions.name',
-                'roles',
+                'permissions.name'
             ],
         ];
     }
@@ -75,22 +89,41 @@ class PermissionsTableConfigBuilder extends AbstractTableConfigBuilder
     public static function getIndexFormatters(): array
     {
         return [
-            'action' => [
-                'formatter' => 'settingsActionFormatter',
-                'onlyFormatter' => true,
-            ],
             'name' => [
                 'formatter' => 'textNowrapFormatter',
             ],
+            'module' => [
+                'align' => 'center',
+            ],
+            'grupo' => [
+                'align' => 'center',
+                'visible' => false,
+            ],
+            'sub_grupo' => [
+                'align' => 'center',
+                'visible' => false,
+            ],
             'roles' => [
-                'formatter' => 'textNowrapFormatter',
+                //'formatter' => 'textNowrapFormatter',
+                'visible' => false,
+            ],
+            'label' => [
+                'formatter' => 'jsonLanguageFormatter',
+            ],
+            'ui_metadata' => [
+                'visible' => false,
+            ],
+            'guard_name' => [
+                'visible' => false,
             ],
             'created_at' => [
                 'formatter' => 'dateClassicFormatter',
+                'visible' => false,
                 'align'     => 'center',
             ],
             'updated_at' => [
                 'formatter' => 'dateClassicFormatter',
+                'visible' => false,
                 'align'     => 'center',
             ],
         ];
@@ -104,7 +137,7 @@ class PermissionsTableConfigBuilder extends AbstractTableConfigBuilder
     {
         return [
             'search' => true,
-            'fixedNumber' => 2,
+            'fixedNumber' => 1,
         ];
     }
 }

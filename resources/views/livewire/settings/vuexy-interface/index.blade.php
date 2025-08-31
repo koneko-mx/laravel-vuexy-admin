@@ -1,7 +1,7 @@
 <div x-data>
     <div id="vuexy-interface-index-card" class="form-custom-listener mb-4">
         {{-- Notificaciones --}}
-        <div class="notification-container pt-4" wire:ignore></div>
+        <div class="notification-container mb-4" wire:ignore></div>
 
         <div class="row">
             <div class="col-md-6">
@@ -60,11 +60,11 @@
         </div>
         {{-- Acciones --}}
         <div class="row">
-            <div class="col-lg-12 text-end">
+            <div class="col-12 text-end mb-4">
                 <x-vuexy-admin::button.basic wire:click="save" disabled variant="primary" icon="ti ti-check" label="Aplicar cambios" class="btn-save mb-2 mx-2" size="sm" waves />
                 <x-vuexy-admin::button.basic wire:click="loadForm" disabled variant="secondary" icon="ti ti-rotate-2" label="Cancelar" class="btn-cancel mb-2 mx-2" size="sm" waves />
             </div>
-            <div class="col-lg-12 text-end">
+            <div class="col-12 text-end mb-4">
                 <x-vuexy-admin::button.basic wire:click="clearCustomConfig" variant="success" icon="ti ti-adjustments-cog" label="Restaurar valores predeterminados" class="btn-reset mb-2 mx-2" size="sm" waves />
             </div>
         </div>

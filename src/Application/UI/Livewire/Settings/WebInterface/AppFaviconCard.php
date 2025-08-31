@@ -29,6 +29,20 @@ class AppFaviconCard extends Component
         $this->loadForm();
     }
 
+    public function loadForm()
+    {
+        // Obtener los valores de las configuraciones de la base de datos
+        $settings = app(KonekoAdminVarsBuilder::class)->get();
+
+        $this->upload_image_favicon  = null;
+        $this->admin_favicon_16x16   = $settings['favicon']['16x16'];
+        $this->admin_favicon_76x76   = $settings['favicon']['76x76'];
+        $this->admin_favicon_120x120 = $settings['favicon']['120x120'];
+        $this->admin_favicon_152x152 = $settings['favicon']['152x152'];
+        $this->admin_favicon_180x180 = $settings['favicon']['180x180'];
+        $this->admin_favicon_192x192 = $settings['favicon']['192x192'];
+    }
+
     public function save()
     {
         $this->validate([
@@ -51,20 +65,6 @@ class AppFaviconCard extends Component
             type: 'success',
             message: 'Se han guardado los cambios en las configuraciones.'
         );
-    }
-
-    public function loadForm()
-    {
-        // Obtener los valores de las configuraciones de la base de datos
-        $settings = app(KonekoAdminVarsBuilder::class)->get();
-
-        $this->upload_image_favicon  = null;
-        $this->admin_favicon_16x16   = $settings['favicon']['16x16'];
-        $this->admin_favicon_76x76   = $settings['favicon']['76x76'];
-        $this->admin_favicon_120x120 = $settings['favicon']['120x120'];
-        $this->admin_favicon_152x152 = $settings['favicon']['152x152'];
-        $this->admin_favicon_180x180 = $settings['favicon']['180x180'];
-        $this->admin_favicon_192x192 = $settings['favicon']['192x192'];
     }
 
     public function render()

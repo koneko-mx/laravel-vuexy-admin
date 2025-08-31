@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Koneko\VuexyAdmin\Application\Bootstrap\Extenders\Model;
 
-class ModelExtensionRegistry
+final class ModelExtensionRegistry
 {
     protected static array $modelAttributes = [];
     protected static array $configExtensions = [];

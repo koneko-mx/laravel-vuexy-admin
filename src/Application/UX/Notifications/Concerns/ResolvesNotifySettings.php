@@ -12,9 +12,9 @@ trait ResolvesNotifySettings
     protected function resolveDriverForChannel(string $channel): string
     {
         return settings()
-            ->setComponent('vuexy-admin')
-            ->setGroup('notifications')
-            ->setKeyName("channel_driver.{$channel}")
+            ->component('vuexy-admin')
+            ->group('notifications')
+            ->keyName("channel_driver.{$channel}")
             ->get() ?? "default.{$channel}";
     }
 
@@ -26,15 +26,15 @@ trait ResolvesNotifySettings
         $configPrefix = "channel_config.{$channel}";
 
         $payload->type = $payload->type ?: settings()
-            ->setComponent('vuexy-admin')
-            ->setGroup('notifications')
-            ->setKeyName("{$configPrefix}.type")
+            ->component('vuexy-admin')
+            ->group('notifications')
+            ->keyName("{$configPrefix}.type")
             ->get() ?? 'info';
 
         $payload->timeout = $payload->timeout ?? settings()
-            ->setComponent('vuexy-admin')
-            ->setGroup('notifications')
-            ->setKeyName("{$configPrefix}.timeout")
+            ->component('vuexy-admin')
+            ->group('notifications')
+            ->keyName("{$configPrefix}.timeout")
             ->get() ?? 3000;
 
         return $payload;

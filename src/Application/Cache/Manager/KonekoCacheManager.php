@@ -16,8 +16,8 @@ final class KonekoCacheManager implements CacheRepositoryInterface
     public function __construct()
     {
         $this->setNamespace()
-            ->setEnvironment()
-            ->setComponent(CoreModule::COMPONENT);
+            ->environment()
+            ->loadModuleClass(CoreModule::class);
     }
 
     // ==================== Factory ====================
@@ -107,17 +107,17 @@ final class KonekoCacheManager implements CacheRepositoryInterface
 
     public function get(mixed $default = null): mixed
     {
-        return KonekoCacheDriver::get($this->qualifiedKey(), $default);
+        return KonekoCacheDriver::get($this->getQualifiedKey(), $default);
     }
 
     public function put(mixed $value, ?int $ttl = null): void
     {
-        KonekoCacheDriver::put($this->qualifiedKey(), $value, $ttl ?? $this->resolveTTL());
+        KonekoCacheDriver::put($this->getQualifiedKey(), $value, $ttl ?? $this->resolveTTL());
     }
 
     public function forget(): void
     {
-        KonekoCacheDriver::forget($this->qualifiedKey());
+        KonekoCacheDriver::forget($this->getQualifiedKey());
     }
 
     public function remember(?callable $resolver = null, ?int $ttl = null): mixed
@@ -128,7 +128,7 @@ final class KonekoCacheManager implements CacheRepositoryInterface
     public function rememberWithTTLResolution(callable $resolver, ?int $ttl = null): mixed
     {
         return KonekoCacheDriver::remember(
-            $this->qualifiedKey(),
+            $this->getQualifiedKey(),
             $ttl ?? $this->resolveTTL(),
             $resolver
         );
@@ -157,7 +157,7 @@ final class KonekoCacheManager implements CacheRepositoryInterface
     public function info(): array
     {
         return [
-            'key'       => $this->qualifiedKey(),
+            'key'       => $this->getQualifiedKey(),
             'context'   => $this->context,
             'enabled'   => $this->isEnabled(),
             'ttl'       => $this->resolveTTL(),
@@ -169,13 +169,13 @@ final class KonekoCacheManager implements CacheRepositoryInterface
     {
         return [
             'context'        => $this->context,
-            'qualified_key'  => $this->qualifiedKey(),
+            'qualified_key'  => $this->getQualifiedKey(),
             'enabled'        => $this->isEnabled(),
             'enabled_source' => $this->resolveEnabledSourceKey(),
             'ttl'            => $this->resolveTTL(),
             'ttl_source'     => $this->resolveTtlSourceKey(),
             'driver'         => $this->driver(),
-            'has'            => $this->has($this->qualifiedKey()),
+            'has'            => $this->has($this->getQualifiedKey()),
         ];
     }
 }

@@ -11,7 +11,7 @@ use Koneko\VuexyAdmin\Application\Contracts\Catalogs\CatalogServiceInterface;
  *
  * Permite registrar servicios por "componente" (slug) y resolverlos desde cualquier parte.
  */
-class CatalogModuleRegistry
+final class CatalogModuleRegistry
 {
     /** @var array<string, class-string<CatalogServiceInterface>> */
     protected static array $registry = [];

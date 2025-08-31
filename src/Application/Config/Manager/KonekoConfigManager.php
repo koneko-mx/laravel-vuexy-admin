@@ -18,8 +18,8 @@ final class KonekoConfigManager implements ConfigRepositoryInterface
     public function __construct()
     {
         $this->setNamespace()
-            ->setEnvironment()
-            ->setComponent(CoreModule::COMPONENT);
+            ->environment()
+            ->loadModuleClass(CoreModule::class);
     }
 
     // ==================== Factory ====================
@@ -33,10 +33,10 @@ final class KonekoConfigManager implements ConfigRepositoryInterface
 
     public function get(?string $keyName = null, mixed $default = null): mixed
     {
-        $this->setKeyName($keyName ?? $this->context['key_name']);
+        $this->keyName($keyName ?? $this->context['key_name']);
 
         // Resolvemos el qualified key
-        $qualifiedKey = $this->qualifiedKey();
+        $qualifiedKey = $this->getQualifiedKey();
 
         // Si directo, obtenemos el valor directamente de config
         if (!$this->fromDb) {
@@ -60,15 +60,15 @@ final class KonekoConfigManager implements ConfigRepositoryInterface
 
     public function has(string $key): bool
     {
-        $this->setKeyName($key);
+        $this->keyName($key);
         return settings()->setContextArray($this->context)->exists($key)
-            || config()->has($this->qualifiedKey());
+            || config()->has($this->getQualifiedKey());
     }
 
     public function sourceOf(?string $key = null): string
     {
-        $this->setKeyName($key ?? $this->context['key_name']);
-        $qualifiedKey = $this->qualifiedKey();
+        $this->keyName($key ?? $this->context['key_name']);
+        $qualifiedKey = $this->getQualifiedKey();
 
         // Prioridad 1: override desde settings
         if (settings()->setContextArray($this->context)->exists($this->context['key_name'])) {
@@ -85,7 +85,7 @@ final class KonekoConfigManager implements ConfigRepositoryInterface
 
     public function info(): array
     {
-        $qualified = $this->qualifiedKey();
+        $qualified = $this->getQualifiedKey();
 
         return [
             'qualified_key' => $qualified,
@@ -99,20 +99,14 @@ final class KonekoConfigManager implements ConfigRepositoryInterface
 
     // ======================= HELPERS =========================
 
-    /*
-    protected function validateSlug(string $field, string $value, int $maxLength): string
+    public function context(?string $group, ?string $section = null, ?string $subGroup = null): static
     {
-        if (!preg_match('/^[a-zA-Z0-9_\-]+$/', $value)) {
-            throw new \InvalidArgumentException("El valor '{$value}' de '{$field}' debe ser un slug válido.");
-        }
+        $this->context['group']     = $group ? $this->validateSlug('group', $group, 16) : null;
+        $this->context['section']   = $section ? $this->validateSlug('section', $section, 16) : null;
+        $this->context['sub_group'] = $subGroup ? $this->validateSlug('sub_group', $subGroup, 16) : null;
 
-        if (strlen($value) > $maxLength) {
-            throw new \InvalidArgumentException("El valor de '{$field}' excede {$maxLength} caracteres.");
-        }
-
-        return $value;
+        return $this;
     }
-    */
 
     protected function validateKeyName(string $keyName): string
     {
@@ -136,7 +130,7 @@ final class KonekoConfigManager implements ConfigRepositoryInterface
 
     // ======================= GETTERS =========================
 
-    public function qualifiedKey(?string $key = null): string
+    public function getQualifiedKey(?string $key = null): string
     {
         $parts = [
             $this->context['namespace'],
@@ -178,10 +172,10 @@ final class KonekoConfigManager implements ConfigRepositoryInterface
         $config = ConfigBlockRegistry::get($configKey);
 
         $manager = cache_m()
-            ->setComponent($config['component'])
+            ->component($config['component'])
             ->context($config['group'], $config['section'], $config['sub_group'])
-            ->setUser(Auth::user())
-            ->setKeyName($config['key_name']);
+            ->user(Auth::user())
+            ->keyName($config['key_name']);
 
         if ($forceReload) {
             $manager->forget();
@@ -199,9 +193,9 @@ final class KonekoConfigManager implements ConfigRepositoryInterface
 
             $base     = config($configKey, []);
             $settings = settings()
-                ->setComponent($config['component'])
+                ->component($config['component'])
                 ->context($config['group'], $config['section'], $config['sub_group'])
-                ->setUser(Auth::user())
+                ->user(Auth::user())
                 ->getSubGroup(true);
 
             $merged = array_replace_recursive($base, array_map($castFn, $settings, array_keys($settings)));
@@ -211,9 +205,9 @@ final class KonekoConfigManager implements ConfigRepositoryInterface
             $merged = $manager->rememberWithTTLResolution(function () use ($configKey, $config, $castFn) {
                 $base     = config($configKey, []);
                 $settings = settings()
-                    ->setComponent($config['component'])
+                    ->component($config['component'])
                     ->context($config['group'], $config['section'], $config['sub_group'])
-                    ->setUser(Auth::user())
+                    ->user(Auth::user())
                     ->getSubGroup(true);
 
                 return array_replace_recursive($base, array_map($castFn, $settings, array_keys($settings)));
@@ -229,8 +223,8 @@ final class KonekoConfigManager implements ConfigRepositoryInterface
 
     public function set(mixed $value, ?string $keyName = null): void
     {
-        $this->setKeyName($keyName ?? $this->context['key_name']);
-        $qualified = $this->qualifiedKey();
+        $this->keyName($keyName ?? $this->context['key_name']);
+        $qualified = $this->getQualifiedKey();
 
         // Seguridad: solo sobrescribir valores existentes en config
         if (!config()->has($qualified)) {

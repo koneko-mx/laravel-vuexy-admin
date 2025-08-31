@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        $keyVault = config_m()->setGroup('key_vault');
+        $keyVault = config_m()->group('key_vault');
 
         $mode   = $keyVault->get('mode', 'client');
         $driver = $keyVault->get('client.driver', 'database');
@@ -64,7 +64,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        $keyVault = config_m()->setGroup('key_vault');
+        $keyVault = config_m()->group('key_vault');
 
         $driver = $keyVault->get('client.driver', 'database');
         $table  = $keyVault->get('server.table', 'vault_keys');

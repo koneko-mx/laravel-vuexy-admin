@@ -10,7 +10,7 @@ use Koneko\VuexyAdmin\Application\UX\Menu\VuexyMenuFormatter;
 
 class VuexyQuicklinksBuilder
 {
-    private const GROUP     = 'website-admin';
+    private const GROUP     = 'admin';
     private const SECTION   = 'layout';
     private const SUB_GROUP = 'navbar';
     private const KEY_NAME  = 'quicklinks';
@@ -19,7 +19,7 @@ class VuexyQuicklinksBuilder
 
     public function getUserQuicklinks(Authenticatable|int|null $user = null): array
     {
-        $quickLinks = self::settings($user)->get() ?? [];
+        $quickLinks = self::settings($user)->get(self::KEY_NAME, []);
         $quickLinks = $this->buildQuicklinks($quickLinks, $user);
 
         // dump($quickLinks);         die;
@@ -76,25 +76,25 @@ class VuexyQuicklinksBuilder
 
     public function addRoute(string $route, Authenticatable|int|null $user = null): void
     {
-        $routes = self::settings($user)->get() ?? [];
+        $routes = self::settings($user)->get(self::KEY_NAME, []);
 
         if (count($routes) >= config_m()->get('layout.vuexy.maxQuickLinks', 12)) return;
 
         if (!in_array($route, $routes)) {
             $routes[] = $route;
 
-            self::settings($user)->set($routes);
+            self::settings($user)->set(self::KEY_NAME, $routes);
         }
     }
 
     public function removeRoute(string $route, Authenticatable|int|null $user = null): void
     {
-        $routes = self::settings($user)->get() ?? [];
+        $routes = self::settings($user)->get(self::KEY_NAME, []);
 
         // Filtra el arreglo para eliminar el valor igual al $route
         $routes = array_values(array_filter($routes, fn($r) => $r !== $route));
 
-        self::settings($user)->set($routes);
+        self::settings($user)->set(self::KEY_NAME, $routes);
     }
 
     public function isRouteAllowed(string $routeId): bool
@@ -126,7 +126,7 @@ class VuexyQuicklinksBuilder
 
     public static function forgetCacheForUser(Authenticatable|int|null $user = null): void
     {
-        self::settings($user)->forgetCache();
+        self::settings($user)->forgetCache(self::KEY_NAME);
     }
 
     private function collectFromMenu(array $menu, array &$links, ?string $parent = null): void
@@ -199,7 +199,6 @@ class VuexyQuicklinksBuilder
     {
         return settings()
             ->context(self::GROUP, self::SECTION, self::SUB_GROUP)
-            ->setKeyName(self::KEY_NAME)
-            ->setUser($user);
+            ->user($user);
     }
 }

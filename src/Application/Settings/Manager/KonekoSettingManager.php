@@ -36,11 +36,11 @@ final class KonekoSettingManager implements SettingsRepositoryInterface
     public function __construct()
     {
         $this->setNamespace()
-            ->setEnvironment()
-            ->setComponent(CoreModule::class)
-            ->setGroup(SettingDefaults::DEFAULT_GROUP)
-            ->setSection(SettingDefaults::DEFAULT_SECTION)
-            ->setSubGroup(SettingDefaults::DEFAULT_SUB_GROUP);
+            ->environment()
+            ->loadModuleClass(CoreModule::class)
+            ->group(SettingDefaults::DEFAULT_GROUP)
+            ->section(SettingDefaults::DEFAULT_SECTION)
+            ->subGroup(SettingDefaults::DEFAULT_SUB_GROUP);
     }
 
     // ==================== Factory ====================
@@ -78,15 +78,15 @@ final class KonekoSettingManager implements SettingsRepositoryInterface
 
     // ==================== CRUD ====================
 
-    public function set(mixed $value, ?string $keyName = null): void
+    public function set(string $keyName, mixed $value): void
     {
         if ($keyName) {
-            $this->setKeyName($keyName);
+            $this->keyName($keyName);
         }
 
         $this->validateContextWithScope();
 
-        $qualifiedKey = $this->qualifiedKey();
+        $qualifiedKey = $this->getQualifiedKey();
 
         /** @var Setting $setting */
         $setting = $this->settingModel::updateOrCreate(
@@ -109,13 +109,13 @@ final class KonekoSettingManager implements SettingsRepositoryInterface
         $this->reset();
     }
 
-    public function setGroupSettings(array $data): void
+    public function groupSettings(array $data): void
     {
         $this->validateContextWithScope();
 
         foreach ($data as $key => $value) {
-            $this->setKeyName($key);
-            $qualifiedKey = $this->qualifiedKey();
+            $this->keyName($key);
+            $qualifiedKey = $this->getQualifiedKey();
 
             /** @var Setting $setting */
             $setting = $this->settingModel::updateOrCreate(
@@ -144,7 +144,7 @@ final class KonekoSettingManager implements SettingsRepositoryInterface
         if ($this->isTableNotExists()) return $default;
 
         if ($keyName) {
-            $this->setKeyName($keyName);
+            $this->keyName($keyName);
         }
 
         $this->validateContextWithScope();
@@ -155,7 +155,7 @@ final class KonekoSettingManager implements SettingsRepositoryInterface
             return $this->queryByKey()->first()?->value ?? $default;
         }
 
-        $key = $manager->qualifiedKey();
+        $key = $manager->getQualifiedKey();
         $cached = KonekoCacheDriver::get($key);
 
         if (!is_null($cached)) {
@@ -191,7 +191,7 @@ final class KonekoSettingManager implements SettingsRepositoryInterface
     public function delete(string $qualifiedKey): void
     {
         $this->settingModel::where('key', $qualifiedKey)->delete();
-        $this->getCacheManager()->setKeyName($qualifiedKey)->forget();
+        $this->getCacheManager()->keyName($qualifiedKey)->forget();
     }
 
     public function all(): Collection|array
@@ -236,7 +236,7 @@ final class KonekoSettingManager implements SettingsRepositoryInterface
         $this->validateContextWithScope();
 
         return $this->query()
-            ->tap(fn($q) => $q->each(fn($setting) => $this->getCacheManager()->setKeyName($setting->key_name)->forget()))
+            ->tap(fn($q) => $q->each(fn($setting) => $this->getCacheManager()->keyName($setting->key_name)->forget()))
             ->delete()
             ->count();
     }
@@ -244,7 +244,7 @@ final class KonekoSettingManager implements SettingsRepositoryInterface
     public function deleteGroup(): int
     {
         return $this->queryByGroup($this->newQuery(), $this->context)
-            ->tap(fn($q) => $q->each(fn($setting) => $this->getCacheManager()->setKeyName($setting->key_name)->forget()))
+            ->tap(fn($q) => $q->each(fn($setting) => $this->getCacheManager()->keyName($setting->key_name)->forget()))
             ->delete()
             ->count();
     }
@@ -252,7 +252,7 @@ final class KonekoSettingManager implements SettingsRepositoryInterface
     public function deleteSubGroup(): int
     {
         return $this->queryBySubGroup($this->newQuery(), $this->context)
-            ->tap(fn($q) => $q->each(fn($setting) => $this->getCacheManager()->setKeyName($setting->key_name)->forget()))
+            ->tap(fn($q) => $q->each(fn($setting) => $this->getCacheManager()->keyName($setting->key_name)->forget()))
             ->delete()
             ->count();
     }

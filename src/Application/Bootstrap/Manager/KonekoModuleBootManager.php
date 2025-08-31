@@ -35,22 +35,22 @@ class KonekoModuleBootManager
         // 1️⃣ CONFIGURACIONES DEL MÓDULO
         // =========================================
         foreach ($module->configs ?? [] as $namespace => $relativePath) {
-            $filename     = basename($relativePath);
-            $projectPath  = config_path($filename);
-            $modulePath   = $module->basePath . DIRECTORY_SEPARATOR . $relativePath;
+            $filename    = basename($relativePath);
+            $projectPath = config_path($filename);
+            $modulePath  = $module->basePath . DIRECTORY_SEPARATOR . $relativePath;
 
-            $config = null;
+            $moduleCfg  = file_exists($modulePath)  ? (array) require $modulePath  : [];
+            $projectCfg = file_exists($projectPath) ? (array) require $projectPath : [];
 
-            if (file_exists($projectPath)) {
-                $config = require $projectPath;
+            [$namespace, $mode] = array_pad(explode('@', $namespace, 2), 2, 'smart');
 
-            } elseif (file_exists($modulePath)) {
-                $config = require $modulePath;
-            }
+            $merged = match ($mode) {
+                'append'  => array_values(array_unique(array_merge((array) config($namespace, []), $moduleCfg, $projectCfg), SORT_REGULAR)),
+                'replace' => $projectCfg ?: $moduleCfg,
+                default   => self::smartMerge((array) config($namespace, []), self::smartMerge($moduleCfg, $projectCfg)),
+            };
 
-            if (is_array($config)) {
-                config()->set($namespace, $config);
-            }
+            config()->set($namespace, $merged);
         }
 
         // =========================================
@@ -210,6 +210,7 @@ class KonekoModuleBootManager
         foreach ($module->configBlocks ?? [] as $configKey => $blockDefinition) {
             try {
                 ConfigBlockRegistry::register($configKey, $blockDefinition);
+
             } catch (\Throwable $e) {
                 logger()->warning("[ConfigBlockRegistry] No se pudo registrar el bloque '$configKey': {$e->getMessage()}");
             }
@@ -222,6 +223,29 @@ class KonekoModuleBootManager
     public static function resolvePath(KonekoModule $module, ?string $relativePath): string
     {
         return $module->basePath . '/' . $relativePath;
+    }
+
+    /**
+     * Merge “inteligente”:
+     * - arrays asociativos: override recursivo (derecha gana)
+     * - arrays indexados: append + unique (SORT_REGULAR)
+     */
+    private static function smartMerge(array $left, array $right): array
+    {
+        // ¿Alguno no es array “lista”? tratamos por clave (assoc)
+        if (!array_is_list($left) || !array_is_list($right)) {
+            // merge recursivo por claves (derecha gana)
+            $out = $left;
+            foreach ($right as $k => $v) {
+                $out[$k] = (isset($out[$k]) && is_array($out[$k]) && is_array($v))
+                    ? self::smartMerge($out[$k], $v)
+                    : $v;
+            }
+            return $out;
+        }
+
+        // Ambos son listas → “push” (append) + sin duplicados
+        return array_values(array_unique(array_merge($left, $right), SORT_REGULAR));
     }
 
     /*

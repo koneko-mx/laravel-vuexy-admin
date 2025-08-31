@@ -41,7 +41,7 @@ trait HasSettingCache
     public function forgetCache(?string $keyName = null): static
     {
         $this->getCacheManager()
-            ->setKeyName($keyName ?? $this->context['key_name'])
+            ->keyName($keyName ?? $this->context['key_name'])
             ->forget();
 
         return $this;
@@ -56,7 +56,7 @@ trait HasSettingCache
             return $callback();
         }
 
-        $key = $manager->qualifiedKey();
+        $key = $manager->getQualifiedKey();
         $cached = KonekoCacheDriver::get($key);
 
         if (!is_null($cached)) {
@@ -109,9 +109,9 @@ trait HasSettingCache
                 $this->context['group'],
                 $this->context['sub_group'],
             )
-            ->setScope($this->context['scope'])
-            ->setScopeId($this->context['scope_id'])
-            ->setKeyName($this->context['key_name']);
+            ->scope($this->context['scope'])
+            ->scopeId($this->context['scope_id'])
+            ->keyName($this->context['key_name']);
     }
 
     // ==================== Helpers ====================

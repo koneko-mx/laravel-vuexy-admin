@@ -16,21 +16,21 @@ interface ConfigRepositoryInterface
 
     // ==================== Context ====================
 
-    public function setEnvironment(?string $environment = null): static;
-    public function setComponent(string $component): static;
+    public function environment(?string $environment = null): static;
+    public function component(string $component): static;
 
-    public function context(?string $group = null, ?string $section, ?string $subGroup = 'default'): static;
+    public function context(?string $group, ?string $section = null, ?string $subGroup = null): static;
     public function setContextArray(array $context): static;
 
-    public function setScope(Model|string|false $scope, int|null|false $scopeId = false): static;
-    public function setScopeId(?int $scopeId): static;
-    public function setUser(Authenticatable|int|null|false $user): static;
+    public function scope(Model|string|false $scope, int|null|false $scopeId = false): static;
+    public function scopeId(?int $scopeId): static;
+    public function user(Authenticatable|int|null|false $user): static;
     public function withScopeFromModel(Model $model): static;
 
-    public function setGroup(string $group): static;
-    public function setSection(string $section): static;
-    public function setSubGroup(string $subGroup): static;
-    public function setKeyName(string $keyName): static;
+    public function group(string $group): static;
+    public function section(string $section): static;
+    public function subGroup(string $subGroup): static;
+    public function keyName(string $keyName): static;
 
     // ==================== Getters ====================
 
@@ -38,7 +38,7 @@ interface ConfigRepositoryInterface
     public function fromDb(bool $fromDb = true): static;
     public function sourceOf(string $qualifiedKeySufix): ?string;
 
-    public function qualifiedKey(?string $key = null): string;
+    public function getQualifiedKey(?string $key = null): string;
     public function getScopeModel(): ?Model;
 
     // ==================== Advanced ====================

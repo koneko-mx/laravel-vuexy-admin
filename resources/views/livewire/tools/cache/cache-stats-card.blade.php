@@ -79,7 +79,7 @@
         <div>
             {{-- Botones --}}
             <div class="row my-4">
-                <div class="col-lg-12 text-end">
+                <div class="col-12 text-end mb-4">
                     @if($cacheConfig['cache']['default'] != 'memcached')
                         <button
                             type="button"
@@ -99,7 +99,7 @@
                 </div>
             </div>
             {{-- Notifications --}}
-            <div class="notification-container pt-4" wire:ignore></div>
+            <div class="notification-container mb-4" wire:ignore></div>
         </div>
     </div>
 </div>

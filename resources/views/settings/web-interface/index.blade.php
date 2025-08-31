@@ -2,9 +2,13 @@
 
 @section('title', 'Ajustes generales')
 
-@push('page-script')
-    @vite('vendor/koneko/laravel-vuexy-admin/resources/js/pages/admin-settings-scripts.js')
-@endpush
+@section('vendor-script')
+    @vite([
+        'vendor/koneko/laravel-vuexy-admin/resources/assets/js/forms/formCustomListener.js',
+        'vendor/koneko/laravel-vuexy-admin/resources/assets/js/livewire/registerLivewireHookOnce.js',
+        'vendor/koneko/laravel-vuexy-admin/resources/assets/js/notifications/LivewireNotification.js',
+    ])
+@endsection
 
 @section('content')
     <div class="row">
@@ -18,3 +22,18 @@
         </div>
     </div>
 @endsection
+
+@push('page-script')
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            window.AppDescriptionSettingsForm = new formCustomListener({
+                formSelector: '#app-description-card',
+                buttonSelectors: ['.btn-save', '.btn-cancel'],
+            });
+
+            registerLivewireHookOnce('morphed', 'vuexy-admin::app-description-card', (component) => {
+                AppDescriptionSettingsForm.reloadValidation();
+            });
+        });
+    </script>
+@endpush

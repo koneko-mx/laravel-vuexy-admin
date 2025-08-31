@@ -45,7 +45,7 @@ if (!function_exists('config_m')) {
 
         // Componente o Clase de Modulo
         if ($component) {
-            $manager->setComponent($component);
+            $manager->component($component);
         }
 
         return $manager;
@@ -69,9 +69,13 @@ if (!function_exists('settings')) {
     {
         $manager = KonekoSettingManager::make();
 
-        // Componente o Clase de Modulo
         if ($component) {
-            $manager->setComponent($component);
+            if (class_exists($component)) {
+                $manager->loadModuleClass($component);
+
+            }else{
+                $manager->component($component);
+            }
         }
 
         return $manager;
@@ -99,7 +103,7 @@ if (!function_exists('cache_m')) {
 
         // Componente o Clase de Modulo
         if ($component) {
-            $manager->setComponent($component);
+            $manager->component($component);
         }
 
         return $manager;

@@ -17,7 +17,7 @@ trait HasCacheManagerHelpers
         Authenticatable|int|null|false $user = false,
     ): void {
         cache_m($component, $group, $subGroup, $user)
-            ->setKeyName($key)
+            ->keyName($key)
             ->forget();
     }
 
@@ -34,7 +34,7 @@ trait HasCacheManagerHelpers
         ?int $ttl = null
     ): mixed {
         return cache_m($component, $group, $subGroup, $user)
-            ->setKeyName($key)
+            ->keyName($key)
             ->rememberWithTTLResolution($callback, $ttl);
     }
 }

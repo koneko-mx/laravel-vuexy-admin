@@ -16,7 +16,7 @@ class ___KonekoAdminVarsBuilder
     public function __construct(
         protected KonekoVarsService $vars
     ) {
-        $this->vars->context('layout', 'admin')->setKeyName('meta');
+        $this->vars->context('layout', 'admin')->keyName('meta');
     }
 
     /**
@@ -33,7 +33,7 @@ class ___KonekoAdminVarsBuilder
      */
     public function clear(): void
     {
-        $this->vars->setKeyName('meta')->clear();
+        $this->vars->keyName('meta')->clear();
     }
 
     /**

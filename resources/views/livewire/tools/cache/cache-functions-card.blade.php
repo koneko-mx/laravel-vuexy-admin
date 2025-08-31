@@ -188,7 +188,7 @@
         <div>
             {{-- Botones --}}
             <div class="row my-4">
-                <div class="col-lg-12 text-end">
+                <div class="col-12 text-end mb-4">
                     <button
                         class="btn btn-secondary btn-sm mt-2 mr-2 waves-effect waves-light"
                         wire:click="reloadCacheStats"
@@ -198,7 +198,7 @@
                 </div>
             </div>
             {{-- Notifications --}}
-            <div class="notification-container pt-4" wire:ignore></div>
+            <div class="notification-container mb-4" wire:ignore></div>
         </div>
     </div>
 </div>

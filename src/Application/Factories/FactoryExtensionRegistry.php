@@ -8,7 +8,7 @@ namespace Koneko\VuexyAdmin\Application\Factories;
  * 📚 FactoryExtensionRegistry
  *
  */
-class FactoryExtensionRegistry
+final class FactoryExtensionRegistry
 {
     protected static array $registeredTraits = [];
 

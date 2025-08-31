@@ -16,17 +16,28 @@ class VuexyMenuFormatter
 {
     use HasResolvableUser;
 
-    private const GROUP     = 'website-admin';
-    private const SECTION   = 'layout';
-    private const SUB_GROUP = 'menu';
+    private const GROUP   = 'layout';
+    private const SECTION = 'menu';
 
     private const MENU_KEY_NAME             = 'menu';
     private const EXTRA_QUICKLINKS_KEY_NAME = 'extra-quicklinks';
 
+    private static function settings(Authenticatable|int|null|false $user = null): SettingsRepositoryInterface
+    {
+        return settings()
+            ->context(self::GROUP, self::SECTION)
+            ->user($user);
+    }
+
+    private static function config(): ConfigRepositoryInterface
+    {
+        return config_m()->context(self::GROUP, self::SECTION, 'debug');
+    }
+
     public function getMenu(Authenticatable|int|null|false $user = null): array
     {
         $menu = self::settings($user)
-            ->setKeyName(self::MENU_KEY_NAME)
+            ->keyName(self::MENU_KEY_NAME)
             ->remember(fn () => $this->format($user));
 
         $this->markActiveTrail($menu);
@@ -51,7 +62,7 @@ class VuexyMenuFormatter
     public function getExtraQuicklinks(Authenticatable|int|null|false $user = null): array
     {
         return self::settings($user)
-            ->setKeyName(self::EXTRA_QUICKLINKS_KEY_NAME)
+            ->keyName(self::EXTRA_QUICKLINKS_KEY_NAME)
             ->remember(fn () => $this->buildExtraQuicklinks($user));
     }
 
@@ -64,9 +75,9 @@ class VuexyMenuFormatter
         $this->assignSlugs($menu);
         $this->assignCounts($menu);
 
-        if (self::config()->get('debug.show_disallowed_links', false)
-            || self::config()->get('debug.show_hidden_items', false)
-            || self::config()->get('debug.show_broken_routes', false)
+        if (self::config()->get('show_disallowed_links', false)
+            || self::config()->get('show_hidden_items', false)
+            || self::config()->get('show_broken_routes', false)
         ) {
             $this->markDebugFlags($menu, $user);
         }
@@ -253,10 +264,10 @@ class VuexyMenuFormatter
             return false;
 
         if (isset($item['can']) && !$this->userCan($user, $item['can']))
-            return self::config()->get('debug.show_disallowed_links', false);
+            return self::config()->get('show_disallowed_links', false);
 
         if (isset($item['route']) && !Route::has($item['route']))
-            return self::config()->get('debug.show_broken_routes', false);
+            return self::config()->get('show_broken_routes', false);
 
         return true;
     }
@@ -376,17 +387,17 @@ class VuexyMenuFormatter
     {
         foreach ($menu as &$item) {
             // Flag: el usuario no tiene permiso
-            if (self::config()->get('debug.show_disallowed_links', false)) {
+            if (self::config()->get('show_disallowed_links', false)) {
                 $item['_meta']['disallowed_link'] = isset($item['can']) && !$this->userCan($user, $item['can']);
             }
 
             // Flag: está marcado como oculto
-            if (self::config()->get('debug.show_hidden_items', false)) {
+            if (self::config()->get('show_hidden_items', false)) {
                 $item['_meta']['hidden_item'] = isset($item['_meta']['visible']) && $item['_meta']['visible'] === false;
             }
 
             // Flag: la ruta no existe
-            if (self::config()->get('debug.show_broken_routes', false)) {
+            if (self::config()->get('show_broken_routes', false)) {
                 $item['_meta']['broken_route'] = isset($item['route']) && !Route::has($item['route']);
             }
 
@@ -399,23 +410,11 @@ class VuexyMenuFormatter
     public static function forgetCacheForUser(Authenticatable|int|null|false $user = null): void
     {
         self::settings($user)
-            ->setKeyName(self::MENU_KEY_NAME)
+            ->keyName(self::MENU_KEY_NAME)
             ->forgetCache();
 
         self::settings($user)
-            ->setKeyName(self::EXTRA_QUICKLINKS_KEY_NAME)
+            ->keyName(self::EXTRA_QUICKLINKS_KEY_NAME)
             ->forgetCache();
-    }
-
-    private static function settings(Authenticatable|int|null|false $user = null): SettingsRepositoryInterface
-    {
-        return settings()
-            ->context(self::GROUP, self::SECTION, self::SUB_GROUP)
-            ->setUser($user);
-    }
-
-    private static function config(): ConfigRepositoryInterface
-    {
-        return config_m()->context(self::SECTION, self::SUB_GROUP);
     }
 }

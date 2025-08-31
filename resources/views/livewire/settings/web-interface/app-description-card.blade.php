@@ -1,5 +1,5 @@
 <div>
-    <div id="app-description-card-card" class="form-custom-listener mb-4">
+    <div id="app-description-card" class="form-custom-listener mb-4">
         <x-vuexy-admin::card.basic title="Datos de la aplicación" class="mb-4">
             <x-vuexy-admin::form.input
                 label="Titulo de la aplicación"
@@ -15,27 +15,17 @@
                 placeholder="Descripción del sitio" />
         </x-vuexy-admin::card.basic>
         <div class="row">
-            <div class="col-lg-12 text-end">
-                <x-vuexy-admin::button.basic
-                    variant="primary"
-                    size="sm"
-                    icon="ti ti-device-floppy"
+            <div class="col-12 text-end mb-4">
+                <x-vuexy-admin::button.basic variant="primary" size="sm" icon="ti ti-device-floppy" class="btn-save" waves
                     label="Guardar cambios"
-                    disabled
                     wire:click="save"
-                    class="btn-save"
-                    waves />
-                <x-vuexy-admin::button.basic
-                    variant="secondary"
-                    size="sm"
-                    icon="ti ti-rotate-2"
+                    disabled />
+                <x-vuexy-admin::button.basic variant="secondary" size="sm" icon="ti ti-rotate-2" class="btn-cancel" waves
                     label="Cancelar"
-                    disabled
-                    wire:click="loadForm"
-                    class="btn-cancel"
-                    waves />
+                    wire:click="resetForm"
+                    disabled />
             </div>
         </div>
-        <div class="notification-container pt-4" wire:ignore></div>
+        <div class="notification-container mb-4" wire:ignore></div>
     </div>
 </div>

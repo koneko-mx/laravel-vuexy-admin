@@ -101,7 +101,6 @@ class KonekoConfigResolverService
         return $this->get($qualifiedKey, $default);
     }
 
-
     /**
      * Devuelve la fuente de la clave (para inspección o debugging).
      */

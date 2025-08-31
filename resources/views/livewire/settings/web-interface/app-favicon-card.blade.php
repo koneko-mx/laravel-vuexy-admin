@@ -58,27 +58,17 @@
             </div>
         </x-vuexy-admin::card.basic>
         <div class="row">
-            <div class="col-lg-12 text-end">
-                <x-vuexy-admin::button.basic
-                    variant="primary"
-                    size="sm"
-                    icon="ti ti-device-floppy"
+            <div class="col-12 text-end mb-4">
+                <x-vuexy-admin::button.basic variant="primary" size="sm" icon="ti ti-device-floppy" class="btn-save mt-2 mr-2" waves
                     label="Guardar cambios"
                     wire:click="save"
-                    :disabled="$upload_image_favicon === null"
-                    class="btn-save mt-2 mr-2"
-                    waves />
-                <x-vuexy-admin::button.basic
-                    variant="secondary"
-                    size="sm"
-                    icon="ti ti-rotate-2"
+                    :disabled="$upload_image_favicon === null" />
+                <x-vuexy-admin::button.basic variant="secondary" size="sm" icon="ti ti-rotate-2" class="btn-cancel mt-2 mr-2" waves
                     label="Cancelar"
                     wire:click="loadForm"
-                    :disabled="$upload_image_favicon === null"
-                    class="btn-cancel mt-2 mr-2"
-                    waves />
+                    :disabled="$upload_image_favicon === null" />
             </div>
         </div>
-        <div class="notification-container pt-4" wire:ignore></div>
+        <div class="notification-container mb-4" wire:ignore></div>
     </div>
 </div>

@@ -48,7 +48,7 @@
         <div>
             {{-- Botones --}}
             <div class="row my-4">
-                <div class="col-lg-12 text-end">
+                <div class="col-12 text-end mb-4">
                     <button
                         type="button"
                         id="test_smtp_connection_button"
@@ -80,7 +80,7 @@
                 </div>
             </div>
             {{-- Notifications --}}
-            <div class="notification-container pt-4" wire:ignore></div>
+            <div class="notification-container mb-4" wire:ignore></div>
         </div>
     </form>
 </div>

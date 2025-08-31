@@ -79,6 +79,7 @@ return [
         'koneko.core.logging'   => 'config/koneko_logging.php',
         'koneko.core.security'  => 'config/koneko_security.php',
         'koneko.core.key_vault' => 'config/koneko_key_vault.php',
+        'koneko.media'          => 'config/koneko_media.php',
         'database.connections.vault'  => 'config/koneko_key_vault_db.php',
     ],
     // 📦 Configuraciones de bloques
@@ -141,7 +142,6 @@ return [
     // 🧪 Modelos auditables
     'auditable' => [
         User::class,
-        Setting::class,
     ],
 
     // 📦 migraciones

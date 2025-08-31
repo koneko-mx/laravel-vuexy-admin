@@ -59,7 +59,7 @@ class VuexyMenuRegistry
      */
     protected function loadCoreMenu(): array
     {
-        $fullPath = base_path('vendor/koneko/laravel-vuexy-admin/config/vuexy_menu.php');
+        $fullPath = base_path('vendor/koneko/laravel-vuexy-admin/config/vuexy_admin_menu.php');
 
         if (File::exists($fullPath)) {
             $menu = require $fullPath;

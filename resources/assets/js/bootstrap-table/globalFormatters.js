@@ -41,6 +41,24 @@ export const userLoginActionFormatter = (value, row, index) => {
 
 
 
+export const permissionsActionFormatter = (value, row, index) => {
+    if (!row.id) return '';
+
+    return `
+        <div class="flex justify-center space-x-2">
+            <a href="javascript:;" title="Editar" class="mx-2" wire:click="dispatch('editPermission', {id:${row.id}})">
+                <i class="ti ti-edit"></i>
+            </a>
+            <a href="javascript:;" title="Eliminar" class="mx-2" wire:click="dispatch('confirmDeletionPermission', {id:${row.id}})">
+                <i class="ti ti-trash"></i>
+            </a>
+        </div>
+    `.trim();
+};
+
+
+
+
 export const dynamicBooleanFormatter = (value, row, index, options = {}) => {
     const { tag = 'default', customOptions = {} } = options;
     const catalogConfig = booleanStatusCatalog[tag] || {};
@@ -79,9 +97,18 @@ export const dynamicBadgeFormatter = (value, row, index, options = {}) => {
     return `<span class="badge bg-${color} ${textColor} ${additionalClass}">${value}</span>`;
 };
 
+export const jsonLanguageFormatter = (value, row, index) => {
+    const language = document.documentElement.lang;
 
+    try {
+        const json = JSON.parse(value);
 
+        return json[language] || json['es'] || json['en'] || value;
 
+    } catch (e) {
+        return '';
+    }
+}
 
 
 export const statusIntBadgeBgFormatter = (value, row, index) => {

@@ -9,13 +9,13 @@ trait HasSettingMetadata
         'hint'        => null,
     ];
 
-    public function setDescription(string $description): static
+    public function description(string $description): static
     {
         $this->metadata['description'] = $description;
         return $this;
     }
 
-    public function setHint(string $hint): static
+    public function hint(string $hint): static
     {
         $this->metadata['hint'] = $hint;
         return $this;

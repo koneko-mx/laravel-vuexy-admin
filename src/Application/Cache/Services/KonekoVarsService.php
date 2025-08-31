@@ -13,7 +13,7 @@ use Koneko\VuexyAdmin\Application\Cache\Manager\KonekoCacheManager;
  * Cachea resultados en memoria, permite resolución flexible desde settings + config.
  *
  * @method self context(string $group, string $section, string|null $subGroup = null)
- * @method self setKeyName(string $key)
+ * @method self keyName(string $key)
  * @method self forScope(string $scope, int $scope_id)
  * @method self forModel(Model $model)
  * @method self forUser(Authenticatable|int|null $user)
@@ -39,7 +39,7 @@ class KonekoVarsService
         return $this;
     }
 
-    public function setKeyName(string $key): static
+    public function keyName(string $key): static
     {
         $this->keyName = $key;
         return $this;
@@ -109,7 +109,7 @@ class KonekoVarsService
      */
     public function cacheKey(?string $key = null): string
     {
-        return $this->getCacheManager(['key_name' => $key ?? $this->keyName])->qualifiedKey();
+        return $this->getCacheManager(['key_name' => $key ?? $this->keyName])->getQualifiedKey();
     }
 
     /**

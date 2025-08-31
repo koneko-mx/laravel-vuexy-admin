@@ -5,18 +5,16 @@ declare(strict_types=1);
 namespace Koneko\VuexyAdmin\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Koneko\VuexyAdmin\Application\Enums\Settings\SettingValueType;
 use Koneko\VuexyAdmin\Support\Traits\Audit\{HasCreator,HasDeleter,HasUpdater,HasUser};
 use Koneko\VuexyAdmin\Support\Traits\Model\HasVuexyModelMetadata;
-use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
-use OwenIt\Auditing\Auditable;
 
-class Setting extends Model implements AuditableContract
+class Setting extends Model
 {
     use HasVuexyModelMetadata;
-    use Auditable;
     use HasUser,
         HasCreator,
         HasUpdater,
@@ -83,33 +81,6 @@ class Setting extends Model implements AuditableContract
         'deleted_by',
     ];
 
-    protected $auditInclude = [
-        'is_system',
-        'is_sensitive',
-        'is_file',
-        'is_encrypted',
-        'is_config',
-        'is_editable',
-        'is_track_usage',
-        'is_should_cache',
-        'is_active',
-        'mime_type',
-        'file_name',
-        'encryption_algorithm',
-        'encryption_key',
-        'encryption_rotated_at',
-        'expires_at',
-        'cache_ttl',
-        'cache_expires_at',
-        'description',
-        'hint',
-        'value_string',
-        'value_integer',
-        'value_boolean',
-        'value_float',
-        'value_text',
-    ];
-
     protected $casts = [
         'scope_id'         => 'integer',
         'is_system'        => 'boolean',
@@ -136,12 +107,8 @@ class Setting extends Model implements AuditableContract
 
     protected static function booted(): void
     {
-        static::saving(function (self $model) {
-            if (strlen($model->key) > 255) {
-                throw new \RuntimeException("La clave '{$model->key}' excede el límite permitido.");
-            }
-        });
-
+        static::creating(fn($m) => $m->created_by ??= Auth::id());
+        static::saving(fn($m)   => $m->updated_by = Auth::id());
         static::updating(function (self $model) {
             $original = $model->getOriginal();
 

@@ -25,3 +25,7 @@ export default function registerLivewireHookOnce(hookName, componentName, callba
         });
     }
 }
+
+if(!window.registerLivewireHookOnce) {
+    window.registerLivewireHookOnce = registerLivewireHookOnce;
+}

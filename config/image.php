@@ -16,7 +16,9 @@ return [
     |
     */
 
-    'driver' => \Intervention\Image\Drivers\Imagick\Driver::class,
+    'driver' => extension_loaded('imagick')
+        ? \Intervention\Image\Drivers\Imagick\Driver::class
+        : \Intervention\Image\Drivers\Gd\Driver::class,
 
     /*
     |--------------------------------------------------------------------------

@@ -1,294 +1,256 @@
+// resources/assets/js/forms/formCustomListener.js
 export default class FormCustomListener {
-    constructor(config = {}) {
-        const defaultConfig = {
-            formSelector: '.form-custom-listener', // Selector para formularios
-            buttonSelectors: [], // Selectores específicos para botones
-            callbacks: [], // Callbacks correspondientes a los botones específicos
-            allowedInputTags: ['INPUT', 'SELECT', 'TEXTAREA'], // Tags permitidos para cambios
-            validationConfig: null, // Nueva propiedad para la configuración de validación
-            dispatchOnSubmit: null // Callback Livewire para disparar al enviar el formulario
-        };
+  constructor(config = {}) {
+    const defaults = {
+      formSelector: '.form-custom-listener',
+      dispatchOnSubmit: null,     // método Livewire a invocar (p.ej. "save")
+      fieldsValidation: null,     // definición para FormValidation
+      useSubmitPlugin: true,      // usa plugins.SubmitButton si está disponible
+      debug: false,
+    };
+    this.config = { ...defaults, ...config };
 
-        this.config = { ...defaultConfig, ...config };
+    this._inst = null;            // instancia de FormValidation
+    this._formEl = null;          // <form> actual
+    this._isSubmitting = false;   // flag UI
+    this._currentHostBtn = null;  // botón .btn-save si aplica
+    this._componentId = null;     // wire:id del componente Livewire
+    this._hooked = false;         // hooks Livewire v3 ya registrados
 
-        // Aseguramos que los métodos que dependen de `this` estén vinculados al contexto correcto
-        this.defaultButtonHandler = this.defaultButtonHandler.bind(this);
-        this.formValidationInstance = null;
+    this._boot();
+  }
 
-        this.initForms();
+  /* ---------- ciclo de vida ---------- */
+
+  _boot() {
+    const form = document.querySelector(this.config.formSelector);
+    if (!form) return;
+
+    // wire:id actual del componente que contiene el form
+    this._componentId = form.closest('[wire\\:id]')?.getAttribute('wire:id') || null;
+
+    // Guarda referencia y monta validación/bindings
+    this._formEl = form;
+    this._ensureInit(form);
+
+    // Registra hooks v3 cuando Livewire esté listo
+    if (window.Livewire?.hook) {
+      this._registerHooksV3();
+    } else {
+      document.addEventListener('livewire:init', () => this._registerHooksV3(), { once: true });
     }
 
-    /**
-     * Inicializa los formularios encontrados en el DOM.
-     */
-    initForms() {
-        const forms = document.querySelectorAll(this.config.formSelector);
+    if (this.config.debug) console.log('[FCL] boot ok →', this._componentId);
+  }
 
-        if (forms.length === 0) {
-            console.error(`No se encontraron formularios con el selector ${this.config.formSelector}.`);
-            return;
+  _ensureInit(form) {
+    // Siempre re‐montamos porque Livewire puede haber reemplazado el nodo
+    form.removeAttribute('data-initialized');
+    this._bind(form);
+    this._initValidation(form);
+    form.dataset.initialized = 'true';
+  }
+
+  _registerHooksV3() {
+    if (this._hooked) return;
+
+    // 1) commit: se ejecuta al final del ciclo si el mensaje fue exitoso
+    Livewire.hook('commit', ({ component, succeed }) => {
+      if (!component) return;
+      if (component.id === this._componentId) {
+        if (this.config.debug) console.log('[FCL] commit', { id: component.id, succeed });
+        this._unlockAfterLivewire();
+      }
+    });
+
+    // 2) message.failed: errores del request
+    Livewire.hook('message.failed', ({ component }) => {
+      if (!component) return;
+      if (component.id === this._componentId) {
+        if (this.config.debug) console.warn('[FCL] message.failed', component.id);
+        this._unlockAfterLivewire();
+      }
+    });
+
+    // 3) morph.updated: el DOM del componente fue reconciliado
+    Livewire.hook('morph.updated', ({ component /*, el */ }) => {
+      if (!component) return;
+      if (component.id === this._componentId) {
+        // El <form> puede haber sido reemplazado: vuelve a tomar referencia, id y validación
+        this._formEl = document.querySelector(this.config.formSelector);
+        this._componentId =
+          this._formEl?.closest('[wire\\:id]')?.getAttribute('wire:id') || this._componentId;
+
+        if (this.config.debug) console.log('[FCL] morph.updated → rebind/revalidate', this._componentId);
+        this.reloadValidation();
+      }
+    });
+
+    this._hooked = true;
+    if (this.config.debug) console.log('[FCL] hooks v3 registrados');
+  }
+
+  /* ---------- UI / Validación ---------- */
+
+  _bind(form) {
+    // Re-enable botones al tocar cualquier campo
+    form.addEventListener('input', (ev) => {
+      if (!['INPUT','SELECT','TEXTAREA'].includes(ev.target?.tagName)) return;
+      form.querySelectorAll('.btn').forEach(b => {
+        b.disabled = false;
+        b.classList.remove('disabled', 'fv-plugins-submit-button--disabled');
+        b.removeAttribute('data-fv-disabled');
+        b.removeAttribute('aria-disabled');
+      });
+    });
+  }
+
+  _initValidation(form) {
+    const P = window.FormValidation?.plugins || {};
+    if (!this.config.fieldsValidation || !window.FormValidation || !P) return;
+
+    const cfg = {
+      fields: this.config.fieldsValidation,
+      plugins: {
+        trigger:     P.Trigger    ? new P.Trigger() : undefined,
+        bootstrap5:  P.Bootstrap5 ? new P.Bootstrap5({
+          eleValidClass: '',
+          rowSelector: '.fv-row',
+          messageContainer: (_field, el) => this._messageContainerFor(el),
+        }) : undefined,
+        autoFocus:   P.AutoFocus  ? new P.AutoFocus() : undefined,
+      },
+    };
+    if (this.config.useSubmitPlugin && P.SubmitButton) {
+      cfg.plugins.submitButton = new P.SubmitButton();
+    }
+
+    // Limpia instancias previas (si el form fue reemplazado)
+    if (this._inst?.destroy) try { this._inst.destroy(); } catch (e) {}
+
+    this._inst = window.FormValidation
+      .formValidation(form, cfg)
+      .on('core.form.valid', () => {
+        if (this._beforeSubmitUI(form)) this._doLivewireSubmit(form);
+      })
+      .on('core.form.invalid', () => this._restoreUI(form));
+
+    // Arreglo de contenedores de errores en input-group
+    queueMicrotask(() => this._fixMisplacedContainers(form));
+  }
+
+  reloadValidation() {
+    const form = document.querySelector(this.config.formSelector);
+    if (!form) return;
+    if (this._inst?.destroy) try { this._inst.destroy(); } catch (e) {}
+    this._inst = null;
+    this._ensureInit(form);
+  }
+
+  _messageContainerFor(el) {
+    const group = el.closest('.input-group');
+    if (group) {
+      let host = group.nextElementSibling;
+      if (!host || !host.classList?.contains('fv-message')) {
+        host = document.createElement('div');
+        host.className = 'fv-message invalid-feedback';
+        group.insertAdjacentElement('afterend', host);
+      }
+      return host;
+    }
+    let host = el.nextElementSibling;
+    if (!host || !host.classList?.contains('fv-message')) {
+      host = document.createElement('div');
+      host.className = 'fv-message invalid-feedback';
+      el.insertAdjacentElement('afterend', host);
+    }
+    return host;
+  }
+
+  _fixMisplacedContainers(form) {
+    form.querySelectorAll('.input-group .fv-plugins-message-container').forEach(msg => {
+      const group = msg.closest('.input-group');
+      if (!group) return;
+      let host = group.nextElementSibling;
+      if (!host || !host.classList?.contains('fv-message')) {
+        host = document.createElement('div');
+        host.className = 'fv-message invalid-feedback';
+        group.insertAdjacentElement('afterend', host);
+      }
+      host.appendChild(msg);
+    });
+  }
+
+  _beforeSubmitUI(form) {
+    if (this._isSubmitting) return false;
+    this._isSubmitting = true;
+
+    // Desactiva todo durante submit
+    form.querySelectorAll('.btn').forEach(b => {
+      b.disabled = true;
+      b.classList.add('disabled');
+      b.removeAttribute('data-fv-disabled');
+      b.removeAttribute('aria-disabled');
+      b.classList.remove('fv-plugins-submit-button--disabled');
+    });
+    form.querySelectorAll('input,select,textarea,button').forEach(f => f.disabled = true);
+
+    const host = this._currentHostBtn || form.querySelector('.btn-save');
+    const loadingText = host?.getAttribute('data-loading-text');
+    if (host && loadingText) {
+      if (!host.hasAttribute('data-original-text')) {
+        host.setAttribute('data-original-text', host.innerHTML);
+      }
+      host.innerHTML = loadingText;
+    }
+    return true;
+  }
+
+  _restoreUI(form) {
+    form.querySelectorAll('.btn').forEach(b => {
+      b.disabled = false;
+      b.classList.remove('disabled', 'fv-plugins-submit-button--disabled');
+      b.removeAttribute('data-fv-disabled');
+      b.removeAttribute('aria-disabled');
+    });
+    form.querySelectorAll('input,select,textarea,button').forEach(f => f.disabled = false);
+
+    const host = form.querySelector('.btn-save');
+    if (host?.hasAttribute('data-original-text')) {
+      host.innerHTML = host.getAttribute('data-original-text');
+    }
+  }
+
+  _unlockAfterLivewire() {
+    const form = this._formEl || document.querySelector(this.config.formSelector);
+    this._isSubmitting = false;
+    if (!form) return;
+
+    this._restoreUI(form);
+
+    // Reset del estado de FormValidation para permitir nuevos envíos
+    if (this._inst) {
+      try {
+        this._inst.resetForm(false);
+        if (typeof this._inst.setFormStatus === 'function') {
+          this._inst.setFormStatus('NotValidated');
         }
-
-        forms.forEach(form => {
-            if (form.dataset.initialized === 'true') {
-                console.warn(`Formulario ya inicializado: ${form}`);
-                return;
-            }
-
-            this.initFormEvents(form);
-
-            // Si se pasó configuración de validación, inicialízala
-            if (this.config.validationConfig) {
-                this.initializeValidation(form);
-            }
-
-            form.dataset.initialized = 'true'; // Marcar formulario como inicializado
-        });
+      } catch (e) {}
     }
+  }
 
-    /**
-     * Configura los eventos para un formulario individual.
-     * @param {HTMLElement} form - El formulario que será manejado.
-     */
-    initFormEvents(form) {
-        const buttons = this.getButtons(form);
+  /* ---------- envío ---------- */
 
-        buttons.forEach(({ button, callback }, index) => {
-            if (button) {
-                button.addEventListener('click', () => {
-                    this.handleButtonClick(index, form, buttons, callback);
-                });
-            }
-        });
-
-        form.addEventListener('input', event =>
-            this.handleInputChange(
-                event,
-                form,
-                buttons.map(b => b.button)
-            )
-        );
+  _doLivewireSubmit(form) {
+    // Usa el wire:id capturado al boot / morph
+    const id = this._componentId || form.closest('[wire\\:id]')?.getAttribute('wire:id');
+    if (id && this.config.dispatchOnSubmit) {
+      window.Livewire?.find(id)?.call(this.config.dispatchOnSubmit);
+    } else {
+      // Si no hay método configurado, no bloqueo la UI
+      this._restoreUI(form);
     }
-
-    /**
-     * Obtiene los botones y sus callbacks según la configuración.
-     * @param {HTMLElement} form - El formulario del cual obtener botones.
-     * @returns {Array} Array de objetos con { button, callback }.
-     */
-    getButtons(form) {
-        const buttons = [];
-
-        this.config.buttonSelectors.forEach((selector, index) => {
-            const buttonList = Array.from(form.querySelectorAll(selector));
-            const callback = this.config.callbacks[index];
-
-            buttonList.forEach(button => {
-                buttons.push({ button, callback });
-            });
-        });
-
-        return buttons;
-    }
-
-    /**
-     * Maneja los cambios en los campos de entrada.
-     * @param {Event} event - El evento del cambio.
-     * @param {HTMLElement} form - El formulario actual.
-     * @param {HTMLElement[]} buttons - Array de botones en el formulario.
-     */
-    handleInputChange(event, form, buttons) {
-        const target = event.target;
-
-        if (['INPUT', 'SELECT', 'TEXTAREA'].includes(target.tagName)) {
-            this.toggleButtonsState(buttons, true);
-        }
-    }
-
-    /**
-     * Maneja el clic en un botón específico.
-     * @param {number} index - Índice del botón.
-     * @param {HTMLElement} form - El formulario actual.
-     * @param {Array} buttons - Array de objetos { button, callback }.
-     * @param {function|null} callback - Callback definido para el botón.
-     */
-    handleButtonClick(index, form, buttons, callback) {
-        if (typeof callback === 'function') {
-            callback(
-                form,
-                buttons[index].button,
-                buttons.map(b => b.button)
-            );
-        } else {
-            this.defaultButtonHandler(
-                form,
-                buttons[index].button,
-                buttons.map(b => b.button)
-            );
-        }
-    }
-
-    /**
-     * Maneja la acción cuando el formulario es válido.
-     * Este método puede ser sobreescrito para personalizar el comportamiento.
-     */
-    handleFormValid(form) {
-        // Ejecutar callback opcional (si lo proporcionaste)
-        if (typeof this.config.handleValidForm === 'function') {
-            this.config.handleValidForm(form);
-        } else if (this.config.dispatchOnSubmit) {
-            this.handleValidForm(form);
-        } else {
-            form.submit();
-        }
-    }
-
-    /**
-     * Método que maneja la acción cuando el formulario es válido.
-     * Al ser un método de la clase, no necesitamos usar bind.
-     */
-    handleValidForm(form) {
-        const saveButton = form.querySelector('#save_website_button');
-        const allButtons = Array.from(form.querySelectorAll('.btn'));
-
-        this.toggleButtonsState(allButtons, false); // Deshabilitar todos los botones
-        this.toggleFormFields(form, false); // Deshabilitar todos los campos del formulario
-        this.setButtonLoadingState(saveButton, true); // Poner en estado de carga al botón anfitrión
-
-        // Enviar la solicitud de Livewire correspondiente al enviar el formulario
-        const componentEl = form.closest('[wire\\:id]');
-        const componentId = componentEl?.getAttribute('wire:id');
-
-        if (componentId) {
-            const component = Livewire.find(componentId);
-            if (component) {
-                component.call(this.config.dispatchOnSubmit);
-            } else {
-                console.warn('No se encontró el componente Livewire.');
-            }
-        } else {
-            console.warn('No se pudo encontrar wire:id para ejecutar el método Livewire.');
-        }
-    }
-
-    /**
-     * Manejador por defecto para los botones.
-     * @param {HTMLElement} form - El formulario actual.
-     * @param {HTMLElement} hostButton - El botón anfitrión que disparó el evento.
-     * @param {HTMLElement[]} allButtons - Todos los botones relevantes del formulario.
-     */
-    defaultButtonHandler(form, hostButton, allButtons) {
-        this.toggleButtonsState(allButtons, false); // Deshabilitar todos los botones
-        this.toggleFormFields(form, false); // Deshabilitar todos los campos del formulario
-        this.setButtonLoadingState(hostButton, true); // Poner en estado de carga al botón anfitrión
-    }
-
-    /**
-     * Deshabilita o habilita los campos del formulario.
-     * @param {HTMLElement} form - El formulario actual.
-     * @param {boolean} isEnabled - Si los campos deben habilitarse.
-     */
-    toggleFormFields(form, isEnabled) {
-        form.querySelectorAll('input, select, textarea').forEach(field => {
-            field.disabled = !isEnabled;
-        });
-    }
-
-    /**
-     * Habilita o deshabilita los botones.
-     * @param {HTMLElement[]} buttons - Array de botones.
-     * @param {boolean} isEnabled - Si los botones deben habilitarse.
-     */
-    toggleButtonsState(buttons, isEnabled) {
-        buttons.forEach(button => {
-            if (button){
-                button.disabled = !isEnabled;
-                button.classList.toggle('disabled', !isEnabled);
-            }
-        });
-    }
-
-    /**
-     * Cambia el estado de carga de un botón.
-     * @param {HTMLElement} button - Botón que se manejará.
-     * @param {boolean} isLoading - Si el botón está en estado de carga.
-     */
-    setButtonLoadingState(button, isLoading) {
-        if (!button) return;
-
-        const loadingText = button.getAttribute('data-loading-text');
-        if (loadingText && isLoading) {
-            button.setAttribute('data-original-text', button.innerHTML);
-            button.innerHTML = loadingText;
-            button.disabled = true;
-        } else if (!isLoading) {
-            button.innerHTML = button.getAttribute('data-original-text') || button.innerHTML;
-            button.disabled = false;
-        }
-    }
-
-    /**
-     * Inicializa la validación del formulario con la configuración proporcionada.
-     * @param {HTMLElement} form - El formulario que va a ser validado.
-     */
-    initializeValidation(form) {
-        if (this.config.validationConfig) {
-            this.formValidationInstance = FormValidation.formValidation(
-                form,
-                this.config.validationConfig
-            ).on('core.form.valid', () => this.handleFormValid(form));
-
-            // Aplicamos el fix después de un pequeño delay
-            setTimeout(() => {
-                this.fixValidationMessagePosition(form);
-            }, 100); // Lo suficiente para esperar a que FV inserte los mensajes
-        }
-    }
-
-    /**
-     * Mueve los mensajes de error fuera del input-group para evitar romper el diseño
-     */
-    fixValidationMessagePosition(form) {
-        const groups = form.querySelectorAll('.input-group.has-validation');
-
-        groups.forEach(group => {
-            const errorContainer = group.querySelector('.fv-plugins-message-container');
-
-            if (errorContainer) {
-                // Evita duplicados
-                if (errorContainer.classList.contains('moved')) return;
-
-                // Crear un contenedor si no existe
-                let target = group.parentElement.querySelector('.fv-message');
-                if (!target) {
-                    target = document.createElement('div');
-                    target.className = 'fv-message invalid-feedback';
-                    group.parentElement.appendChild(target);
-                }
-
-                target.appendChild(errorContainer);
-                errorContainer.classList.add('moved'); // Marcar como ya movido
-            }
-        });
-    }
-
-    reloadValidation() {
-        const form = document.querySelector(this.config.formSelector);
-
-        if (form && this.formValidationInstance) {
-            try {
-                setTimeout(() => {
-                    this.formValidationInstance.resetForm(); // Limpiar errores
-                    this.initializeValidation(form);        // Reinicializar
-
-                    // 🔁 Reconectar eventos de inputs y botones
-                    this.initFormEvents(form);
-                }, 1);
-            } catch (error) {
-                console.error('Error al reiniciar la validación:', error);
-            }
-        } else {
-            console.warn('Formulario no encontrado o instancia de validación no disponible.');
-        }
-    }
-
+  }
 }
+
+if (!window.formCustomListener) window.formCustomListener = FormCustomListener;

@@ -9,9 +9,9 @@ use Livewire\Component;
 
 class AppDescriptionCard extends Component
 {
-    private $targetNotify = "#app-description-card-card .notification-container";
-    private $group   = 'layout';
-    private $section = 'admin';
+    private $targetNotify = "#app-description-card .notification-container";
+    private const GROUP   = 'layout';
+    private const SECTION = 'admin';
 
     public $app_name,
         $title,
@@ -19,12 +19,19 @@ class AppDescriptionCard extends Component
 
     private function settings(): KonekoSettingManager
     {
-        return settings()->context($this->group, $this->section);
+        return settings()->context(self::GROUP, self::SECTION);
     }
 
     public function mount()
     {
         $this->loadForm();
+    }
+
+    public function loadForm()
+    {
+        $this->app_name    = $this->settings()->get('app_name', config('koneko.app_name'));
+        $this->title       = $this->settings()->get('title', config('koneko.title'));
+        $this->description = $this->settings()->get('description', config('koneko.description'));
     }
 
     public function save()
@@ -36,9 +43,9 @@ class AppDescriptionCard extends Component
         ]);
 
         // Guardar título del sitio en configuraciones
-        $this->settings()->set(trim($this->app_name), 'app_name');
-        $this->settings()->set(trim($this->title), 'title');
-        $this->settings()->set(trim($this->description), 'description');
+        $this->settings()->set('app_name', trim($this->app_name));
+        $this->settings()->set('title', trim($this->title));
+        $this->settings()->set('description', trim($this->description));
 
         // Notificación de éxito
         $this->dispatch(
@@ -49,11 +56,10 @@ class AppDescriptionCard extends Component
         );
     }
 
-    public function loadForm()
+    public function resetForm(): void
     {
-        $this->app_name    = $this->settings()->get('app_name')?? config('koneko.app_name');
-        $this->title       = $this->settings()->get('title')?? config('koneko.title');
-        $this->description = $this->settings()->get('description')?? config('koneko.description');
+        $this->loadForm();
+        $this->resetValidation();
     }
 
     public function render()

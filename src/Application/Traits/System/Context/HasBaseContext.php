@@ -49,15 +49,15 @@ trait HasBaseContext
             $this->withScopeFromModel($model);
 
         } elseif (Auth::check()) {
-            $this->setUser(Auth::user());
+            $this->user(Auth::user());
         }
 
-        $this->setEnvironment();
+        $this->environment();
 
         return $this;
     }
 
-    public function context(?string $group = null, ?string $section, ?string $subGroup = 'default'): static
+    public function context(?string $group, ?string $section, ?string $subGroup = 'default'): static
     {
         $this->context['group']     = $group ? $this->validateSlug('group', $group, 16) : null;
         $this->context['section']   = $section ? $this->validateSlug('section', $section, 16) : null;
@@ -70,15 +70,15 @@ trait HasBaseContext
     {
         $this->reset();
 
-        if (isset($context['environment'])) $this->setEnvironment($context['environment']);
-        if (isset($context['component']))   $this->setComponent($context['component']);
-        if (isset($context['group']))       $this->setGroup($context['group']);
-        if (isset($context['section']))     $this->setSection($context['section']);
-        if (isset($context['sub_group']))   $this->setSubGroup($context['sub_group']);
-        if (isset($context['key_name']))    $this->setKeyName($context['key_name']);
+        if (isset($context['environment'])) $this->environment($context['environment']);
+        if (isset($context['component']))   $this->component($context['component']);
+        if (isset($context['group']))       $this->group($context['group']);
+        if (isset($context['section']))     $this->section($context['section']);
+        if (isset($context['sub_group']))   $this->subGroup($context['sub_group']);
+        if (isset($context['key_name']))    $this->keyName($context['key_name']);
 
         if (isset($context['scope'], $context['scope_id'])) {
-            $this->setScope($context['scope'], $context['scope_id']);
+            $this->scope($context['scope'], $context['scope_id']);
         }
 
         return $this;
@@ -92,7 +92,7 @@ trait HasBaseContext
         return $this;
     }
 
-    public function setEnvironment(?string $environment = null): static
+    public function environment(?string $environment = null): static
     {
         $this->context['environment'] = $environment
             ? $this->validateSlug('environment', $environment, 10)
@@ -100,17 +100,13 @@ trait HasBaseContext
         return $this;
     }
 
-    public function setComponent(string $component): static
+    public function component(string $component): static
     {
-        if (class_exists($component)) {
-            return $this->loadModuleClass($component);
-        }
-
         $this->context['component'] = $this->validateSlug('component', $component, 16);
         return $this;
     }
 
-    public function setModule(string $module): static
+    public function module(string $module): static
     {
         $this->context['module'] = $this->validateModule($module);
         return $this;
@@ -119,7 +115,7 @@ trait HasBaseContext
     /**
      * Carga el contexto de un módulo usando una clase declarativa.
      */
-    protected function loadModuleClass(string $moduleClass): static
+    public function loadModuleClass(string $moduleClass): static
     {
         if (!defined("$moduleClass::COMPONENT") || !defined("$moduleClass::MODULE")) {
             throw new \InvalidArgumentException("La clase de módulo debe definir las constantes COMPONENT y MODULE.");
@@ -129,13 +125,13 @@ trait HasBaseContext
         $module    = constant("$moduleClass::MODULE");
 
         return $this
-            ->setComponent($component)
-            ->setModule($module);
+            ->component($component)
+            ->module($module);
     }
 
     // ======================= Scope =========================
 
-    public function setScope(Model|string|false $scope, int|null|false $scopeId = false): static
+    public function scope(Model|string|false $scope, int|null|false $scopeId = false): static
     {
         if ($scope === false) {
             $this->context['scope']    = null;
@@ -150,10 +146,10 @@ trait HasBaseContext
 
         // Obtenemos el scope y el scope_id de un modelo
         if ($scope instanceof Model) {
-            $this->withScopeFromModel($scope);
+            return $this->withScopeFromModel($scope);
 
         // Si el scope es una cadena, validamos el slug
-        } else {
+        } elseif (is_string($scope)) {
             $this->context['scope'] = $this->validateScope($scope);
         }
 
@@ -165,13 +161,13 @@ trait HasBaseContext
         return $this;
     }
 
-    public function setScopeId(?int $scopeId): static
+    public function scopeId(?int $scopeId): static
     {
         $this->context['scope_id'] = $scopeId;
         return $this;
     }
 
-    public function setUser(Authenticatable|int|null|false $user): static
+    public function user(Authenticatable|int|null|false $user): static
     {
         $this->context['scope']    = 'user';
         $this->context['scope_id'] = $this->resolveUserId($user);
@@ -186,30 +182,33 @@ trait HasBaseContext
             throw new \InvalidArgumentException('El modelo proporcionado no está asociado a ningún scope registrado.');
         }
 
-        return $this->setScope($context['scope'], $context['scope_id']);
+        $this->context['scope']    = $this->validateScope($context['scope']);
+        $this->context['scope_id'] = $context['scope_id'];
+
+        return $this;
     }
 
     // ======================= Context =========================
 
-    public function setGroup(string $group): static
+    public function group(string $group): static
     {
         $this->context['group'] = $this->validateSlug('group', $group, 16);
         return $this;
     }
 
-    public function setSection(string $section): static
+    public function section(string $section): static
     {
         $this->context['section'] = $this->validateSlug('section', $section, 16);
         return $this;
     }
 
-    public function setSubGroup(string $subGroup): static
+    public function subGroup(string $subGroup): static
     {
         $this->context['sub_group'] = $this->validateSlug('sub_group', $subGroup, 16);
         return $this;
     }
 
-    public function setKeyName(string $keyName): static
+    public function keyName(string $keyName): static
     {
         $this->context['key_name'] = $this->validateKeyName($keyName);
         return $this;
@@ -225,7 +224,7 @@ trait HasBaseContext
 
     // ======================= GETTERS =========================
 
-    public function qualifiedKey(?string $key = null): string
+    public function getQualifiedKey(?string $key = null): string
     {
         $this->validateContextWithScope();
 
@@ -293,7 +292,7 @@ trait HasBaseContext
         }
     }
 
-    public function resetComponentContext(): void
+    public function recomponentContext(): void
     {
         $this->context['environment'] = app()->environment();
         $this->context['component']   = CoreModule::COMPONENT;
@@ -305,7 +304,7 @@ trait HasBaseContext
         $this->context['scope_id']    = null;
     }
 
-    public function resetGroupContext(): void
+    public function regroupContext(): void
     {
         $this->context['group']       = null;
         $this->context['section']     = null;

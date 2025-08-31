@@ -37,7 +37,7 @@
         <x-vuexy-admin::form.input :uid="$uid" type="hidden" model="mode" />
     @endif
     @if ($mode !== 'delete' && in_array($actionPosition, ['top', 'both']))
-        <div class="notification-container mb-4"></div>
+        <div class="notification-container mb-4" wire:ignore></div>
         <div class="form-actions mb-4">
             {{ $actions ?? '' }}
         </div>
@@ -46,7 +46,7 @@
         {{ $slot }}
     </div>
     @if (in_array($actionPosition, ['bottom', 'both']))
-        <div class="notification-container mb-4"></div>
+        <div class="notification-container mb-4" wire:ignore></div>
         <div class="form-actions mt-4">
             {{ $actions ?? '' }}
         </div>

@@ -22,7 +22,7 @@ class KonekoAdminVarsBuilder
     {
         return settings()
             ->context($this->group, $this->section)
-            ->setKeyName($this->keyName)
+            ->keyName($this->keyName)
             ->remember(fn () => $this->resolveAdminVars());
     }
 
@@ -66,16 +66,16 @@ class KonekoAdminVarsBuilder
             ? WebAdminImageHandler::FAVICON_BASE_PATH . $settings['favicon_ns']
             : '';
 
-        $default = config('koneko.favicon', 'favicon.ico');
+        $favicon_default = '../vendor/vuexy-admin/img/logo/koneko-04.png';
 
         return [
             'namespace' => $ns,
-            '16x16'     => $ns ? "{$ns}_16x16.png" : $default,
-            '76x76'     => $ns ? "{$ns}_76x76.png" : $default,
-            '120x120'   => $ns ? "{$ns}_120x120.png" : $default,
-            '152x152'   => $ns ? "{$ns}_152x152.png" : $default,
-            '180x180'   => $ns ? "{$ns}_180x180.png" : $default,
-            '192x192'   => $ns ? "{$ns}_192x192.png" : $default,
+            '16x16'     => $ns ? "{$ns}_16x16.png" : $favicon_default,
+            '76x76'     => $ns ? "{$ns}_76x76.png" : $favicon_default,
+            '120x120'   => $ns ? "{$ns}_120x120.png" : $favicon_default,
+            '152x152'   => $ns ? "{$ns}_152x152.png" : $favicon_default,
+            '180x180'   => $ns ? "{$ns}_180x180.png" : $favicon_default,
+            '192x192'   => $ns ? "{$ns}_192x192.png" : $favicon_default,
         ];
     }
 
@@ -84,16 +84,16 @@ class KonekoAdminVarsBuilder
      */
     protected function buildImageLogoPaths(array $settings): array
     {
-        $default = config('koneko.app_logo', 'logo-default.png');
+        $logo_default = '../vendor/vuexy-admin/img/logo/koneko-04.png';
         $path = WebAdminImageHandler::LOGO_BASE_PATH;
 
         return [
-            'small'       => isset($settings['image_logo_small'])          ? $path . $settings['image_logo_small']          : $default,
-            'medium'      => isset($settings['image_logo_medium'])         ? $path . $settings['image_logo_medium']         : $default,
-            'large'       => isset($settings['image_logo'])                ? $path . $settings['image_logo']                : $default,
-            'small_dark'  => isset($settings['image_logo_small_dark'])     ? $path . $settings['image_logo_small_dark']     : $default,
-            'medium_dark' => isset($settings['image_logo_medium_dark'])    ? $path . $settings['image_logo_medium_dark']    : $default,
-            'large_dark'  => isset($settings['image_logo_dark'])           ? $path . $settings['image_logo_dark']           : $default,
+            'small'       => isset($settings['image_logo_small'])          ? $path . $settings['image_logo_small']          : $logo_default,
+            'medium'      => isset($settings['image_logo_medium'])         ? $path . $settings['image_logo_medium']         : $logo_default,
+            'large'       => isset($settings['image_logo'])                ? $path . $settings['image_logo']                : $logo_default,
+            'small_dark'  => isset($settings['image_logo_small_dark'])     ? $path . $settings['image_logo_small_dark']     : $logo_default,
+            'medium_dark' => isset($settings['image_logo_medium_dark'])    ? $path . $settings['image_logo_medium_dark']    : $logo_default,
+            'large_dark'  => isset($settings['image_logo_dark'])           ? $path . $settings['image_logo_dark']           : $logo_default,
         ];
     }
 }

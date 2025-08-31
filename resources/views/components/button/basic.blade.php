@@ -11,7 +11,7 @@
     'textStyle'  => false, // Habilitar estilo de texto
     'rounded'    => false, // Habilitar bordes redondeados
     'block'      => false, // Convertir en botón de ancho completo
-    'waves'      => true, // Habilitar efecto Vuexy (waves-effect)
+    'noWaves'      => false, // Habilitar efecto Vuexy (waves-effect)
     'icon'         => '', // Clases del ícono (ej: 'ti ti-home')
     'iconOnly'     => false, // Botón solo con ícono
     'iconPosition' => 'left', // Posición del ícono: left, right
@@ -30,7 +30,7 @@
         $labelStyle || $outline || $textStyle ? '' : "btn-$variant",
         $rounded ? 'rounded-pill' : '',
         $block ? 'd-block w-100' : '',
-        $waves ? 'waves-effect' : '',
+        $noWaves ? 'no-waves': 'waves-effect',
         $size !== 'md' ? "btn-$size" : '',
         $active ? 'active' : '',
         $disabled ? 'disabled' : '',

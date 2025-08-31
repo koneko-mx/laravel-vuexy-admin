@@ -17,6 +17,8 @@ trait HasSettingsContextValidation
 
     public function validateContextWithScope(): void
     {
+
+
         $this->validateBaseContext();
         $this->requireKeyName();
         $this->validateScopeContext($this->context['scope'], $this->context['scope_id']);

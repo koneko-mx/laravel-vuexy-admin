@@ -112,7 +112,7 @@ abstract class AbstractFormOffCanvasComponent extends Component
     protected function defaults(): array { return []; }
 
     /** @return array<string, mixed> Opciones del formulario */
-    protected function options(): array { return []; }
+    //protected function options(): array { return []; }
 
     /** @return array<string, mixed> Atributos personalizados para mensajes de validación */
     protected function attributes(): array { return []; }
@@ -127,7 +127,7 @@ abstract class AbstractFormOffCanvasComponent extends Component
     {
         $this->setupModelMetadata();
         $this->loadDefaults();
-        $this->loadOptions();
+        //$this->loadOptions();
     }
 
     /** @return void Configura metadatos del modelo. */
@@ -154,12 +154,14 @@ abstract class AbstractFormOffCanvasComponent extends Component
     }
 
     /** @return void Carga opciones del formulario. */
+    /*
     protected function loadOptions(): void
     {
         foreach ($this->options() as $key => $value) {
             $this->$key = $value;
         }
     }
+    */
 
     /** @return View Renderiza la vista del formulario. */
     public function render(): View

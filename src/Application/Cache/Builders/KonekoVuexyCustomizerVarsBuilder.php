@@ -23,7 +23,7 @@ class KonekoVuexyCustomizerVarsBuilder
     {
         return settings()
             ->context($this->group, $this->section, $this->sub_group)
-            ->setKeyName($this->key_name)
+            ->keyName($this->key_name)
             ->remember(fn () => $this->resolveCustomizerVars());
     }
 

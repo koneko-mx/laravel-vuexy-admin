@@ -21,21 +21,22 @@ interface SettingsRepositoryInterface
 
     // ==================== Context ====================
 
-    public function setEnvironment(string $environment): static;
-    public function setComponent(string $component): static;
+//    public function environment(string $environment): static;
+    public function component(string $component): static;
 
-    public function context(?string $group = null, ?string $section, ?string $subGroup = 'default'): static;
-    public function setContextArray(array $context): static;
+    public function context(?string $group, ?string $section, ?string $subGroup = 'default'): static;
+//    public function setContextArray(array $context): static;
 
-    public function setScope(Model|string|false $scope, int|null|false $scopeId = false): static;
-    public function setScopeId(?int $scopeId): static;
-    public function setUser(Authenticatable|int|null|false $user): static;
-    public function withScopeFromModel(Model $model): static;
+    public function scope(Model|string|false $scope, int|null|false $scopeId = false): static;
+    public function scopeId(?int $scopeId): static;
+    public function user(Authenticatable|int|null|false $user): static;
+//    public function withScopeFromModel(Model $model): static;
 
-    public function setGroup(string $group): static;
-    public function setSection(string $section): static;
-    public function setSubGroup(string $subGroup): static;
-    public function setKeyName(string $keyName): static;
+    public function group(string $group): static;
+    public function section(string $section): static;
+    public function subGroup(string $subGroup): static;
+
+    public function keyName(string $keyName): static;
 
     public function includeDisabled(bool $state = true): static;
     public function includeExpired(bool $state = true): static;
@@ -53,9 +54,9 @@ interface SettingsRepositoryInterface
     // ==================== Files ====================
 
     public function enableFile(bool $state = true): static;
-    public function setFile(string $mime_type, string $file_name): static;
-    public function setMimeType(string $mime_type): static;
-    public function setFileName(string $file_name): static;
+    public function file(string $mime_type, string $file_name): static;
+    public function mimeType(string $mime_type): static;
+    public function fileName(string $file_name): static;
     public function handleFileUpload(UploadedFile $file, string $storageDisk = 'public'): static;
 
     // ==================== Markers ====================
@@ -66,31 +67,32 @@ interface SettingsRepositoryInterface
     public function markAsActive(bool $state = true): static;
     public function expiresAt(Carbon|string|false|null $date): static;
     public function trackUsage(bool $state = true): static;
-    public function setInternalConfigFlag(bool $state = true): static;
+//    public function setInternalConfigFlag(bool $state = true): static;
 
     // ==================== Metadata ====================
 
-    public function setDescription(string $description): static;
-    public function setHint(string $hint): static;
+    public function description(string $description): static;
+    public function hint(string $hint): static;
 
     // ==================== CRUD ====================
 
-    public function set(mixed $value, ?string $keyName = null): void;
+    //public function set(mixed $value, ?string $keyName = null): void;
+    public function set(string $keyName, mixed $value): void;
     public function get(?string $keyName = null, mixed $default = null): mixed;
     public function delete(string $qualifiedKey): void;
     public function all(): Collection|array;
 
-    public function deleteByContext(): int;
+//    public function deleteByContext(): int;
     public function deleteGroup(): int;
     public function deleteSubGroup(): int;
 
     // ==================== Fetchers ====================
 
-    public function getGroup(bool $asArray = false): Collection|array;
-    public function getSubGroup(bool $asArray = false): Collection|array;
-    public function getComponents(bool $asArray = false): Collection|array;
-    public function getGroups(bool $asArray = false): Collection|array;
-    public function getSubGroups(bool $asArray = false): Collection|array;
+//    public function getGroup(bool $asArray = false): Collection|array;
+//    public function getSubGroup(bool $asArray = false): Collection|array;
+//    public function getComponents(bool $asArray = false): Collection|array;
+//    public function getGroups(bool $asArray = false): Collection|array;
+//    public function getSubGroups(bool $asArray = false): Collection|array;
 
     // ==================== Cache ====================
 
@@ -104,18 +106,18 @@ interface SettingsRepositoryInterface
 
     // ==================== Getters ====================
 
-    public function qualifiedKey(?string $key = null): string;
-    public function exists(string $qualifiedKey): bool;
-    public function existsByContext(): bool;
-    public function isUsable(): bool;
+    public function getQualifiedKey(?string $key = null): string;
+//    public function exists(string $qualifiedKey): bool;
+//    public function existsByContext(): bool;
+//    public function isUsable(): bool;
     public function getScopeModel(): ?Model;
 
     // ==================== Utils ====================
 
     public function has(string $qualifiedKey): bool;
     public function hasContext(): bool;
-    public function setInactiveByContext(): int;
-    public function reset(): void;
+//    public function setInactiveByContext(): int;
+//    public function reset(): void;
 
     // ==================== Diagnostics ====================
 

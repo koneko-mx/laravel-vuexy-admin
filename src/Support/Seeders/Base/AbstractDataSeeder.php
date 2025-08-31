@@ -161,12 +161,14 @@ abstract class AbstractDataSeeder extends Seeder
             $sanitized  = $this->sanitizeRowWithFillableAndCasts($row, $this->model);
             $modelClass = $this->getModel();
 
-            $modelClass::updateOrCreate(
+            $modelInstance = $modelClass::updateOrCreate(
                 is_array($this->uniqueBy)
                     ? array_intersect_key($sanitized, array_flip($this->uniqueBy))
                     : [$this->uniqueBy => $sanitized[$this->uniqueBy] ?? null],
                 $sanitized
             );
+
+            $this->afterRowProcessed($modelInstance, $row);
 
             $this->processedCount++;
 
@@ -211,6 +213,15 @@ abstract class AbstractDataSeeder extends Seeder
      * @return void
      */
     protected function afterRun(array $options): void {}
+
+    /**
+     * Hook opcional: después de crear/actualizar un registro.
+     *
+     * @param \Illuminate\Database\Eloquent\Model $model
+     * @param array $row
+     * @return void
+     */
+    protected function afterRowProcessed($model, array $row): void {}
 
     /**
      * Asocia el seeder con un comando Artisan (para logs y barra de progreso).

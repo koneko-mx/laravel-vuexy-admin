@@ -16,9 +16,9 @@ class WebAdminImageHandler
     private string $imageDisk = 'public';
 
     public const FAVICON_BASE_PATH = 'favicon-admin/';
-    public const LOGO_BASE_PATH = 'logo-admin/';
+    public const LOGO_BASE_PATH    = 'logo-admin/';
 
-    private string $group = 'layout';
+    private string $group   = 'layout';
     private string $section = 'admin';
 
 
@@ -35,7 +35,7 @@ class WebAdminImageHandler
      */
     public function processAndSaveFavicon(\Illuminate\Http\UploadedFile $image): void
     {
-        Storage::makeDirectory(self::FAVICON_BASE_PATH);
+        ///Storage::makeDirectory(self::FAVICON_BASE_PATH);
 
         $currentNamespace = settings()
             ->context($this->group, $this->section, 'favicon')
@@ -56,7 +56,7 @@ class WebAdminImageHandler
 
         settings()
             ->context($this->group, $this->section, 'favicon')
-            ->set($baseName, 'favicon_ns');
+            ->set('favicon_ns', $baseName);
     }
 
     /**
@@ -102,7 +102,7 @@ class WebAdminImageHandler
 
         settings()
             ->context($this->group, $this->section, "logo{$type}")
-            ->set($fileName, $keyName);
+            ->set($keyName, $fileName);
     }
 
     /**
@@ -120,7 +120,7 @@ class WebAdminImageHandler
 
         settings()
             ->context($this->group, $this->section, "logo{$type}")
-            ->set($base64, $keyName);
+            ->set($keyName, $base64);
     }
 
     /**

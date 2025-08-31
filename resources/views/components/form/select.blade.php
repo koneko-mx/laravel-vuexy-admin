@@ -34,6 +34,7 @@
 
     // Opciones del select
     'options' => [],
+    'noPlaceholder' => false,
 
     // Atributos adicionales
     'attributes' => new \Illuminate\View\ComponentAttributeBag([]),
@@ -44,7 +45,7 @@
     $livewireModel = $attributes->get('wire:model', $model);
     $name = $attributes->get('name', $livewireModel);
     $inputId = $attributes->get('id', $name . '_' . $uid);
-    $placeholder = $attributes->get('placeholder', 'Seleccione ' . strtolower($label));
+    $placeholder = $attributes->get('placeholder', $noPlaceholder ? null : 'Seleccione ' . strtolower($label));
     $selected = $attributes->get('selected', null);
 
     // **Manejo de errores**

@@ -6,6 +6,7 @@ namespace Koneko\VuexyAdmin\Application\UX\Breadcrumbs;
 
 use Illuminate\Support\Facades\Route;
 use Koneko\VuexyAdmin\Application\UX\Menu\VuexyMenuFormatter;
+use Illuminate\Support\Str;
 
 class VuexyBreadcrumbsBuilder
 {
@@ -54,8 +55,11 @@ class VuexyBreadcrumbsBuilder
 
             // Verificación por route
             $routeMatches = isset($item['route']) && $item['route'] === $currentRoute;
-            $partialMatch = isset($item['route']) && str_starts_with($currentRoute, dirname($item['route']));
+            $partialBase  = isset($item['route']) ? Str::beforeLast($item['route'], '.') : null;
+            $partialMatch = $partialBase && Route::is($partialBase . '.*');
             $slugMatches  = $currentSlug && isset($item['_slug']) && $item['_slug'] === $currentSlug;
+
+
 
             $newTrail = $trail;
 

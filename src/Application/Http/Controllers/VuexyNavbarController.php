@@ -21,7 +21,7 @@ class VuexyNavbarController extends Controller
     {
         abort_if(!request()->expectsJson(), 403, __('errors.ajax_only'));
 
-        return response()->json(app(VuexySearchBarBuilder::class)->getSearchData());
+        return response()->json(app(VuexySearchBarBuilder::class)->getSearchData(request()->user()));
     }
 
     /**
@@ -54,7 +54,7 @@ class VuexyNavbarController extends Controller
 
         $quickLinks = settings(CoreModule::COMPONENT)
             ->context($group, $section, $sub_group)
-            ->setScope($request->user())
+            ->scope($request->user())
             ->get($key_name)?? [];
 
         if ($validated['action'] === 'update') {
@@ -71,7 +71,7 @@ class VuexyNavbarController extends Controller
 
         settings(CoreModule::COMPONENT)
             ->context($group, $section, $sub_group)
-            ->setScope($request->user())
+            ->scope($request->user())
             ->set($key_name, json_encode($quickLinks));
 
         //VuexyQuicklinksBuilder::forgetCacheForUser();
