@@ -5,7 +5,6 @@
 @section('vendor-script')
     @vite([
         'vendor/koneko/laravel-vuexy-admin/resources/assets/js/forms/formCustomListener.js',
-        'vendor/koneko/laravel-vuexy-admin/resources/assets/js/livewire/registerLivewireHookOnce.js',
         'vendor/koneko/laravel-vuexy-admin/resources/assets/js/notifications/LivewireNotification.js',
     ])
 @endsection
@@ -29,10 +28,6 @@
             window.AppDescriptionSettingsForm = new formCustomListener({
                 formSelector: '#app-description-card',
                 buttonSelectors: ['.btn-save', '.btn-cancel'],
-            });
-
-            registerLivewireHookOnce('morphed', 'vuexy-admin::app-description-card', (component) => {
-                AppDescriptionSettingsForm.reloadValidation();
             });
         });
     </script>

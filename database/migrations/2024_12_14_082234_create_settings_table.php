@@ -63,7 +63,7 @@ return new class extends Migration {
             $table->integer('value_integer')->nullable();
             $table->boolean('value_boolean')->nullable();
             $table->float('value_float', 16, 8)->nullable();
-            $table->text('value_text')->nullable();
+            $table->longText('value_text')->nullable();
             $table->binary('value_binary')->nullable();
 
             // Auditoría

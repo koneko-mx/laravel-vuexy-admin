@@ -20,8 +20,7 @@
             class="btn-save mt-2 mr-2"
             no-waves
             label="Guardar cambios"
-            disabled
-        />
+            disabled />
         <x-vuexy-admin::button.basic
             variant="secondary"
             size="sm"
@@ -29,7 +28,6 @@
             class="btn-cancel mt-2 mr-2"
             :label="$cancelLabel"
             :wire:click="$cancelClick"
-            disabled
-        />
+            disabled />
     </div>
 </div>
