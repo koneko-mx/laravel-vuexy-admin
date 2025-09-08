@@ -11,7 +11,9 @@ trait HandlesIndexColumns
 {
     abstract public static function getIndexColumns(): array;
     public static function getIndexJoins(): array { return []; }
-    public static function getIndexGroupBy(): array|false { return false; }
+    public static function getIndexGrouping(): array { return []; }
+    public static function getIndexFilters(): array { return []; }
+
 
     public static function uniqueJoins(array $joins): array
     {
@@ -29,5 +31,4 @@ trait HandlesIndexColumns
 
         return $result;
     }
-
 }

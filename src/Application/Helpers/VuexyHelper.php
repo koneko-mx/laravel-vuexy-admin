@@ -12,7 +12,7 @@ class VuexyHelper
 {
     public static function appClasses()
     {
-        $data = config_m()->get('layout.vuexy', []);
+        $data = config_m('core')->get('layout.vuexy', []);
 
         // default data array
         $DefaultData = [

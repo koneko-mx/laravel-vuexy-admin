@@ -2,21 +2,21 @@
 
 namespace Koneko\VuexyAdmin\Application\Traits\System\Context;
 
-use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Koneko\VuexyAdmin\Application\CoreModule;
 use Koneko\VuexyAdmin\Application\Cache\Builders\SettingCacheKeyBuilder;
 use Koneko\VuexyAdmin\Application\Settings\Registry\ScopeRegistry;
 use Koneko\VuexyAdmin\Application\Traits\System\Context\HasBaseContextValidator;
-use Koneko\VuexyAdmin\Support\Traits\Auth\HasResolvableUser;
 
 trait HasBaseContext
 {
-    use HasResolvableUser;
     use HasBaseContextValidator;
 
+    /** Si se requieren respuestas como array en algunos managers */
+    protected bool $asArray = false;
+
+    /**
+     * Contexto base para generación de claves y filtros.
+     */
     protected array $context = [
         'namespace'   => null,
         'environment' => null,
@@ -29,151 +29,112 @@ trait HasBaseContext
         'key_name'    => null,
     ];
 
-    // ==================== Factory ====================
+    // ==================== Factory helpers ====================
 
     public static function fromArray(array $context): static
     {
         return static::make()->setContextArray($context);
     }
 
-    public static function fromRequest(?Request $request = null): static
-    {
-        return static::make()->resolveFromRequest($request);
-    }
-
-    public function resolveFromRequest(?Request $request = null): static
-    {
-        $request ??= request();
-
-        if ($model = $request->route()?->parameter('model')) {
-            $this->withScopeFromModel($model);
-
-        } elseif (Auth::check()) {
-            $this->user(Auth::user());
-        }
-
-        $this->environment();
-
-        return $this;
-    }
-
-    public function context(?string $group, ?string $section, ?string $subGroup = 'default'): static
-    {
-        $this->context['group']     = $group ? $this->validateSlug('group', $group, 16) : null;
-        $this->context['section']   = $section ? $this->validateSlug('section', $section, 16) : null;
-        $this->context['sub_group'] = $subGroup ? $this->validateSlug('sub_group', $subGroup, 16) : null;
-
-        return $this;
-    }
-
+    /**
+     * Inyecta arreglo de contexto (solo campos presentes).
+     */
     public function setContextArray(array $context): static
     {
-        $this->reset();
+        if (isset($context['environment'])) { $this->environment($context['environment']); }
+        if (isset($context['component']))   { $this->component($context['component']); }
+        if (isset($context['group']))       { $this->group($context['group']); }
+        if (isset($context['section']))     { $this->section($context['section']); }
+        if (isset($context['sub_group']))   { $this->subGroup($context['sub_group']); }
+        if (isset($context['key_name']))    { $this->keyName($context['key_name']); }
 
-        if (isset($context['environment'])) $this->environment($context['environment']);
-        if (isset($context['component']))   $this->component($context['component']);
-        if (isset($context['group']))       $this->group($context['group']);
-        if (isset($context['section']))     $this->section($context['section']);
-        if (isset($context['sub_group']))   $this->subGroup($context['sub_group']);
-        if (isset($context['key_name']))    $this->keyName($context['key_name']);
-
-        if (isset($context['scope'], $context['scope_id'])) {
-            $this->scope($context['scope'], $context['scope_id']);
+        if (array_key_exists('scope', $context) || array_key_exists('scope_id', $context)) {
+            $this->scope($context['scope'] ?? null, $context['scope_id'] ?? null);
         }
 
+        return $this;
+    }
+
+    /**
+     * Atajo para definir group.section.sub_group usando una ruta con puntos.
+     * Faltantes se rellenan con 'default'.
+     */
+    public function ctx(string $path): static
+    {
+        [$g, $s, $sub] = array_pad(explode('.', $path, 3), 3, 'default');
+        return $this->context($g, $s, $sub);
+    }
+
+    /**
+     * Define group/section/sub_group con validación de slug.
+     */
+    public function context(?string $group, ?string $section, ?string $subGroup = 'default'): static
+    {
+        $this->context['group']     = $group    ? $this->validateSlug('group', $group, 24)       : null;
+        $this->context['section']   = $section  ? $this->validateSlug('section', $section, 24)   : null;
+        $this->context['sub_group'] = $subGroup ? $this->validateSlug('sub_group', $subGroup, 24): null;
         return $this;
     }
 
     // ======================= Context Base =========================
 
-    private function setNamespace(): static
+    /** Define namespace (interno, normalmente leído desde config). */
+    public function namespace(?string $namespace): static
     {
-        $this->context['namespace'] = $this->validateSlug('namespace', config('koneko.namespace'), 8);
+        $this->context['namespace'] = $namespace === null
+            ? null
+            : $this->validateSlug('namespace', $namespace, 8);
+
         return $this;
     }
 
+    /** Define environment. Preferido por la interfaz pública. */
     public function environment(?string $environment = null): static
     {
-        $this->context['environment'] = $environment
-            ? $this->validateSlug('environment', $environment, 10)
-            : app()->environment();
+        $environment ??= app()->environment();
+        $this->context['environment'] = $this->validateSlug('environment', $environment, 16);
         return $this;
     }
 
+    /** Define component. */
     public function component(string $component): static
     {
-        $this->context['component'] = $this->validateSlug('component', $component, 16);
+        $this->context['component'] = $this->validateSlug('component', $component, 24);
         return $this;
-    }
-
-    public function module(string $module): static
-    {
-        $this->context['module'] = $this->validateModule($module);
-        return $this;
-    }
-
-    /**
-     * Carga el contexto de un módulo usando una clase declarativa.
-     */
-    public function loadModuleClass(string $moduleClass): static
-    {
-        if (!defined("$moduleClass::COMPONENT") || !defined("$moduleClass::MODULE")) {
-            throw new \InvalidArgumentException("La clase de módulo debe definir las constantes COMPONENT y MODULE.");
-        }
-
-        $component = constant("$moduleClass::COMPONENT");
-        $module    = constant("$moduleClass::MODULE");
-
-        return $this
-            ->component($component)
-            ->module($module);
     }
 
     // ======================= Scope =========================
 
-    public function scope(Model|string|false $scope, int|null|false $scopeId = false): static
+    /**
+     * Define scope y scope_id. Pasar null como $scope para limpiar el contexto.
+     */
+    public function scope(Model|string|null $scope, ?int $scopeId = null): static
     {
-        if ($scope === false) {
-            $this->context['scope']    = null;
+        // Limpiar
+        if ($scope === null) {
+            $this->context['scope'] = null;
             $this->context['scope_id'] = null;
             return $this;
         }
 
-        // Limpiamos el scopeId si es false
-        if ($scopeId === false) {
-            $scopeId = null;
-        }
-
-        // Obtenemos el scope y el scope_id de un modelo
         if ($scope instanceof Model) {
             return $this->withScopeFromModel($scope);
-
-        // Si el scope es una cadena, validamos el slug
-        } elseif (is_string($scope)) {
-            $this->context['scope'] = $this->validateScope($scope);
         }
 
-        // Si el scopeId no es false, lo asignamos
-        if ($scopeId !== false) {
-            $this->context['scope_id'] = $scopeId;
-        }
-
+        // scope como string
+        $this->context['scope'] = $this->validateSlug('scope', (string) $scope, 24);
+        $this->context['scope_id'] = $scopeId;
         return $this;
     }
 
+    /** Solo modifica el scope_id manteniendo el scope actual. */
     public function scopeId(?int $scopeId): static
     {
         $this->context['scope_id'] = $scopeId;
         return $this;
     }
 
-    public function user(Authenticatable|int|null|false $user): static
-    {
-        $this->context['scope']    = 'user';
-        $this->context['scope_id'] = $this->resolveUserId($user);
-        return $this;
-    }
-
+    /** Setea scope/scope_id a partir de un modelo registrado. */
     public function withScopeFromModel(Model $model): static
     {
         $context = ScopeRegistry::resolveScopeFromModel($model);
@@ -184,27 +145,26 @@ trait HasBaseContext
 
         $this->context['scope']    = $this->validateScope($context['scope']);
         $this->context['scope_id'] = $context['scope_id'];
-
         return $this;
     }
 
-    // ======================= Context =========================
+    // ======================= Segmentos de contexto =========================
 
     public function group(string $group): static
     {
-        $this->context['group'] = $this->validateSlug('group', $group, 16);
+        $this->context['group'] = $this->validateSlug('group', $group, 24);
         return $this;
     }
 
     public function section(string $section): static
     {
-        $this->context['section'] = $this->validateSlug('section', $section, 16);
+        $this->context['section'] = $this->validateSlug('section', $section, 24);
         return $this;
     }
 
     public function subGroup(string $subGroup): static
     {
-        $this->context['sub_group'] = $this->validateSlug('sub_group', $subGroup, 16);
+        $this->context['sub_group'] = $this->validateSlug('sub_group', $subGroup, 24);
         return $this;
     }
 
@@ -214,7 +174,7 @@ trait HasBaseContext
         return $this;
     }
 
-    // ======================= Context =========================
+    // ======================= Output helpers =========================
 
     public function asArray(bool $state = true): static
     {
@@ -222,11 +182,15 @@ trait HasBaseContext
         return $this;
     }
 
-    // ======================= GETTERS =========================
-
-    public function getQualifiedKey(?string $key = null): string
+    /**
+     * Genera la clave calificada. Si se pasa $keyName no muta el contexto.
+     */
+    public function getQualifiedKey(?string $keyName = null): string
     {
-        $this->validateContextWithScope();
+        $this->validateScopeContext($this->context['scope'], $this->context['scope_id']);
+
+        $nameToUse = $keyName ?? ($this->context['key_name'] ?? null);
+        $this->requireKeyName($nameToUse);
 
         return SettingCacheKeyBuilder::build(
             $this->context['namespace'],
@@ -237,78 +201,42 @@ trait HasBaseContext
             $this->context['group'],
             $this->context['section'],
             $this->context['sub_group'],
-            $key ?? $this->context['key_name']
+            $nameToUse
         );
     }
 
+    /** Devuelve instancia del modelo de scope si es resoluble. */
     public function getScopeModel(): ?Model
     {
-        return $this->context['scope'] && $this->context['scope_id']
+        return ($this->context['scope'] && $this->context['scope_id'])
             ? ScopeRegistry::getModelInstance($this->context['scope'], $this->context['scope_id'])
             : null;
     }
 
-    // ======================= BOOLEAN ATTRIBUTES =========================
+    // ======================= Flags booleanos de estado (útiles para validaciones) =========================
 
     public function hasComponentContext(): bool
     {
-        return $this->context['namespace']
-            && $this->context['environment']
-            && $this->context['component'];
-    }
-
-    public function hasBaseContext(): bool
-    {
-        return $this->hasComponentContext()
-            && $this->context['key_name'];
-    }
-
-    public function hasScopeContext(): bool
-    {
-        return $this->context['scope']
-            && $this->context['scope_id'];
+        return (bool) ($this->context['namespace'] && $this->context['environment'] && $this->context['component']);
     }
 
     public function hasGroupContext(): bool
     {
-        return $this->context['group']
-            && $this->context['section']
-            && $this->context['sub_group'];
+        return (bool) ($this->context['group'] && $this->context['section'] && $this->context['sub_group']);
+    }
+
+    public function hasBaseContext(): bool
+    {
+        return $this->hasComponentContext() && !empty($this->context['key_name']);
+    }
+
+    public function hasScopeContext(): bool
+    {
+        return (bool) ($this->context['scope'] && $this->context['scope_id']);
     }
 
     public function hasFullContext(): bool
     {
-        return $this->hasBaseContext()
-            && $this->hasScopeContext()
-            && $this->hasGroupContext();
+        return $this->hasComponentContext() && $this->hasGroupContext() && !empty($this->context['key_name']);
     }
-
-    // ======================= HELPERS =========================
-
-    public function ensureQualifiedKey(): void
-    {
-        if (!$this->hasBaseContext() || !$this->hasGroupContext()) {
-            throw new \InvalidArgumentException("Falta definir el contexto base y 'key_name' en settings().");
-        }
-    }
-
-    public function recomponentContext(): void
-    {
-        $this->context['environment'] = app()->environment();
-        $this->context['component']   = CoreModule::COMPONENT;
-    }
-
-    public function resetScopeContext(): void
-    {
-        $this->context['scope']       = null;
-        $this->context['scope_id']    = null;
-    }
-
-    public function regroupContext(): void
-    {
-        $this->context['group']       = null;
-        $this->context['section']     = null;
-        $this->context['sub_group']   = null;
-    }
-
 }

@@ -6,19 +6,17 @@ namespace Koneko\VuexyAdmin\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Koneko\VuexyAdmin\Application\Enums\Settings\SettingValueType;
-use Koneko\VuexyAdmin\Support\Traits\Audit\{HasCreator,HasDeleter,HasUpdater,HasUser};
+use Koneko\VuexyAdmin\Support\Traits\Audit\{HasCreator,HasUpdater,HasUser};
 use Koneko\VuexyAdmin\Support\Traits\Model\HasVuexyModelMetadata;
 
 class Setting extends Model
 {
     use HasVuexyModelMetadata;
-    use HasUser,
-        HasCreator,
-        HasUpdater,
-        HasDeleter;
+    use HasUser, HasCreator, HasUpdater;
 
     // ===================== METADATOS =====================
 
@@ -35,73 +33,58 @@ class Setting extends Model
         'key',
         'namespace',
         'environment',
-        'component',    // Nombre de Componente o proyecto
-        'module',       // composerName de módulo Autocalculado
+        'component',
         'scope',
         'scope_id',
-        'group',        // Grupo de configuraciones
+        'group',
         'section',
-        'sub_group',    // Sub grupo de configuraciones
-        'key_name',     // Nombre de la clave de configuraciones
-
-        'is_system',    // Indica si es un setting de sistema
-        'is_sensitive', // Marca datos sensibles (ej. datos personales, claves API). Puede ocultarse en UI o logs.
-        'is_file',      // Indica si el setting es un archivo
-        'is_encrypted', // Si el valor está cifrado (para secretos, tokens, passwords).
-        'is_config',    // Indica si el setting es un archivo de configuración
-        'is_track_usage', // Indica si el contador de uso está habilitado.
-        'is_should_cache', // Indica si el setting debe ser cacheado.
-        'is_editable',  // Permite o bloquea edición desde la UI (útil para settings de solo lectura).
-        'is_active',    // Permite activar/desactivar la aplicación de un setting sin eliminarlo.
-
+        'sub_group',
+        'key_name',
+        'is_file',
+        'is_encrypted',
+        'is_config',
+        'is_track_usage',
+        'is_should_cache',
+        'is_active',
         'mime_type',
         'file_name',
         'encryption_algorithm',
         'encryption_key',
         'encryption_rotated_at',
-
         'expires_at',
         'usage_count',
         'last_used_at',
         'cache_ttl',
         'cache_expires_at',
-
-        'description',      // Descripción legible para el setting (ayuda en la UI).
-        'hint',             // Breve consejo o ayuda contextual (tooltip en la UI).
-
+        'description',
+        'hint',
         'value_string',
         'value_integer',
         'value_boolean',
         'value_float',
         'value_text',
         'value_binary',
-
         'created_by',
         'updated_by',
-        'deleted_by',
     ];
 
     protected $casts = [
-        'scope_id'         => 'integer',
-        'is_system'        => 'boolean',
-        'is_encrypted'     => 'boolean',
-        'is_config'        => 'boolean',
-        'is_sensitive'     => 'boolean',
-        'is_editable'      => 'boolean',
-        'is_active'        => 'boolean',
-        'expires_at'       => 'datetime',
+        'scope_id'              => 'integer',
+        'is_file'               => 'boolean',
+        'is_encrypted'          => 'boolean',
+        'is_config'             => 'boolean',
+        'is_track_usage'        => 'boolean',
+        'is_should_cache'       => 'boolean',
+        'is_active'             => 'boolean',
+        'expires_at'            => 'datetime',
         'encryption_rotated_at' => 'datetime',
-        'should_cache'     => 'boolean',
-        'cache_ttl'        => 'integer',
-        'cache_expires_at' => 'datetime',
-        'value_integer'    => 'integer',
-        'value_boolean'    => 'boolean',
-        'value_float'      => 'float',
-        'created_by'       => 'integer',
-        'deleted_by'       => 'integer',
-        'updated_by'       => 'integer',
+        'cache_ttl'             => 'integer',
+        'cache_expires_at'      => 'datetime',
+        'value_integer'         => 'integer',
+        'value_boolean'         => 'boolean',
+        'value_float'           => 'float',
+        'created_by'            => 'integer',
     ];
-
 
     // ===================== BOOT =====================
 
@@ -113,10 +96,9 @@ class Setting extends Model
             $original = $model->getOriginal();
 
             foreach ([
-                'key', 'namespace',
-                'environment',
-                'scope', 'scope_id',
-                'component', 'module', 'group', 'sub_group',
+                'key','namespace','environment',
+                'scope','scope_id',
+                'component','group','section','sub_group',
                 'key_name',
             ] as $locked) {
                 if ($model->$locked !== $original[$locked]) {
@@ -126,14 +108,13 @@ class Setting extends Model
         });
     }
 
-
     // ===================== GETTERS =====================
 
     public function getDisplayName(): string
     {
         return collect([
             $this->key,
-            $this->module ? "Module: {$this->module}" : null,
+            $this->component ? "Componente: {$this->component}" : null,
             $this->scope_id ? "Scope: {$this->scope_id}" : null,
         ])->filter()->implode(' | ');
     }
@@ -161,8 +142,6 @@ class Setting extends Model
         return $this->decryptValue($asArray);
     }
 
-
-
     // ===================== SETTERS =====================
 
     public function setValueAttribute($value): void
@@ -172,27 +151,15 @@ class Setting extends Model
         }
     }
 
-
     protected function isJson(mixed $value): bool
     {
         if (!is_string($value)) return false;
-
         $value = trim($value);
-
         return Str::startsWith($value, ['{', '[']) && json_validate($value);
     }
 
-
-    // ===================== SCOPES =====================
-
-
-
-
     // ===================== HELPERS =====================
 
-    /**
-     * Decodifica un valor almacenado en un setting.
-     */
     protected function decode(mixed $value, bool $asArray = true): mixed
     {
         return $this->isJson($value)
@@ -212,58 +179,50 @@ class Setting extends Model
             $algorithm = $this->encryption_algorithm ?? 'AES-256-CBC';
             $ivLength  = openssl_cipher_iv_length($algorithm);
             $iv        = random_bytes($ivLength);
-            $cipher    = openssl_encrypt($value, $algorithm, $key, 0, $iv);
-
+            $payload   = (is_scalar($value) || $value === null)
+                ? (string) $value
+                : json_encode($value, JSON_UNESCAPED_UNICODE);
+            $cipher    = openssl_encrypt($payload, $algorithm, $key, 0, $iv);
             if ($cipher === false) {
                 throw new \RuntimeException("Error al cifrar el valor para '{$this->key}'.");
             }
-
             return ['value_text' => base64_encode($iv . $cipher)];
         }
 
         return match (true) {
-            is_string($value) => [strlen($value) > 250 ? 'value_text' : 'value_string' => $value],
-            is_int($value)    => ['value_integer' => $value],
-            is_bool($value)   => ['value_boolean' => $value],
-            is_float($value)  => ['value_float'   => $value],
-            is_array($value), is_object($value) => ['value_text' => json_encode($value, JSON_UNESCAPED_UNICODE)],
-            default           => []
+            is_string($value)                     => [strlen($value) > 250 ? 'value_text' : 'value_string' => $value],
+            is_int($value)                        => ['value_integer' => $value],
+            is_bool($value)                       => ['value_boolean' => $value],
+            is_float($value)                      => ['value_float'   => $value],
+            is_array($value), is_object($value)   => ['value_text' => json_encode($value, JSON_UNESCAPED_UNICODE)],
+            default                               => []
         };
     }
 
-    /**
-     * Obtiene y valida la clave de encriptación para este setting.
-     *
-     * @throws \LogicException Si no hay clave definida.
-     * @throws \RuntimeException Si la clave es inválida o insegura.
-     */
     protected function getEncryptionKey(): string
     {
-        // Obtener la clave del modelo o fallback de configuración
         $key = $this->encryption_key ?? config('app.key');
-
         if (empty($key)) {
             throw new \LogicException("No se ha definido una clave de encriptación para el setting '{$this->key}'.");
         }
 
-        // Decodificar si está en formato base64
-        $decoded = Str::startsWith($key, 'base64:') ? base64_decode(substr($key, 7), true) : $key;
+        $decoded = Str::startsWith($key, 'base64:')
+            ? base64_decode(substr($key, 7), true)
+            : $key;
 
         if (!$decoded || !is_string($decoded)) {
             throw new \RuntimeException("La clave de encriptación es inválida o no puede ser decodificada.");
         }
 
-        // Validar longitud mínima por seguridad
         if (strlen($decoded) < 16) {
             throw new \RuntimeException("La clave de encriptación es demasiado corta (mínimo 16 bytes).");
         }
 
-        // Validar que no contenga caracteres no imprimibles si no es base64
         if (!Str::startsWith($key, 'base64:') && !ctype_print($key)) {
             throw new \RuntimeException("La clave de encriptación contiene caracteres no válidos.");
         }
 
-        return $decoded;
+        return substr(hash('sha256', $decoded, true), 0, 32); // 32 bytes para AES-256
     }
 
     protected function decryptValue(bool $asArray = true): mixed
@@ -279,43 +238,31 @@ class Setting extends Model
             $cipher   = substr($raw, $ivLength);
 
             $decrypted = openssl_decrypt($cipher, $algorithm, $key, 0, $iv);
-
             if ($decrypted === false) {
                 throw new \RuntimeException("Error al descifrar el valor para '{$this->key}'.");
             }
 
             return $this->decode($decrypted, $asArray);
-
         } catch (\Throwable $e) {
             logger()->error('❌ Error al descifrar valor de setting.', [
                 'key' => $this->key,
                 'error' => $e->getMessage(),
             ]);
-
             return null;
         }
     }
 
-    /**
-     * Marca el setting para rotación de clave.
-     */
     public function markForKeyRotation(): void
     {
         $this->encryption_rotated_at = now();
         $this->save();
     }
 
-    /**
-     * Obtiene el valor resuelto del setting.
-     */
     public function getResolvedValue(bool $decrypt = false, bool $asArray = true): mixed
     {
         return $decrypt ? $this->getDecryptedValue($asArray) : $this->resolveValueAndTrackUsage();
     }
 
-    /**
-     * Resuelve el valor del setting y actualiza el uso.
-     */
     protected function resolveValueAndTrackUsage(): mixed
     {
         foreach (SettingValueType::cases() as $type) {
@@ -323,23 +270,20 @@ class Setting extends Model
             $raw   = $this->$field;
 
             if (!is_null($raw)) {
-                if ($this->track_usage) {
+                if ($this->is_track_usage) {
                     $this->incrementUsage();
                 }
-
                 return $this->decode($raw);
             }
         }
-
         return null;
     }
 
-    /**
-     * Incrementa el contador de uso y actualiza la fecha de última utilización.
-     */
     public function incrementUsage(): void
     {
-        $this->increment('usage_count');
-        $this->update(['last_used_at' => now()]);
+        $this->update([
+            'usage_count'  => DB::raw('COALESCE(usage_count,0)+1'),
+            'last_used_at' => now(),
+        ]);
     }
 }

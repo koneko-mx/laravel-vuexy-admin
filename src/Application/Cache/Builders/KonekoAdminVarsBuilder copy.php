@@ -54,14 +54,14 @@ class ___KonekoAdminVarsBuilder
      */
     protected function resolveAdminVars(): array
     {
-        $base = settings()->context('layout', 'admin')->asArray()->getSubGroup();
+        $base = settings('core')->context('layout', 'admin')->asArray()->getSubGroup();
 
         return [
-            'title'       => $base['title'] ?? config_m()->get('layout.admin.title', 'Koneko Admin'),
-            'author'      => $base['author'] ?? config_m()->get('layout.admin.author', 'Default Author'),
-            'description' => $base['description'] ?? config_m()->get('layout.admin.description', 'Default Description'),
+            'title'       => $base['title'] ?? config_m('core')->get('layout.admin.title', 'Koneko Admin'),
+            'author'      => $base['author'] ?? config_m('core')->get('layout.admin.author', 'Default Author'),
+            'description' => $base['description'] ?? config_m('core')->get('layout.admin.description', 'Default Description'),
             'favicon'     => $this->buildFaviconPaths($base),
-            'app_name'    => $base['app_name'] ?? config_m()->get('app_name'),
+            'app_name'    => $base['app_name'] ?? config_m('core')->get('app_name'),
             'image_logo'  => $this->buildImageLogoPaths($base),
         ];
     }
@@ -72,7 +72,7 @@ class ___KonekoAdminVarsBuilder
     protected function buildFaviconPaths(array $settings): array
     {
         $ns = $settings['favicon_ns'] ?? null;
-        $default = config_m()->get('favicon', 'favicon.ico');
+        $default = config_m('core')->get('favicon', 'favicon.ico');
 
         return [
             'namespace' => $ns,
@@ -90,7 +90,7 @@ class ___KonekoAdminVarsBuilder
      */
     protected function buildImageLogoPaths(array $settings): array
     {
-        $default = config_m()->get('app_logo', 'logo-default.png');
+        $default = config_m('core')->get('app_logo', 'logo-default.png');
 
         return [
             'small'       => $settings['image_logo_small'] ?? $default,

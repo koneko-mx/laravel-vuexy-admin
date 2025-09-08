@@ -2,124 +2,98 @@
 
 namespace Koneko\VuexyAdmin\Application\Settings\Contracts;
 
-use Carbon\Carbon;
-use Closure;
-use Illuminate\Contracts\Auth\Authenticatable;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\{Request, UploadedFile};
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
-use Koneko\VuexyAdmin\Application\Settings\SettingDefaults;
-use Koneko\VuexyAdmin\Models\Setting;
 
 interface SettingsRepositoryInterface
 {
     // ==================== Factory ====================
+    public static function make(array $context = []): static;
 
-    public static function make(): static;
-    public static function fromArray(array $context): static;
-    public static function fromRequest(?Request $request = null): static;
 
     // ==================== Context ====================
-
-//    public function environment(string $environment): static;
+    public function namespace(?string $namespace): static;
+    public function environment(?string $env = null): static;
     public function component(string $component): static;
-
     public function context(?string $group, ?string $section, ?string $subGroup = 'default'): static;
-//    public function setContextArray(array $context): static;
-
-    public function scope(Model|string|false $scope, int|null|false $scopeId = false): static;
+    public function ctx(string $path): static; // "group.section.sub"
+    public function scope(Model|string|null $scope, ?int $id = null): static;
     public function scopeId(?int $scopeId): static;
-    public function user(Authenticatable|int|null|false $user): static;
-//    public function withScopeFromModel(Model $model): static;
 
     public function group(string $group): static;
     public function section(string $section): static;
     public function subGroup(string $subGroup): static;
-
     public function keyName(string $keyName): static;
 
     public function includeDisabled(bool $state = true): static;
     public function includeExpired(bool $state = true): static;
-    public function bypassCache(bool $state = true): static;
     public function asArray(bool $state = true): static;
 
-    // ==================== Encryption ====================
 
+    // ==================== Encryption ====================
     public function enableEncryption(bool $state = true): static;
-    public function setEncryption(string $algorithm = SettingDefaults::DEFAULT_ALGORITHM, ?string $key = null): static;
-    public function setEncryptionAlgorithm(string $algorithm): static;
-    public function setEncryptionKey(string $key): static;
-    public function setEncryptionRotatedAt(Carbon|string|false|null $date): static;
+    public function setEncryptionAlgorithm(string $algorithm = 'AES-256-CBC'): static;
+    public function setEncryptionKey(?string $key = null): static;
+    public function setEncryptionRotatedAt(DateTimeInterface|string|null $date): static;
+
 
     // ==================== Files ====================
-
     public function enableFile(bool $state = true): static;
     public function file(string $mime_type, string $file_name): static;
     public function mimeType(string $mime_type): static;
     public function fileName(string $file_name): static;
     public function handleFileUpload(UploadedFile $file, string $storageDisk = 'public'): static;
 
-    // ==================== Markers ====================
 
-    public function markAsSystem(bool $state = true): static;
-    public function markAsSensitive(bool $state = true): static;
-    public function markAsEditable(bool $state = true): static;
+    // ==================== Markers ====================
     public function markAsActive(bool $state = true): static;
-    public function expiresAt(Carbon|string|false|null $date): static;
+    public function expiresAt(DateTimeInterface|string|null $date): static;
     public function trackUsage(bool $state = true): static;
-//    public function setInternalConfigFlag(bool $state = true): static;
+    public function setInternalConfigFlag(bool $state = true): static;
+
 
     // ==================== Metadata ====================
-
     public function description(string $description): static;
     public function hint(string $hint): static;
 
-    // ==================== CRUD ====================
 
-    //public function set(mixed $value, ?string $keyName = null): void;
+    // ==================== CRUD ====================
     public function set(string $keyName, mixed $value): void;
+    public function setMany(array $kv): int;
     public function get(?string $keyName = null, mixed $default = null): mixed;
-    public function delete(string $qualifiedKey): void;
+    public function getMany(array $keyNames, bool $decrypt = false): array;
     public function all(): Collection|array;
 
-//    public function deleteByContext(): int;
-    public function deleteGroup(): int;
+
+    // ==================== Deleters DB ====================
+    public function deleteByKeyName(?string $keyName = null): int;
+    public function deleteByQualifiedKey(string $qualifiedKey): int;
+    public function deleteByContext(): int;
     public function deleteSubGroup(): int;
+    public function deleteGroup(): int;
+    public function deleteComponent(): int;
 
-    // ==================== Fetchers ====================
-
-//    public function getGroup(bool $asArray = false): Collection|array;
-//    public function getSubGroup(bool $asArray = false): Collection|array;
-//    public function getComponents(bool $asArray = false): Collection|array;
-//    public function getGroups(bool $asArray = false): Collection|array;
-//    public function getSubGroups(bool $asArray = false): Collection|array;
-
-    // ==================== Cache ====================
-
-    public function enableCache(bool $state = true): static;
-    public function setCacheTTL(int $seconds): static;
-    public function setCacheExpiresAt(Carbon|string|false|null $date): static;
-    public function cacheModel(?Setting $model = null): void;
-    public function forgetCache(?string $keyName = null): static;
-    public function remember(Closure $callback): mixed;
-
-
-    // ==================== Getters ====================
-
-    public function getQualifiedKey(?string $key = null): string;
-//    public function exists(string $qualifiedKey): bool;
-//    public function existsByContext(): bool;
-//    public function isUsable(): bool;
+    // ==================== Claves calif. / Scope ====================
+    public function getQualifiedKey(?string $keyName = null): string;
     public function getScopeModel(): ?Model;
 
-    // ==================== Utils ====================
 
-    public function has(string $qualifiedKey): bool;
-    public function hasContext(): bool;
-//    public function setInactiveByContext(): int;
-//    public function reset(): void;
+    // ==================== Cache helpers ====================
+    public function enableCache(bool $state = true): static;
+    public function ttl(int $seconds): static;
+    public function setCacheExpiresAt(DateTimeInterface|string|null $date): static;
+    public function forgetCache(string|array $keys): int;
+    public function remember(callable $resolver, ?int $ttl = null): mixed;
+    public function bypassCache(bool $state = true): static;
+
+
+    // ==================== Utils ====================
+    public function hasKeyName(?string $keyName = null): bool;
+    public function hasQualifiedKey(?string $qualifiedKey = null): bool;
+
 
     // ==================== Diagnostics ====================
-
     public function info(): array;
 }

@@ -20,7 +20,7 @@ class KonekoAdminVarsBuilder
      */
     public function get(): array
     {
-        return settings()
+        return settings('core')
             ->context($this->group, $this->section)
             ->keyName($this->keyName)
             ->remember(fn () => $this->resolveAdminVars());
@@ -31,7 +31,7 @@ class KonekoAdminVarsBuilder
      */
     public function clear(): void
     {
-        settings()
+        settings('core')
             ->context($this->group, $this->section)
             ->forgetCache($this->keyName);
     }
@@ -42,7 +42,7 @@ class KonekoAdminVarsBuilder
      */
     protected function resolveAdminVars(): array
     {
-        $base = settings()
+        $base = settings('core')
             ->context($this->group, $this->section, null)
             ->asArray()
             ->all();

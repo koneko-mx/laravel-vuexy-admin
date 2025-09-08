@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Interfaces\ImageInterface;
-use Koneko\VuexyAdmin\Application\CoreModule;
 use Symfony\Component\Mime\MimeTypes;
 
 class AvatarImageService
@@ -28,7 +27,7 @@ class AvatarImageService
 
     protected function configureFromSettings(): void
     {
-        $config = config_m()->get('ui.avatar.image', []);
+        $config = config_m('core')->get('ui.avatar.image', []);
 
         $this->avatarDisk       = $config['disk'] ?? $this->avatarDisk;
         $this->profilePhotoDir  = $config['directory'] ?? $this->profilePhotoDir;

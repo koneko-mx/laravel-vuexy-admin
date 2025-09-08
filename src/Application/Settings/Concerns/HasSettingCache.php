@@ -28,7 +28,12 @@ trait HasSettingCache
         return $this;
     }
 
-    public function setCacheExpiresAt(Carbon|string|false|null $date): static
+    public function ttl(int $seconds): static
+    {
+        return $this->setCacheTTL($seconds);
+    }
+
+    public function setCacheExpiresAt(\DateTimeInterface|string|null $date): static
     {
         $this->attributes['is_should_cache'] = true;
         $this->cache['cache_expires_at'] = $date instanceof Carbon
@@ -38,42 +43,61 @@ trait HasSettingCache
         return $this;
     }
 
-    public function forgetCache(?string $keyName = null): static
+    /**
+     * Olvida entradas de caché por key_name (NO borra DB).
+     * Retorna cuántas claves de cache se invalidaron.
+     */
+    public function forgetCache(string|array $keys): int
     {
-        $this->getCacheManager()
-            ->keyName($keyName ?? $this->context['key_name'])
-            ->forget();
-
-        return $this;
+        $n = 0;
+        foreach (array_filter((array) $keys, fn($k) => $k !== null && $k !== '') as $k) {
+            // Suma solo si realmente se invalidó (el manager devuelve 1/0)
+            $n += (int) $this->getCacheManager()->keyName((string) $k)->forget();
+        }
+        return $n;
     }
 
-    public function remember(Closure $callback): mixed
+    public function remember(callable $resolver, ?int $ttl = null): mixed
     {
         $manager = $this->getCacheManager();
 
-        // Desactivar cache o forzar bypass
-        if (!$manager->isEnabled() || $this->bypassCache) {
-            return $callback();
+        // Sin caché: deshabilitada, bypass, o TTL explícito ≤ 0
+        if (
+            !$manager->isEnabled()
+            || ($this->bypassCache ?? false)
+            || ($ttl !== null && $ttl <= 0)
+        ) {
+            return $resolver();
         }
 
-        $key = $manager->getQualifiedKey();
+        $key    = $manager->getQualifiedKey();
         $cached = KonekoCacheDriver::get($key);
 
-        if (!is_null($cached)) {
+        if ($cached !== null) {
             return $cached;
         }
 
-        // Ejecutar callback y guardar en caché
-        $value = $callback();
+        // Ejecutar el resolvedor
+        $value = $resolver();
 
-        // Si el valor es null, no lo cacheamos
-        if (!is_null($value)) {
-            $model = $this->queryForModel(); // <- Asegúrate de definirlo en el manager
-            $ttl   = $model ? $this->resolveModelTTL($model, $manager) : $manager->resolveTTL();
+        // No cachear null
+        if ($value === null) {
+            return $value;
+        }
 
-            if ($ttl > 0) {
-                $manager->put($value, $ttl);
+        // Resolver TTL: prioridad al TTL explícito; luego al del modelo; luego al manager
+        $modelTTL = null;
+        if (method_exists($this, 'queryForModel')) {
+            $model = $this->queryForModel();
+            if ($model && method_exists($this, 'resolveModelTTL')) {
+                $modelTTL = $this->resolveModelTTL($model, $manager);
             }
+        }
+
+        $finalTtl = $ttl ?? $modelTTL ?? $manager->resolveTTL();
+
+        if ($finalTtl > 0) {
+            $manager->put($value, $finalTtl);
         }
 
         return $value;
@@ -81,10 +105,9 @@ trait HasSettingCache
 
     public function cacheModel(?Setting $model = null): void
     {
-        $model ??= $this->queryForModel();
+        $model   ??= $this->queryForModel();
         $manager = $this->getCacheManager();
 
-        // validación
         if (!$manager->isEnabled()) {
             $manager->forget();
             return;
@@ -92,26 +115,12 @@ trait HasSettingCache
 
         if ($model && $this->shouldCacheModel($model)) {
             $ttl = $this->resolveModelTTL($model, $manager);
-
             if ($ttl > 0) {
                 $manager->put($model->value, $ttl);
             }
-
         } else {
             $manager->forget();
         }
-    }
-
-    public function getCacheManager(): KonekoCacheManager
-    {
-        return cache_m(
-                $this->context['component'],
-                $this->context['group'],
-                $this->context['sub_group'],
-            )
-            ->scope($this->context['scope'])
-            ->scopeId($this->context['scope_id'])
-            ->keyName($this->context['key_name']);
     }
 
     // ==================== Helpers ====================
@@ -120,18 +129,23 @@ trait HasSettingCache
     {
         return $model->is_active
             && $model->is_should_cache
-            && !$model->is_encrypted
-            && !$model->is_sensitive;
+            && !$model->is_encrypted;
     }
 
     protected function resolveModelTTL(Setting $model, KonekoCacheManager $manager): int
     {
         if ($model->cache_expires_at instanceof Carbon) {
-            $ttl = now()->diffInMinutes($model->cache_expires_at, false);
-
+            $ttl = now()->diffInSeconds($model->cache_expires_at, false);
             return $ttl > 0 ? $ttl : 0;
         }
 
         return $model->cache_ttl ?? $manager->resolveTTL();
     }
+
+    /**
+     * Debe existir en el manager que use este trait.
+     * @return KonekoCacheManager
+     */
+    abstract public function getCacheManager();
+    abstract public function queryForModel(): ?\Illuminate\Database\Eloquent\Model;
 }

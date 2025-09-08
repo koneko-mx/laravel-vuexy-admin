@@ -21,7 +21,7 @@ class KonekoVuexyCustomizerVarsBuilder
 
     public function get(): array
     {
-        return settings()
+        return settings('core')
             ->context($this->group, $this->section, $this->sub_group)
             ->keyName($this->key_name)
             ->remember(fn () => $this->resolveCustomizerVars());
@@ -29,20 +29,20 @@ class KonekoVuexyCustomizerVarsBuilder
 
     public function clear(): void
     {
-        settings()
+        settings('core')
             ->context($this->group, $this->section, $this->sub_group)
             ->forgetCache($this->key_name);
     }
 
     protected function resolveCustomizerVars(): array
     {
-        $vars_settings = settings()
+        $vars_settings = settings('core')
             ->context($this->group, $this->section, $this->sub_group)
             ->asArray()
             ->all();
 dump($vars_settings);
 
-        $vars_config = config_m()->get('layout.vuexy', []);
+        $vars_config = config_m('core')->get('layout.vuexy', []);
 dump($vars_config);
 
         $data = array_merge($vars_config, $vars_settings);

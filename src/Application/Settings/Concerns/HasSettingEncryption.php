@@ -3,7 +3,6 @@
 namespace Koneko\VuexyAdmin\Application\Settings\Concerns;
 
 use Carbon\Carbon;
-use Koneko\VuexyAdmin\Application\Settings\SettingDefaults;
 
 trait HasSettingEncryption
 {
@@ -16,61 +15,39 @@ trait HasSettingEncryption
     public function enableEncryption(bool $state = true): static
     {
         $this->attributes['is_encrypted'] = $state;
-
         if ($state) {
-            $this->setEncryption(
-                $this->encryption['encryption_algorithm'],
-                $this->encryption['encryption_key']
-            );
+            // Garantiza valores por defecto razonables si el consumidor no los setea explícitamente
+            $this->setEncryptionAlgorithm()
+                 ->setEncryptionKey();
         }
-
         return $this;
     }
 
-    public function setEncryption(string $algorithm = SettingDefaults::DEFAULT_ALGORITHM, ?string $key = null): static
+    public function setEncryptionAlgorithm(string $algorithm = 'AES-256-CBC'): static
     {
-        $this->attributes['is_encrypted'] = true;
         $this->encryption['encryption_algorithm'] = $algorithm;
-        $this->encryption['encryption_key']       = $key ?? config('app.key');
-
         return $this;
     }
 
-    public function setEncryptionAlgorithm(string $algorithm): static
+    public function setEncryptionKey(?string $key = null): static
     {
-        $this->attributes['is_encrypted'] = true;
-        $this->encryption['encryption_algorithm'] = $algorithm;
-
+        $this->encryption['encryption_key'] = $key ?? config('app.key');
         return $this;
     }
 
-    public function setEncryptionKey(string $key): static
+    public function setEncryptionRotatedAt(\DateTimeInterface|string|null $date): static
     {
-        $this->attributes['is_encrypted'] = true;
-        $this->encryption['encryption_key'] = $key;
-
-        if ($this->encryption['encryption_algorithm'] === null) {
-            $this->encryption['encryption_algorithm'] = SettingDefaults::DEFAULT_ALGORITHM;
-        }
-
-        return $this;
-    }
-
-    public function setEncryptionRotatedAt(Carbon|string|false|null $date): static
-    {
-        if (!$this->attributes['is_encrypted']) {
+        if (!($this->attributes['is_encrypted'] ?? false)) {
             throw new \InvalidArgumentException('Debe activar la encriptación antes de establecer la fecha de rotación');
         }
 
-        $this->encryption['encryption_rotated_at'] = $date instanceof Carbon
-            ? $date
-            : ($date ? Carbon::parse($date) : null);
+        $this->encryption['encryption_rotated_at'] =
+            $date instanceof \DateTimeInterface ? Carbon::instance($date)
+            : ($date !== null ? Carbon::parse($date) : null);
 
         return $this;
     }
 
-
-    // ==================== Validaciones ====================
 
     protected function validateEncryption(): void
     {

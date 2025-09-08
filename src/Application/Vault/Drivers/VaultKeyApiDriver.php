@@ -13,7 +13,7 @@ class VaultKeyApiDriver
 
     public function __construct()
     {
-        $config = config_m()->get('security.key_vault.drivers.koneko_api', []);
+        $config = config_m('core')->get('security.key_vault.drivers.koneko_api', []);
 
         $this->baseUrl = rtrim($config['base_url'] ?? '', '/');
         $this->token   = $config['api_token'] ?? '';

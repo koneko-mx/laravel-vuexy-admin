@@ -44,7 +44,7 @@ class NotifyChannelManager
 
     protected function handleToast(): void
     {
-        $driver = $this->driver ?? settings()->get('notifications.toast.driver', 'toastr');
+        $driver = $this->driver ?? settings('core')->get('notifications.toast.driver', 'toastr');
 
         Event::dispatch('notify.toast', array_merge($this->payload, [
             'driver' => $driver,

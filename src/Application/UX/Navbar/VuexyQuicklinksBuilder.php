@@ -78,7 +78,7 @@ class VuexyQuicklinksBuilder
     {
         $routes = self::settings($user)->get(self::KEY_NAME, []);
 
-        if (count($routes) >= config_m()->get('layout.vuexy.maxQuickLinks', 12)) return;
+        if (count($routes) >= config_m('core')->get('layout.vuexy.maxQuickLinks', 12)) return;
 
         if (!in_array($route, $routes)) {
             $routes[] = $route;
@@ -197,8 +197,8 @@ class VuexyQuicklinksBuilder
 
     private static function settings(Authenticatable|int|null|false $user = null): SettingsRepositoryInterface
     {
-        return settings()
+        return settings('core')
             ->context(self::GROUP, self::SECTION, self::SUB_GROUP)
-            ->user($user);
+            ->scope($user);
     }
 }

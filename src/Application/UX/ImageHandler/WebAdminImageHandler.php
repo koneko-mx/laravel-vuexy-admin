@@ -37,7 +37,7 @@ class WebAdminImageHandler
     {
         ///Storage::makeDirectory(self::FAVICON_BASE_PATH);
 
-        $currentNamespace = settings()
+        $currentNamespace = settings('core')
             ->context($this->group, $this->section, 'favicon')
             ->get('favicon_ns');
 
@@ -54,7 +54,7 @@ class WebAdminImageHandler
                 ->put(self::FAVICON_BASE_PATH . "{$baseName}_{$size}.png", $resized->toPng(indexed: true));
         }
 
-        settings()
+        settings('core')
             ->context($this->group, $this->section, 'favicon')
             ->set('favicon_ns', $baseName);
     }
@@ -100,7 +100,7 @@ class WebAdminImageHandler
 
         $keyName = "image_logo{$suffix}{$type}";
 
-        settings()
+        settings('core')
             ->context($this->group, $this->section, "logo{$type}")
             ->set($keyName, $fileName);
     }
@@ -118,7 +118,7 @@ class WebAdminImageHandler
         $type = $type ? "_{$type}" : '';
         $keyName = "image_logo_base64{$type}";
 
-        settings()
+        settings('core')
             ->context($this->group, $this->section, "logo{$type}")
             ->set($keyName, $base64);
     }
@@ -151,7 +151,7 @@ class WebAdminImageHandler
         $paths = [];
 
         foreach ($keys as $key) {
-            $path = settings()
+            $path = settings('core')
                 ->context($this->group, $this->section, "logo{$type}")
                 ->get($key);
 

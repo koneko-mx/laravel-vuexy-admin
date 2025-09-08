@@ -6,15 +6,21 @@ trait HasCacheContextValidation
 {
     use HasBaseContextValidator;
 
+    /**
+     * Verifica que el contexto mínimo para cache esté presente.
+     */
     protected function validateBaseContext(): void
     {
         foreach (['namespace', 'environment', 'component', 'group', 'section', 'sub_group'] as $field) {
             if (empty($this->context[$field] ?? null)) {
-                throw new \InvalidArgumentException("Falta definir '{$field}' en contexto cache_m().");
+                throw new \InvalidArgumentException("Falta definir '{$field}' en el contexto de caché.");
             }
         }
     }
 
+    /**
+     * Valida base, key_name y coherencia de scope.
+     */
     public function validateContextWithScope(): void
     {
         $this->validateBaseContext();

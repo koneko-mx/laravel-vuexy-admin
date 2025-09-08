@@ -13,17 +13,17 @@ final class KonekoCacheDriver
 
     public static function put(string $key, mixed $value, int $ttl): void
     {
-        Cache::put($key, $value, now()->addMinutes($ttl));
+        Cache::put($key, $value, now()->addSeconds($ttl));
     }
 
-    public static function forget(string $key): void
+    public static function forget(string $key): bool
     {
-        Cache::forget($key);
+        return Cache::forget($key);
     }
 
     public static function remember(string $key, int $ttl, \Closure $callback): mixed
     {
-        return Cache::remember($key, now()->addMinutes($ttl), $callback);
+        return Cache::remember($key, now()->addSeconds($ttl), $callback);
     }
 
     public static function has(string $key): bool

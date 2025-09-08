@@ -22,7 +22,6 @@ trait HasSettingFileSupport
         $this->attributes['is_file'] = true;
         $this->file['mime_type'] = $mime_type;
         $this->file['file_name'] = $file_name;
-
         return $this;
     }
 
@@ -30,7 +29,6 @@ trait HasSettingFileSupport
     {
         $this->attributes['is_file'] = true;
         $this->file['mime_type'] = $mime_type;
-
         return $this;
     }
 
@@ -38,7 +36,6 @@ trait HasSettingFileSupport
     {
         $this->attributes['is_file'] = true;
         $this->file['file_name'] = $file_name;
-
         return $this;
     }
 
@@ -53,9 +50,6 @@ trait HasSettingFileSupport
 
         return $this;
     }
-
-
-    // ==================== Validaciones ====================
 
     protected function validateFile(): void
     {

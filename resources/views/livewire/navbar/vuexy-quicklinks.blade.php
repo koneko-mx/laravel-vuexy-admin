@@ -1,7 +1,7 @@
 @php
     use Koneko\VuexyAdmin\Models\User;
 
-    $maxQuickLinks = config_m()->get('layout.vuexy.maxQuickLinks', 8);
+    $maxQuickLinks = config_m('core')->get('layout.vuexy.maxQuickLinks', 8);
 @endphp
 
 <li class="nav-item dropdown-shortcuts navbar-dropdown dropdown">

@@ -6,6 +6,7 @@
     'id'              => uniqid(),
     'tagName'         => '',
     'datatableConfig' => [],
+    'noRefreshButton' => false,
     'noFilterButtons' => false
 ])
 
@@ -27,20 +28,23 @@
             @isset($filterButtons)
                 {{ $filterButtons }}
 
-            @elseif($noFilterButtons == false)
-                <div class="my-1 pr-2">
-                    <x-vuexy-admin::button.basic variant="secondary" class="bt-btn-refresh" icon="ti ti-zoom-reset" size="sm" label="Refrescar" />
-                </div>
-                <div class="my-1 pr-2">
-                    <x-vuexy-admin::button.basic variant="secondary" class="bt-btn-filter-edit" label-style icon="ti ti-filter-edit" size="sm" label="Filtros" />
-                </div>
-                <div class="my-1 pr-2">
-                    <x-vuexy-admin::button.basic variant="secondary" class="bt-btn-filter-cancel" text-style icon="ti ti-filter-cancel" size="sm" label="Limpiar filtros" />
-                </div>
+            @else
+                @if($noRefreshButton == false)
+                    <div class="my-1 pr-2">
+                        <x-vuexy-admin::button.basic variant="secondary" class="bt-btn-refresh" icon="ti ti-zoom-reset" size="sm" label="Refrescar" />
+                    </div>
+                @endisset
+                @if($noFilterButtons == false)
+                    <div class="my-1 pr-2">
+                        <x-vuexy-admin::button.basic variant="secondary" class="bt-btn-filter-edit" label-style icon="ti ti-filter-edit" size="sm" label="Filtros" />
+                    </div>
+                    <div class="my-1 pr-2">
+                        <x-vuexy-admin::button.basic variant="secondary" class="bt-btn-filter-cancel" text-style icon="ti ti-filter-cancel" size="sm" label="Limpiar filtros" />
+                    </div>
+                @endisset
             @endisset
 
             {{ $postTools ?? '' }}
-
         </div>
     </div>
 

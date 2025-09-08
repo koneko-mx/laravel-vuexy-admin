@@ -140,14 +140,13 @@ class VuexySearchBarBuilder
     public static function forgetCacheForUser(Authenticatable|int|null $user): void
     {
         cache_m(self::COMPONENT, self::GROUP, self::SUB_GROUP)
-            ->user($user)
+            ->scope($user)
             ->forget(self::CACHE_KEY);
     }
 
     public static function forgetVisitorCache(): void
     {
         cache_m(self::COMPONENT, self::GROUP, self::SUB_GROUP)
-            ->user(false)
             ->forget(self::CACHE_KEY);
     }
 }

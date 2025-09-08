@@ -59,7 +59,9 @@ class FortifyServiceProvider extends ServiceProvider
         });
 
         // Obtiene el modo de vista de autenticación
-        $viewMode = config_m()->get('layout.vuexy.authViewMode', 'cover');
+        $viewMode = config_m('core')
+            ->ctx('layout.vuexy')
+            ->get('authViewMode', 'cover');
 
         // Configurar la vista del login
         Fortify::loginView(function () use ($viewMode) {

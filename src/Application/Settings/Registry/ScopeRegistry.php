@@ -2,14 +2,10 @@
 
 namespace Koneko\VuexyAdmin\Application\Settings\Registry;
 
-use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
-use Koneko\VuexyAdmin\Support\Traits\Auth\HasResolvableUser;
 
 final class ScopeRegistry
 {
-    use HasResolvableUser;
-
     protected static array $registeredScopes = [];
 
     /**
@@ -29,7 +25,7 @@ final class ScopeRegistry
      */
     public static function isRegistered(string $scope): bool
     {
-        return isset(static::$registeredScopes[$scope]) || in_array($scope, static::$registeredScopes);
+        return array_key_exists($scope, static::$registeredScopes);
     }
 
     /**
@@ -77,22 +73,5 @@ final class ScopeRegistry
         }
 
         return null;
-    }
-
-    /**
-     * Descubre el contexto scope del usuario actual.
-     */
-    public static function guessUserScopeContext(Authenticatable|int|null|false $user = null): ?array
-    {
-        $userId = static::resolveUserId($user);
-
-        if (!$userId || !static::isRegistered('user')) {
-            return null;
-        }
-
-        return [
-            'scope'    => 'user',
-            'scope_id'=> $userId,
-        ];
     }
 }

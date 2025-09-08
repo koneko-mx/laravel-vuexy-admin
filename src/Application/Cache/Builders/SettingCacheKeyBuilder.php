@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Koneko\VuexyAdmin\Application\Cache\Builders;
 
-use Koneko\VuexyAdmin\Application\Settings\SettingDefaults;
-use Koneko\VuexyAdmin\Application\CoreModule;
-
 final class SettingCacheKeyBuilder
 {
     /** Máximo permitido en Memcached (clave) */
@@ -32,13 +29,13 @@ final class SettingCacheKeyBuilder
      */
     public static function build(
         string $namespace,
-        string $environment = 'local',
-        ?string $scope    = null,
-        int|string|null $scopeId = null,
-        string $component = CoreModule::COMPONENT,
-        string $group     = SettingDefaults::DEFAULT_GROUP,
-        string $section   = SettingDefaults::DEFAULT_SECTION,
-        string $subGroup  = SettingDefaults::DEFAULT_SUB_GROUP,
+        string $environment,
+        ?string $scope,
+        int|string|null $scopeId,
+        string $component,
+        string $group,
+        string $section,
+        string $subGroup,
         string $keyName
     ): string {
         if ($keyName === '') {

@@ -3,7 +3,7 @@
      * Vista Blade para mostrar los accesos rápidos.
      * Compatible con Vuexy Admin y modo oscuro.
      */
-    $menuDebug = config_m()->get('layout.menu.debug', []);
+    $menuDebug = config_m('core')->get('layout.menu.debug', []);
 
     $show_broken_routes    = $menuDebug['show_broken_routes'] ?? false;
     $show_disallowed_links = $menuDebug['show_disallowed_links'] ?? false;

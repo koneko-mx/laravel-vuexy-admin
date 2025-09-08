@@ -112,13 +112,6 @@ abstract class AbstractTableComponent extends Component
     }
 
     /**
-     * Devuelve el nombre de la vista Blade que renderiza el componente.
-     *
-     * @return string
-     */
-    abstract protected function viewPath(): string;
-
-    /**
      * Retorna el nombre de la clase AbstractTableConfigBuilder que define la configuración.
      *
      * @return class-string|null
@@ -138,15 +131,5 @@ abstract class AbstractTableComponent extends Component
     protected function applyFilters(array $criteria = [])
     {
         return $this->getModelInstance()::query();
-    }
-
-    /**
-     * Renderiza la vista asociada al componente.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function render()
-    {
-        return view($this->viewPath());
     }
 }

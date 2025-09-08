@@ -27,10 +27,15 @@ trait HasResolvableUser
     protected function resolveUser(Authenticatable|int|null|false $user): ?Authenticatable
     {
         return match (true) {
-            $user === false => null, // Forzar sin usuario
-            $user instanceof Authenticatable => $user,
-            $user === null => Auth::check() ? Auth::user() : null,
-            default => Auth::findUserById($user),
+            $user === false                   => null,
+            $user instanceof Authenticatable  => $user,
+            $user === null                    => Auth::check()
+                                                ? Auth::user()
+                                                : null,
+            default => (function(int $id){
+                $model = config('auth.providers.users.model'); // e.g. App\\Models\\User
+                return $model && class_exists($model) ? $model::find($id) : null;
+            })((int)$user),
         };
     }
 }

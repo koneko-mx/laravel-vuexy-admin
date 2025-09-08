@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Koneko\VuexyAdmin\Application\Config\Manager;
 
-use Illuminate\Support\Facades\{Auth, Config};
-use Koneko\VuexyAdmin\Application\Config\Registry\ConfigBlockRegistry;
+use Illuminate\Support\Facades\Config;
 use Koneko\VuexyAdmin\Application\Config\Contracts\ConfigRepositoryInterface;
-use Koneko\VuexyAdmin\Application\CoreModule;
+use Koneko\VuexyAdmin\Application\Config\Registry\ConfigBlockRegistry;
+use Koneko\VuexyAdmin\Application\Settings\Manager\KonekoSettingManager;
+use Koneko\VuexyAdmin\Application\Cache\Manager\KonekoCacheManager;
+use Koneko\VuexyAdmin\Application\Cache\Builders\SettingCacheKeyBuilder;
 use Koneko\VuexyAdmin\Application\Traits\System\Context\{HasBaseContext, HasConfigContextValidation};
 
 final class KonekoConfigManager implements ConfigRepositoryInterface
@@ -13,43 +17,43 @@ final class KonekoConfigManager implements ConfigRepositoryInterface
     use HasBaseContext;
     use HasConfigContextValidation;
 
-    public bool $fromDb = false;
+    /** Si true, intenta overlay desde Settings (DB) antes de caer a config() */
+    private bool $fromDb = false;
 
     public function __construct()
     {
-        $this->setNamespace()
-            ->environment()
-            ->loadModuleClass(CoreModule::class);
+        $namespace = config('koneko.namespace', 'koneko');
+        $this->namespace($namespace)->environment();
     }
 
     // ==================== Factory ====================
 
-    public static function make(): static
+    public static function make(array $context = []): static
     {
-        return new static();
+        $i = new static();
+        if ($context) {
+            $i->setContextArray($context);
+        }
+        return $i;
     }
 
-    // ======================= 🔍 LECTURA =========================
+    // ==================== Lectura ====================
 
     public function get(?string $keyName = null, mixed $default = null): mixed
     {
-        $this->keyName($keyName ?? $this->context['key_name']);
-
-        // Resolvemos el qualified key
-        $qualifiedKey = $this->getQualifiedKey();
-
-        // Si directo, obtenemos el valor directamente de config
-        if (!$this->fromDb) {
-            return config($qualifiedKey, $default);
+        if ($keyName) {
+            $this->keyName($keyName);
         }
 
-        // Prioridad 1: override desde settings
-        $value = settings()
-            ->setContextArray($this->context)
-            ->get($this->context['key_name']);
+        $qualifiedConfigKey = $this->getQualifiedKey();
 
-        // Prioridad 2: valor directo de config
-        return $value ?? config($qualifiedKey, $default);
+        if (!$this->fromDb) {
+            return Config::get($qualifiedConfigKey, $default);
+        }
+
+        // Overlay: intenta Settings (DB) con el contexto actual
+        $dbValue = $this->readFromDb($this->context['key_name'] ?? null);
+        return ($dbValue !== null) ? $dbValue : Config::get($qualifiedConfigKey, $default);
     }
 
     public function fromDb(bool $fromDb = true): static
@@ -58,29 +62,121 @@ final class KonekoConfigManager implements ConfigRepositoryInterface
         return $this;
     }
 
-    public function has(string $key): bool
+    public function sourceOf(?string $keyName = null): string
     {
-        $this->keyName($key);
-        return settings()->setContextArray($this->context)->exists($key)
-            || config()->has($this->getQualifiedKey());
-    }
+        if ($keyName) {
+            $this->keyName($keyName);
+        }
 
-    public function sourceOf(?string $key = null): string
-    {
-        $this->keyName($key ?? $this->context['key_name']);
-        $qualifiedKey = $this->getQualifiedKey();
+        $qualifiedConfigKey = $this->getQualifiedKey();
 
-        // Prioridad 1: override desde settings
-        if (settings()->setContextArray($this->context)->exists($this->context['key_name'])) {
+        // 1) DB overlay
+        if ($this->dbHasKey($this->context['key_name'] ?? null)) {
             return 'database';
         }
 
-        // Prioridad 2: valor directo de config
-        if (config()->has($qualifiedKey)) {
+        // 2) Archivo config
+        if (Config::has($qualifiedConfigKey)) {
             return 'config';
         }
 
         return 'default';
+    }
+
+    // ==================== Claves calificadas / Scope ====================
+
+    public function getQualifiedKey(?string $keyName = null): string
+    {
+        $keyName = $keyName ?? ($this->context['key_name'] ?? null);
+        /*
+        if (!$keyName) {
+            throw new \InvalidArgumentException("Falta 'key_name' para construir la clave calificada de configuración.");
+        }
+        */
+
+        // No incluye environment ni scope (esto es un key de archivo de config)
+        $parts = [
+            $this->context['namespace'] ?? null,
+            $this->context['component'] ?? null,
+            $this->context['group']     ?? null,
+            $this->context['section']   ?? null,
+            $this->context['sub_group'] ?? null,
+            $keyName,
+        ];
+
+        return collect($parts)->filter()->implode('.');
+    }
+
+    public function qualifiedKeyPrefix(): string
+    {
+        return collect([
+            $this->context['namespace'],
+            $this->context['component'],
+        ])->filter()->implode('.');
+    }
+
+    public function getScopeModel(): ?\Illuminate\Database\Eloquent\Model
+    {
+        // delega al trait
+        return ($this->context['scope'] && $this->context['scope_id'])
+            ? \Koneko\VuexyAdmin\Application\Settings\Registry\ScopeRegistry::getModelInstance(
+                $this->context['scope'],
+                $this->context['scope_id']
+            )
+            : null;
+    }
+
+    // ==================== Utils ====================
+
+    public function hasKeyName(?string $keyName = null): bool
+    {
+        $keyName = $keyName ?? ($this->context['key_name'] ?? null);
+        if (!$keyName) {
+            return false;
+        }
+
+        $configKey = $this->getQualifiedKey($keyName);
+        if (Config::has($configKey)) {
+            return true;
+        }
+
+        // Si falta group/section/sub_group no podemos derivar la clave de DB
+        if (empty($this->context['group']) || empty($this->context['section']) || empty($this->context['sub_group'])) {
+            return false;
+        }
+
+        return $this->dbHasKey($keyName);
+    }
+
+    public function hasQualifiedKey(?string $qualifiedKey = null): bool
+    {
+        $qualifiedKey ??= $this->getQualifiedKey();
+
+        // Config (archivo)
+        if (Config::has($qualifiedKey)) {
+            return true;
+        }
+
+        // DB overlay: derivar group/section/sub_group/key_name desde el qualified de config
+        $parsed = $this->parseQualifiedConfigKey($qualifiedKey);
+        if (!$parsed['key_name']) {
+            return false;
+        }
+
+        // Si el contexto actual no define environment/scope, igual intentamos con los actuales (o defaults de trait)
+        $dbKey = $this->buildDbQualifiedKey(
+            $parsed['group'],
+            $parsed['section'],
+            $parsed['sub_group'],
+            $parsed['key_name']
+        );
+
+        // Si no se puede construir, no hay DB overlay para esta combinación
+        if ($dbKey === null) {
+            return false;
+        }
+
+        return KonekoSettingManager::make()->hasQualifiedKey($dbKey);
     }
 
     public function info(): array
@@ -90,164 +186,235 @@ final class KonekoConfigManager implements ConfigRepositoryInterface
         return [
             'qualified_key' => $qualified,
             'context'       => $this->context,
-            'value'         => $this->get(),
+            'from_db'       => $this->fromDb,
             'source'        => $this->sourceOf(),
-            'has_config'    => config()->has($qualified),
-            'has_db'        => settings()->setContextArray($this->context)->exists($this->context['key_name']),
+            'has_config'    => Config::has($qualified),
+            'has_db'        => $this->dbHasKey($this->context['key_name'] ?? null),
+            'value'         => $this->get(),
         ];
     }
 
-    // ======================= HELPERS =========================
+    // ==================== Extra (opcional): sincronizar bloques ====================
 
-    public function context(?string $group, ?string $section = null, ?string $subGroup = null): static
-    {
-        $this->context['group']     = $group ? $this->validateSlug('group', $group, 16) : null;
-        $this->context['section']   = $section ? $this->validateSlug('section', $section, 16) : null;
-        $this->context['sub_group'] = $subGroup ? $this->validateSlug('sub_group', $subGroup, 16) : null;
-
-        return $this;
-    }
-
-    protected function validateKeyName(string $keyName): string
-    {
-        if (!preg_match('/^[a-zA-Z0-9-._]+$/', $keyName)) {
-            throw new \InvalidArgumentException("El valor '{$keyName}' de 'keyName' debe ser un string válido.");
-        }
-
-        if (strlen($keyName) > 64) {
-            throw new \InvalidArgumentException("El valor de 'keyName' excede 64 caracteres.");
-        }
-
-        return $keyName;
-    }
-
-    public function ensureQualifiedKey(): void
-    {
-        if (!$this->hasBaseContext()) {
-            throw new \InvalidArgumentException("Falta definir el contexto base y 'key_name' en config().");
-        }
-    }
-
-    // ======================= GETTERS =========================
-
-    public function getQualifiedKey(?string $key = null): string
-    {
-        $parts = [
-            $this->context['namespace'],
-            $this->context['component'],
-            $this->context['group'],
-            $this->context['section'],
-            $this->context['sub_group'],
-            $key ?? $this->context['key_name'],
-        ];
-
-        return collect($parts)
-            ->filter()
-            ->implode('.');
-    }
-
-    public function qualifiedKeyPrefix(): string
-    {
-        $parts = [
-            $this->context['namespace'],
-            $this->context['component'],
-        ];
-
-        return collect($parts)->filter()->implode('.');
-    }
-
-    // ======================= HELPERS =========================
-
-    public function reset(): static
-    {
-
-
-        return $this;
-    }
-
-    // ======================= Config Blocks =========================
-
+    /**
+     * Sincroniza/compone un bloque de configuración registrado en ConfigBlockRegistry
+     * mezclando el archivo base con los valores de Settings (por sub_group),
+     * y cacheando el resultado si la caché está habilitada.
+     *
+     * NO forma parte del contrato, pero es muy útil en DX.
+     */
     public function syncFromRegistry(string $configKey, bool $forceReload = false): static
     {
-        $config = ConfigBlockRegistry::get($configKey);
+        $block = ConfigBlockRegistry::get($configKey);
 
-        $manager = cache_m()
-            ->component($config['component'])
-            ->context($config['group'], $config['section'], $config['sub_group'])
-            ->user(Auth::user())
-            ->keyName($config['key_name']);
+        // Normaliza defaults
+        $group     = $block['group']     ?? null;
+        $section   = $block['section']   ?? 'default';
+        $subGroup  = $block['sub_group'] ?? 'default';
+        $keyName   = $block['key_name']  ?? 'config';
+        $component = $block['component'] ?? ($this->context['component'] ?? 'app');
+        $ttl       = $block['ttl']       ?? null;
+
+        // Cast: class-string con método cast($value, $key) o callable($value, $key)
+        $castFn = $this->resolveCastCallable($block['cast'] ?? null);
+
+        // Contexto completo para cache/settings
+        $ctx = array_filter([
+            'namespace'   => $this->context['namespace']   ?? config('koneko.namespace', 'koneko'),
+            'environment' => $this->context['environment'] ?? app()->environment(),
+            'component'   => $component,
+            'group'       => $group,
+            'section'     => $section,
+            'sub_group'   => $subGroup,
+            'key_name'    => $keyName,
+            // Scope opcional definido por el bloque
+            'scope'       => $block['scope']    ?? ($this->context['scope']    ?? null),
+            'scope_id'    => $block['scope_id'] ?? ($this->context['scope_id'] ?? null),
+        ], static fn($v) => $v !== null);
+
+        // Manager de caché para componer el bloque (clave única por bloque)
+        $cache = KonekoCacheManager::make($ctx);
 
         if ($forceReload) {
-            $manager->forget();
+            $cache->forget();
         }
 
-        $castFn = isset($config['cast']) && class_exists($config['cast'])
-            ? [app($config['cast']), 'cast']
-            : fn ($v, $k) => $v;
+        $compose = function () use ($configKey, $ctx, $castFn): array {
+            $base     = Config::get($configKey, []);
+            $settings = KonekoSettingManager::make($ctx)->asArray(true)->all(); // key_name => value
 
-        if (!$manager->isEnabled()) {
-            // Bypass de cache: usamos el callback sin guardar en Redis
-            $castFn = isset($config['cast']) && class_exists($config['cast'])
-                ? [app($config['cast']), 'cast']
-                : fn ($v, $k) => $v;
+            // Aplicar cast por clave
+            $casted = [];
+            foreach ($settings as $k => $v) {
+                $casted[$k] = $castFn ? $castFn($v, $k) : $v;
+            }
 
-            $base     = config($configKey, []);
-            $settings = settings()
-                ->component($config['component'])
-                ->context($config['group'], $config['section'], $config['sub_group'])
-                ->user(Auth::user())
-                ->getSubGroup(true);
+            // Mezcla determinista (DB sobrescribe archivo)
+            return array_replace_recursive($base, $casted);
+        };
 
-            $merged = array_replace_recursive($base, array_map($castFn, $settings, array_keys($settings)));
+        $merged = $cache->remember($compose, $ttl);
 
-        } else {
-            // Cache activada, usamos remember
-            $merged = $manager->rememberWithTTLResolution(function () use ($configKey, $config, $castFn) {
-                $base     = config($configKey, []);
-                $settings = settings()
-                    ->component($config['component'])
-                    ->context($config['group'], $config['section'], $config['sub_group'])
-                    ->user(Auth::user())
-                    ->getSubGroup(true);
-
-                return array_replace_recursive($base, array_map($castFn, $settings, array_keys($settings)));
-            });
-        }
-
+        // Publica en runtime
         Config::set($configKey, $merged);
 
         return $this;
     }
 
-    // ======================= ESCRITURA =========================
+    // ==================== Internos ====================
 
-    public function set(mixed $value, ?string $keyName = null): void
+    private function readFromDb(?string $keyName): mixed
     {
-        $this->keyName($keyName ?? $this->context['key_name']);
-        $qualified = $this->getQualifiedKey();
-
-        // Seguridad: solo sobrescribir valores existentes en config
-        if (!config()->has($qualified)) {
-            throw new \LogicException("❌ No se puede sobrescribir '{$qualified}' porque no existe en archivo de configuración.");
+        if (!$keyName) {
+            return null;
         }
 
-        // Seguridad: si ya hay un setting y no es de tipo config
-        $existing = settings()
-            ->setContextArray($this->context)
-            ->get($this->context['key_name']);
-
-        if ($existing && !($existing->is_config ?? false)) {
-            throw new \LogicException("⚠️ El setting '{$qualified}' ya existe en DB pero no está marcado como 'is_config'.");
+        // Requiere group/section/sub_group para mapear a DB
+        if (empty($this->context['group']) || empty($this->context['section']) || empty($this->context['sub_group'])) {
+            return null;
         }
 
-        // Escritura segura con flag `is_config = true`
-        settings()
-            ->setContextArray($this->context)
-            ->markAsSystem(true)
-            ->markAsActive(true)
-            ->setDescription("Override del archivo de configuración '{$qualified}'")
-            ->setHint("Este valor reemplaza el valor original definido en config/")
-            ->setInternalConfigFlag()
-            ->set($value);
+        $dbKey = $this->buildDbQualifiedKey(
+            $this->context['group'],
+            $this->context['section'],
+            $this->context['sub_group'],
+            $keyName
+        );
+
+        if ($dbKey === null) {
+            return null;
+        }
+
+        // No necesitamos tocar caché aquí, simplemente leer del manager de settings
+        return KonekoSettingManager::make($this->context)->get($keyName);
     }
+
+    private function dbHasKey(?string $keyName): bool
+    {
+        if (!$keyName) {
+            return false;
+        }
+
+        if (empty($this->context['group']) || empty($this->context['section']) || empty($this->context['sub_group'])) {
+            return false;
+        }
+
+        $dbKey = $this->buildDbQualifiedKey(
+            $this->context['group'],
+            $this->context['section'],
+            $this->context['sub_group'],
+            $keyName
+        );
+
+        if ($dbKey === null) {
+            return false;
+        }
+
+        return KonekoSettingManager::make()->hasQualifiedKey($dbKey);
+    }
+
+    /**
+     * Construye la clave completa de DB (namespace.env.scope:scopeId.component.group.section.sub_group.key_name)
+     * a partir del contexto actual y los segmentos lógicos del key de config.
+     */
+    private function buildDbQualifiedKey(?string $group, ?string $section, ?string $subGroup, ?string $keyName): ?string
+    {
+        if (!$group || !$section || !$subGroup || !$keyName) {
+            return null;
+        }
+
+        return SettingCacheKeyBuilder::build(
+            $this->context['namespace']   ?? config('koneko.namespace', 'koneko'),
+            $this->context['environment'] ?? app()->environment(),
+            $this->context['scope']       ?? null,
+            $this->context['scope_id']    ?? null,
+            $this->context['component']   ?? 'app',
+            $group,
+            $section,
+            $subGroup,
+            $keyName
+        );
+    }
+
+    /**
+     * Parsea un qualified key de config en segmentos.
+     * Formato esperado: namespace.component[.group[.section[.sub_group]]].key_name
+     */
+    private function parseQualifiedConfigKey(string $qualified): array
+    {
+        $parts = explode('.', $qualified);
+        $count = count($parts);
+
+        if ($count < 3) {
+            return [
+                'namespace' => null, 'component' => null,
+                'group' => null, 'section' => null, 'sub_group' => null,
+                'key_name' => null,
+            ];
+        }
+
+        $namespace = $parts[0] ?? null;
+        $component = $parts[1] ?? null;
+
+        // Resto: group.section.sub_group.key_name (algunos opcionales)
+        $rest = array_slice($parts, 2);
+
+        $keyName  = array_pop($rest) ?? null;
+        $group    = $rest[0] ?? null;
+        $section  = $rest[1] ?? null;
+        $subGroup = $rest[2] ?? null;
+
+        return compact('namespace', 'component', 'group', 'section', 'sub_group', 'key_name');
+    }
+
+    /**
+     * Normaliza un "caster": class-string con método cast($value, $key) o callable($value, $key).
+     */
+    private function resolveCastCallable(mixed $cast): ?callable
+    {
+        if (!$cast) {
+            return null;
+        }
+
+        if (is_callable($cast)) {
+            return $cast(...);
+        }
+
+        if (is_string($cast) && class_exists($cast)) {
+            $instance = app($cast);
+            if (method_exists($instance, 'cast')) {
+                return [$instance, 'cast'];
+            }
+        }
+
+        // Fallback: ignora caster inválido
+        return null;
+    }
+
+    protected function validateKeyName(string $keyName): string
+    {
+        if (!preg_match('/^[a-zA-Z0-9._-]+$/', $keyName)) {
+            throw new \InvalidArgumentException(
+                "El valor '{$keyName}' de 'keyName' debe ser alfanumérico con '.', '_' o '-'."
+            );
+        }
+        if (strlen($keyName) > 64) {
+            throw new \InvalidArgumentException("El valor de 'keyName' excede 64 caracteres.");
+        }
+        return $keyName;
+    }
+
+    protected function validateSlug(string $field, string $value, int $maxLength): string
+    {
+        if (!preg_match('/^[a-zA-Z0-9._-]+$/', $value)) {
+            throw new \InvalidArgumentException("El valor '{$value}' de '{$field}' debe ser alfanumérico con '.', '_' o '-'.");
+        }
+
+        if (strlen($value) > $maxLength) {
+            throw new \InvalidArgumentException("El valor de '{$field}' excede {$maxLength} caracteres.");
+        }
+
+        return $value;
+    }
+
 }

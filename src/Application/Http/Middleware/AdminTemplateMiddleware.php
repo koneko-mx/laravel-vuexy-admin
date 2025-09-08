@@ -17,7 +17,7 @@ class AdminTemplateMiddleware
     {
         // Aplicar configuración de layout antes de que la vista se cargue
         if (str_contains($request->header('Accept'), 'text/html')) {
-            config_m()->syncFromRegistry('koneko.core.layout.vuexy');
+            config_m('core')->syncFromRegistry('koneko.core.layout.vuexy');
 
             View::share([
                 '_admin'             => app(KonekoAdminVarsBuilder::class)->get(),

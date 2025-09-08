@@ -19,7 +19,7 @@ class AppDescriptionCard extends Component
 
     private function settings(): KonekoSettingManager
     {
-        return settings()->context(self::GROUP, self::SECTION);
+        return settings('core')->context(self::GROUP, self::SECTION);
     }
 
     public function mount()

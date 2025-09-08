@@ -41,14 +41,13 @@ if (!function_exists('Helper')) {
 if (!function_exists('config_m')) {
     function config_m(?string $component = null): ConfigRepositoryInterface
     {
-        $manager = KonekoConfigManager::make();
+        $config_m = KonekoConfigManager::make();
 
-        // Componente o Clase de Modulo
         if ($component) {
-            $manager->component($component);
+            $config_m->component($component);
         }
 
-        return $manager;
+        return $config_m;
     }
 }
 
@@ -67,18 +66,13 @@ if (!function_exists('settings')) {
      */
     function settings(?string $component = null): SettingsRepositoryInterface
     {
-        $manager = KonekoSettingManager::make();
+        $settings = KonekoSettingManager::make();
 
         if ($component) {
-            if (class_exists($component)) {
-                $manager->loadModuleClass($component);
-
-            }else{
-                $manager->component($component);
-            }
+            $settings->component($component);
         }
 
-        return $manager;
+        return $settings;
     }
 }
 
@@ -99,14 +93,13 @@ if (!function_exists('cache_m')) {
      */
     function cache_m(?string $component = null): CacheRepositoryInterface
     {
-        $manager = KonekoCacheManager::make();
+        $cache_m = KonekoCacheManager::make();
 
-        // Componente o Clase de Modulo
         if ($component) {
-            $manager->component($component);
+            $cache_m->component($component);
         }
 
-        return $manager;
+        return $cache_m;
     }
 }
 

@@ -24,14 +24,14 @@ class VuexyMenuFormatter
 
     private static function settings(Authenticatable|int|null|false $user = null): SettingsRepositoryInterface
     {
-        return settings()
+        return settings('core')
             ->context(self::GROUP, self::SECTION)
-            ->user($user);
+            ->scope($user);
     }
 
     private static function config(): ConfigRepositoryInterface
     {
-        return config_m()->context(self::GROUP, self::SECTION, 'debug');
+        return config_m('core')->context(self::GROUP, self::SECTION, 'debug');
     }
 
     public function getMenu(Authenticatable|int|null|false $user = null): array

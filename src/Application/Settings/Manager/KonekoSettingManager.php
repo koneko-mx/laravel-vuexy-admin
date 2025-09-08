@@ -1,18 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Koneko\VuexyAdmin\Application\Settings\Manager;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
-use Koneko\VuexyAdmin\Application\Cache\Builders\SettingCacheKeyBuilder;
-use Koneko\VuexyAdmin\Application\Cache\Driver\KonekoCacheDriver;
 use Koneko\VuexyAdmin\Application\Cache\Contracts\CacheRepositoryInterface;
+use Koneko\VuexyAdmin\Application\Cache\Driver\KonekoCacheDriver;
+use Koneko\VuexyAdmin\Application\Cache\Manager\KonekoCacheManager;
 use Koneko\VuexyAdmin\Application\Settings\Contracts\SettingsRepositoryInterface;
-use Koneko\VuexyAdmin\Application\CoreModule;
-use Koneko\VuexyAdmin\Application\Settings\Concerns\{HasSettingAttributes, HasSettingCache, HasSettingEncryption, HasSettingFileSupport, HasSettingMetadata};
-use Koneko\VuexyAdmin\Application\Settings\SettingDefaults;
-use Koneko\VuexyAdmin\Application\Traits\System\Context\{HasBaseContext, HasContextQueryBuilder, HasSettingsContextValidation};
+use Koneko\VuexyAdmin\Application\Settings\Concerns\{
+    HasSettingAttributes,
+    HasSettingCache,
+    HasSettingEncryption,
+    HasSettingFileSupport,
+    HasSettingMetadata
+};
+use Koneko\VuexyAdmin\Application\Traits\System\Context\{
+    HasBaseContext,
+    HasContextQueryBuilder,
+    HasSettingsContextValidation
+};
 use Koneko\VuexyAdmin\Models\Setting;
 
 final class KonekoSettingManager implements SettingsRepositoryInterface
@@ -26,28 +36,34 @@ final class KonekoSettingManager implements SettingsRepositoryInterface
     use HasContextQueryBuilder;
     use HasSettingsContextValidation;
 
+    /** Filtros globales de consulta */
     private bool $includeDisabled = false;
     private bool $includeExpired  = false;
-    private bool $asArray       = false;
+
+    /** Formato de retorno */
+    protected bool $asArray = false;
+
+    /** Bypass de caché (solo lectura) */
     protected bool $bypassCache = false;
 
+    /** Modelo backing */
     protected string $settingModel = Setting::class;
 
     public function __construct()
     {
-        $this->setNamespace()
-            ->environment()
-            ->loadModuleClass(CoreModule::class)
-            ->group(SettingDefaults::DEFAULT_GROUP)
-            ->section(SettingDefaults::DEFAULT_SECTION)
-            ->subGroup(SettingDefaults::DEFAULT_SUB_GROUP);
+        $namespace = config('koneko.namespace', 'koneko');
+        $this->namespace($namespace)->environment();
     }
 
     // ==================== Factory ====================
 
-    public static function make(): static
+    public static function make(array $context = []): static
     {
-        return new static();
+        $instance = new static();
+        if ($context) {
+            $instance->setContextArray($context);
+        }
+        return $instance;
     }
 
     // ==================== Context ====================
@@ -80,68 +96,51 @@ final class KonekoSettingManager implements SettingsRepositoryInterface
 
     public function set(string $keyName, mixed $value): void
     {
-        if ($keyName) {
-            $this->keyName($keyName);
-        }
-
+        $this->keyName($keyName);
         $this->validateContextWithScope();
+
+        // Validaciones de flags dependientes
+        $this->validateEncryption();
+        $this->validateFile();
 
         $qualifiedKey = $this->getQualifiedKey();
 
         /** @var Setting $setting */
         $setting = $this->settingModel::updateOrCreate(
             ['key' => $qualifiedKey],
-            array_merge(
+            array_filter(array_merge(
                 $this->context,
                 $this->attributes,
                 $this->file,
                 $this->encryption,
                 $this->cache,
                 $this->metadata
-            )
+            ), static fn($v) => $v !== null)
         );
 
         $setting->value = $value;
         $setting->save();
 
         $this->cacheModel($setting);
-
-        $this->reset();
     }
 
-    public function groupSettings(array $data): void
+    public function setMany(array $kv): int
     {
         $this->validateContextWithScope();
 
-        foreach ($data as $key => $value) {
-            $this->keyName($key);
-            $qualifiedKey = $this->getQualifiedKey();
-
-            /** @var Setting $setting */
-            $setting = $this->settingModel::updateOrCreate(
-                ['key' => $qualifiedKey],
-                array_merge(
-                    $this->context,
-                    $this->attributes,
-                    $this->file,
-                    $this->encryption,
-                    $this->cache,
-                    $this->metadata
-                )
-            );
-
-            $setting->value = $value;
-            $setting->save();
-
-            $this->cacheModel($setting);
+        $n = 0;
+        foreach ($kv as $keyName => $value) {
+            $this->set((string) $keyName, $value);
+            $n++;
         }
-
-        $this->reset();
+        return $n;
     }
 
     public function get(?string $keyName = null, mixed $default = null): mixed
     {
-        if ($this->isTableNotExists()) return $default;
+        if ($this->isTableNotExists()) {
+            return $default;
+        }
 
         if ($keyName) {
             $this->keyName($keyName);
@@ -149,161 +148,176 @@ final class KonekoSettingManager implements SettingsRepositoryInterface
 
         $this->validateContextWithScope();
 
-        $manager = $this->getCacheManager();
+        $cache = $this->getCacheManager();
 
-        if (!$manager->isEnabled() || $this->bypassCache) {
+        // sin cache (deshabilitado o bypass)
+        if (!$cache->isEnabled() || $this->bypassCache) {
             return $this->queryByKey()->first()?->value ?? $default;
         }
 
-        $key = $manager->getQualifiedKey();
-        $cached = KonekoCacheDriver::get($key);
+        // cache
+        $qualifiedCacheKey = $cache->getQualifiedKey();
+        $cached = KonekoCacheDriver::get($qualifiedCacheKey);
 
         if (!is_null($cached)) {
             return $cached;
         }
 
         $model = $this->queryByKey()->first();
-
         if (!$model) {
-            $manager->forget();
+            $cache->forget(); // invalidación defensiva
             return $default;
         }
 
         $this->cacheModel($model);
-
         return $model->value;
     }
 
-    public function exists(string $key): bool
+    public function getMany(array $keyNames, bool $decrypt = false): array
     {
-        return SettingCacheKeyBuilder::isQualified($key)
-            ? $this->settingModel::query()->where('key', $key)->exists()
-            : $this->queryByKey()->exists();
-    }
-
-    public function existsByContext(): bool
-    {
-        $this->validateContextWithScope();
-
-        return $this->query()->exists();
-    }
-
-    public function delete(string $qualifiedKey): void
-    {
-        $this->settingModel::where('key', $qualifiedKey)->delete();
-        $this->getCacheManager()->keyName($qualifiedKey)->forget();
+        $out = [];
+        foreach ($keyNames as $name) {
+            $this->keyName((string) $name);
+            $out[$name] = $decrypt
+                ? $this->queryByKey()->first()?->getDecryptedValue()
+                : $this->get(null);
+        }
+        return $out;
     }
 
     public function all(): Collection|array
     {
-        // Shortcut si la tabla no existe
         if ($this->isTableNotExists()) {
             return $this->asArray ? [] : collect();
         }
 
-        $query = $this->settingModel::query();
+        $result = $this->applyContextFilters($this->newQuery(), [
+            'namespace'   => true,
+            'environment' => true,
+            'scope'       => true,
+            'scope_id'    => true,
+            'component'   => true,
+            'group'       => true,
+            'section'     => true,
+            'sub_group'   => true,
+        ])->get();
 
-        // Filtra usando el contexto actual
-        foreach ($this->context as $field => $value) {
-            if (!is_null($value)) {
-                $query->where($field, $value);
-            }
+        return $this->asArray
+            ? $result->mapWithKeys(fn(Setting $s) => [$s->key_name => $s->value])->toArray()
+            : $result;
+    }
+
+    // ==================== Deleters ====================
+
+    public function deleteByKeyName(?string $keyName = null): int
+    {
+        if ($keyName) {
+            $this->keyName($keyName);
         }
+        $this->validateContextWithScope();
 
-        // Siempre filtra activos, a menos que se indique lo contrario
-        if (!$this->includeDisabled) {
-            $query->where('is_active', true);
-        }
+        // invalidar cache
+        $this->getCacheManager()->forget();
 
-        if (!$this->includeExpired) {
-            $query->where(function ($q) {
-                $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
-            });
-        }
+        // borrar DB por clave calificada
+        return $this->deleteByQualifiedKey($this->getQualifiedKey());
+    }
 
-        // Devuelve como array clave/valor si así se pidió
-        $result = $query->get();
+    public function deleteByQualifiedKey(string $qualifiedKey): int
+    {
+        // invalidar cache por key calificada (sin prefijo)
+        KonekoCacheDriver::forget($qualifiedKey);
 
-        if ($this->asArray) {
-            return $result->mapWithKeys(fn($s) => [$s->key_name => $s->value])->toArray();
-        }
-
-        return $result;
+        return $this->settingModel::query()
+            ->where('key', $qualifiedKey)
+            ->delete();
     }
 
     public function deleteByContext(): int
     {
-        $this->validateContextWithScope();
-
-        return $this->query()
-            ->tap(fn($q) => $q->each(fn($setting) => $this->getCacheManager()->keyName($setting->key_name)->forget()))
-            ->delete()
-            ->count();
+        return $this->withAllStates(function () {
+            $keys = $this->query()->pluck('key_name')->all();
+            foreach ($keys as $kn) {
+                $this->getCacheManager()->keyName($kn)->forget();
+            }
+            return $this->query()->delete();
+        });
     }
 
     public function deleteGroup(): int
     {
-        return $this->queryByGroup($this->newQuery(), $this->context)
-            ->tap(fn($q) => $q->each(fn($setting) => $this->getCacheManager()->keyName($setting->key_name)->forget()))
-            ->delete()
-            ->count();
+        return $this->withAllStates(function () {
+            $keys = $this->queryByGroup()->pluck('key_name')->all();
+            foreach ($keys as $kn) {
+                $this->getCacheManager()->keyName($kn)->forget();
+            }
+            return $this->queryByGroup()->delete();
+        });
     }
 
     public function deleteSubGroup(): int
     {
-        return $this->queryBySubGroup($this->newQuery(), $this->context)
-            ->tap(fn($q) => $q->each(fn($setting) => $this->getCacheManager()->keyName($setting->key_name)->forget()))
-            ->delete()
-            ->count();
+        return $this->withAllStates(function () {
+            $keys = $this->queryBySubGroup()->pluck('key_name')->all();
+            foreach ($keys as $kn) {
+                $this->getCacheManager()->keyName($kn)->forget();
+            }
+            return $this->queryBySubGroup()->delete();
+        });
     }
 
-    // ================= Fetchers =================
-
-    public function getGroup(bool $asArray = false): Collection|array
+    public function deleteComponent(): int
     {
-        $query = $this->queryByGroup($this->newQuery(), $this->context)->get();
-        return $asArray || $this->asArray ? $query->pluck('group')->toArray() : $query;
+        return $this->withAllStates(function () {
+            $keys = $this->queryByComponent()->pluck('key_name')->all();
+            foreach ($keys as $kn) {
+                $this->getCacheManager()->keyName($kn)->forget();
+            }
+            return $this->queryByComponent()->delete();
+        });
     }
 
-    public function getSubGroup(bool $asArray = false): Collection|array
+    // ==================== Utils ====================
+
+    public function hasKeyName(?string $keyName = null): bool
     {
-        if ($this->isTableNotExists()) return [];
-
-        $query = $this->queryBySubGroup($this->newQuery(), $this->context)->get();
-        return $asArray || $this->asArray ? $query->pluck('sub_group')->toArray() : $query;
+        return ($keyName !== null && $keyName !== '')
+            || (!empty($this->context['key_name']));
     }
 
-    public function getComponents(bool $asArray = false): Collection|array
+    public function hasQualifiedKey(?string $qualifiedKey = null): bool
     {
-        $query = $this->newQuery()
-            ->select('component')
-            ->distinct()
-            ->get();
+        if ($qualifiedKey === null) {
+            if (!$this->hasKeyName()) {
+                return false;
+            }
+            $qualifiedKey = $this->getQualifiedKey();
+        }
 
-        return $asArray || $this->asArray ? $query->pluck('component')->toArray() : $query;
+        return $this->settingModel::query()
+            ->where('key', $qualifiedKey)
+            ->exists();
     }
 
-    public function getGroups(bool $asArray = false): Collection|array
+    public function info(): array
     {
-        $query = $this->newQuery()
-            ->select('group')
-            ->distinct()
-            ->get();
-
-        return $asArray || $this->asArray ? $query->pluck('group')->toArray() : $query;
+        return [
+            'context'    => $this->context,
+            'attributes' => $this->attributes,
+            'file'       => $this->file,
+            'encryption' => $this->encryption,
+            'cache'      => $this->cache,
+            'metadata'   => $this->metadata,
+            'flags'      => [
+                'includeDisabled' => $this->includeDisabled,
+                'includeExpired'  => $this->includeExpired,
+                'asArray'         => $this->asArray,
+                'bypassCache'     => $this->bypassCache,
+            ],
+        ];
     }
 
-    public function getSubGroups(bool $asArray = false): Collection|array
-    {
-        $query = $this->newQuery()
-            ->select('sub_group')
-            ->distinct()
-            ->get();
-
-        return $asArray || $this->asArray ? $query->pluck('sub_group')->toArray() : $query;
-    }
-
-    // ======================= HELPERS =========================
+    // ==================== Helpers internos ====================
 
     public function queryForModel(): ?Model
     {
@@ -312,106 +326,34 @@ final class KonekoSettingManager implements SettingsRepositoryInterface
 
     public function getCacheManager(): CacheRepositoryInterface
     {
-        return cache_m()->setContextArray($this->context);
+        return KonekoCacheManager::make($this->context);
     }
-
-    public function isUsable(): bool
-    {
-        return $this->queryByKey()
-            ->where('is_active', true)
-            ->where(function ($q) {
-                $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
-            })
-            ->exists();
-    }
-
-    public function setInactiveByContext(): int
-    {
-        return $this->query()->update([
-            'is_active'  => false,
-            'expires_at' => now(),
-        ]);
-    }
-
-
-    public function has(string $qualifiedKey): bool
-    {
-        return $this->queryByKey()->where('key', $qualifiedKey)->exists();
-    }
-
-    public function hasContext(): bool
-    {
-        return $this->hasBaseContext()
-            && $this->hasGroupContext();
-    }
-
-    public function defaults(): static
-    {
-        $this->reset();
-        return $this;
-    }
-
-    public function reset(): void
-    {
-        $this->includeDisabled = false;
-        $this->includeExpired  = false;
-        $this->asArray       = false;
-        $this->bypassCache   = false;
-
-        $this->context['group']     = SettingDefaults::DEFAULT_GROUP;
-        $this->context['section']   = SettingDefaults::DEFAULT_SECTION;
-        $this->context['sub_group'] = SettingDefaults::DEFAULT_SUB_GROUP;
-
-        $this->attributes = [
-            'is_system'       => false,
-            'is_sensitive'    => false,
-            'is_file'         => false,
-            'is_encrypted'    => false,
-            'is_editable'     => true,
-            'is_track_usage'  => SettingDefaults::DEFAULT_TRACK_USAGE,
-            'is_should_cache' => SettingDefaults::DEFAULT_SHOULD_CACHE,
-            'is_active'       => true,
-            'expires_at'      => null,
-        ];
-
-        $this->file = [
-            'mime_type' => null,
-            'file_name' => null,
-        ];
-
-        $this->encryption = [
-            'encryption_algorithm'  => SettingDefaults::DEFAULT_ALGORITHM,
-            'encryption_key'        => null,
-            'encryption_rotated_at' => null,
-        ];
-
-        $this->cache = [
-            'cache_ttl'        => null,
-            'cache_expires_at' => null,
-        ];
-
-        $this->metadata = [
-            'description' => null,
-            'hint'        => null,
-        ];
-    }
-
-    public function info(): array
-    {
-        return [
-            'context' => $this->context,
-            'attributes' => $this->attributes,
-            'file' => $this->file,
-            'encryption' => $this->encryption,
-            'cache' => $this->cache,
-            'metadata' => $this->metadata,
-        ];
-    }
-
-    // ======================= PROTECTED =========================
 
     protected function isTableNotExists(): bool
     {
         return !Schema::hasTable((new $this->settingModel)->getTable());
+    }
+
+    /**
+     * Ejecuta una operación ignorando filtros de activo/expirado.
+     *
+     * @template T
+     * @param  callable():T  $fn
+     * @return T
+     */
+    private function withAllStates(callable $fn)
+    {
+        $prevDisabled = $this->includeDisabled;
+        $prevExpired  = $this->includeExpired;
+
+        $this->includeDisabled = true;
+        $this->includeExpired  = true;
+
+        try {
+            return $fn();
+        } finally {
+            $this->includeDisabled = $prevDisabled;
+            $this->includeExpired  = $prevExpired;
+        }
     }
 }
